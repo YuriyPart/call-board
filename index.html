@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>График созвонов — рабочая панель</title>
+<meta name="description" content="Панель постановки видеовстреч с потенциальными клиентами: недельная сетка менеджеров, лиды, статусы.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f26512'/%3E%3Cpath d='M9 17l4 4 10-10' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* светлая деловая гамма в стилистике FIT SERVICE: оранжевый акцент + графит */
+    --canvas: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #fafbfc;
+    --surface-3: #eef0f3;
+    --border: #e6e8ec;
+    --border-2: #d9dce2;
+    --ink: #1c2129;
+    --ink-2: #40454e;
+    --muted: #757a84;
+    --faint: #a7acb6;
+    --accent: #f26512;
+    --accent-ink: #d1540a;
+    --accent-soft: #fdeee3;
+    --graphite: #232a34;
+    --ring: rgba(242, 101, 18, 0.35);
+    /* статусы */
+    --st-planned-bg: #e7eefb; --st-planned-tx: #2f5ab0; --st-planned-dot: #4f7ad8;
+    --st-done-bg: #e3f2e8;    --st-done-tx: #23713d;    --st-done-dot: #3d9c5e;
+    --st-moved-bg: #faf0da;   --st-moved-tx: #8a6116;   --st-moved-dot: #d3a137;
+    --st-noans-bg: #eef0f4;   --st-noans-tx: #626977;   --st-noans-dot: #99a1b0;
+    --st-refus-bg: #fbe9e9;   --st-refus-tx: #a03434;   --st-refus-dot: #d05555;
+    --shadow-tint: 35, 42, 52;
+    --z-topbar: 20; --z-panel: 40; --z-toast: 60;
+    --sans: 'Manrope', 'Helvetica Neue', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--canvas);
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.55;
+    min-height: 100dvh;
+  }
+  /* фоновое свечение + зерно */
+  .bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .bg-layer .glow {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(720px 420px at 12% -10%, rgba(242,101,18,0.06), transparent 65%),
+      radial-gradient(560px 380px at 95% 0%, rgba(35,42,52,0.05), transparent 60%);
+  }
+  .bg-layer .grain {
+    position: absolute; inset: 0; opacity: .35; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.47 0 0 0 0 0.52 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection { background: var(--accent-soft); }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 6px; }
+
+  /* ---------- Топбар ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: var(--z-topbar);
+    backdrop-filter: blur(14px);
+    background: rgba(255,255,255,0.72);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-in {
+    max-width: 1320px; margin: 0 auto; padding: 12px 28px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; margin-right: 6px; }
+  .brand .logo {
+    width: 32px; height: 32px; border-radius: 8px; background: var(--accent);
+    display: grid; place-items: center; flex: none;
+    box-shadow: 0 4px 12px rgba(242, 101, 18, 0.28);
+  }
+  .brand .t {
+    font-weight: 800; font-size: 14px; color: var(--ink);
+    letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.2;
+  }
+  .brand .t em { font-style: normal; color: var(--accent); }
+  .brand .s { font-size: 11.5px; color: var(--muted); line-height: 1.25; }
+  .spacer { flex: 1; }
+  .weeknav {
+    display: flex; align-items: center; gap: 2px;
+    background: var(--surface-3); border-radius: 10px; padding: 3px;
+  }
+  .weeknav .wk {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 12.5px; color: var(--ink); min-width: 168px; text-align: center;
+  }
+  .iconbtn {
+    width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; border: none; border-radius: 8px;
+    cursor: pointer; color: var(--ink-2);
+    transition: background .18s, transform .12s;
+  }
+  .iconbtn:hover { background: #fff; box-shadow: 0 1px 4px rgba(var(--shadow-tint), 0.08); }
+  .iconbtn:active { transform: scale(0.94); }
+  .btn {
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    background: var(--surface); color: var(--ink-2);
+    border: 1px solid var(--border-2); border-radius: 9px;
+    padding: 7px 14px; cursor: pointer;
+    transition: background .18s, border-color .18s, transform .12s, box-shadow .18s;
+  }
+  .btn:hover { background: var(--surface-2); border-color: var(--faint); box-shadow: 0 2px 8px rgba(var(--shadow-tint), 0.06); }
+  .btn:active { transform: scale(0.98); }
+  .btn.primary {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(242, 101, 18, 0.30);
+  }
+  .btn.primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+  .btn.subtle { border-color: transparent; background: transparent; color: var(--muted); }
+  .btn.subtle:hover { background: var(--surface-3); color: var(--ink-2); box-shadow: none; }
+  .btn.ghost-danger { border-color: transparent; background: transparent; color: var(--st-refus-tx); }
+  .btn.ghost-danger:hover { background: var(--st-refus-bg); box-shadow: none; }
+
+  .wrap { position: relative; z-index: 1; max-width: 1320px; margin: 0 auto; padding: 28px 28px 88px; }
+
+  /* ---------- Статистика: герой + компактные ---------- */
+  .stats { display: grid; grid-template-columns: 1.7fr repeat(5, 1fr); gap: 12px; margin-bottom: 26px; }
+  .tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    position: relative; overflow: hidden;
+    transition: transform .2s cubic-bezier(.32,.72,0,1), box-shadow .2s;
+  }
+  .tile:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(var(--shadow-tint), 0.07); }
+  .tile .num {
+    font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .tile .cap {
+    margin-top: 4px; font-size: 10.5px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+    text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600;
+  }
+  .tile.hero { background: var(--graphite); border-color: var(--graphite); }
+  .tile.hero .num { color: #fff; font-size: 44px; }
+  .tile.hero .cap { color: #98a0ab; }
+  .tile.hero::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(240px 150px at 85% -20%, rgba(242,101,18,0.45), transparent 70%);
+  }
+  .tile.hero { display: flex; align-items: center; gap: 14px; }
+  .tile.hero .hero-body { position: relative; z-index: 1; }
+  .addbtn-big {
+    position: relative; z-index: 1;
+    margin-left: auto; align-self: stretch; aspect-ratio: 1 / 1;
+    margin-top: -6px; margin-bottom: -6px; margin-right: -8px;
+    background: var(--accent); color: #fff; border: none; border-radius: 14px;
+    cursor: pointer; display: grid; place-items: center;
+    box-shadow: 0 6px 18px rgba(242, 101, 18, 0.35);
+    transition: background .18s, transform .12s, box-shadow .18s;
+  }
+  .addbtn-big svg { width: 34px; height: 34px; }
+  .addbtn-big:hover { background: var(--accent-ink); box-shadow: 0 8px 24px rgba(242, 101, 18, 0.45); }
+  .addbtn-big:active { transform: scale(0.96); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  /* кнопка «i» и раскладка свободных слотов по менеджерам */
+  .tile.free { overflow: visible; z-index: 6; }
+  .infobtn {
+    position: absolute; top: 10px; right: 10px; width: 20px; height: 20px;
+    border-radius: 50%; border: 1px solid var(--border-2);
+    background: var(--surface); color: var(--muted);
+    font-family: var(--mono); font-size: 11px; font-style: italic; line-height: 1;
+    cursor: pointer; display: grid; place-items: center;
+    transition: border-color .15s, color .15s, background .15s, transform .1s;
+  }
+  .infobtn:hover { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-soft); }
+  .infobtn:active { transform: scale(0.92); }
+  .freepop {
+    position: absolute; top: calc(100% + 8px); right: 0; width: 272px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: 0 14px 36px rgba(var(--shadow-tint), 0.16);
+    padding: 12px 14px; z-index: 30;
+    opacity: 0; pointer-events: none; transform: translateY(-4px);
+    transition: opacity .2s, transform .2s cubic-bezier(.32,.72,0,1);
+  }
+  .freepop.open { opacity: 1; pointer-events: auto; transform: none; }
+  .fp-t {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
+  }
+  .fp-row { display: flex; align-items: center; gap: 9px; padding: 3.5px 0; font-size: 12px; }
+  .fp-row .nm { flex: 1; color: var(--ink); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fp-row .ct {
+    font-family: var(--mono); font-size: 9px; font-weight: 400;
+    color: var(--faint); text-transform: uppercase; letter-spacing: 0.05em;
+    margin-left: 6px;
+  }
+  .fp-row .bar { width: 60px; height: 4px; border-radius: 2px; background: var(--surface-3); overflow: hidden; flex: none; }
+  .fp-row .bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+  .fp-row .n { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 11.5px; min-width: 20px; text-align: right; color: var(--ink); }
+
+  /* ---------- Панель управления ---------- */
+  .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .seg {
+    display: inline-flex; background: var(--surface-3); border-radius: 11px; padding: 3px; gap: 2px;
+    overflow-x: auto; max-width: 100%;
+  }
+  .seg button {
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    border: none; background: transparent; color: var(--muted);
+    padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+    transition: color .18s, background .18s, box-shadow .18s;
+  }
+  .seg button:hover { color: var(--ink); }
+  .seg button.active {
+    position: relative; overflow: hidden;
+    background: var(--graphite); color: #fff; font-weight: 600;
+    box-shadow: 0 3px 10px rgba(var(--shadow-tint), 0.25);
+  }
+  .seg button.active::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(90px 46px at 100% -20%, rgba(242,101,18,0.45), transparent 70%);
+  }
+  .seg .cnt {
+    font-family: var(--mono); font-size: 10.5px; font-variant-numeric: tabular-nums;
+    color: var(--accent); margin-left: 6px;
+    background: var(--accent-soft); border-radius: 5px; padding: 1px 5px;
+    position: relative; z-index: 1;
+  }
+  .seg button.active .cnt { background: var(--accent); color: #fff; }
+  .seg .tz {
+    font-family: var(--mono); font-size: 9.5px; font-variant-numeric: tabular-nums;
+    color: var(--faint); margin-left: 6px; letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .seg button.active .tz { color: #98a0ab; }
+  /* мини-табло местного времени активного менеджера */
+  .tzchip {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border-2);
+    border-radius: 10px; padding: 5px 13px; white-space: nowrap;
+  }
+  .tzchip .clock {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-weight: 500; font-size: 16px; letter-spacing: 0.02em; line-height: 1;
+    color: var(--ink);
+  }
+  .tzchip .clock .sec { color: var(--accent); }
+  .tzchip .sep { width: 1px; height: 18px; background: var(--border); flex: none; }
+  .tzchip .loc { display: flex; flex-direction: column; gap: 2px; }
+  .tzchip .city {
+    font-size: 10.5px; font-weight: 700; color: var(--ink-2);
+    letter-spacing: 0.02em; line-height: 1;
+  }
+  .tzchip .off {
+    font-size: 8.5px; color: var(--faint); line-height: 1;
+    text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600;
+  }
+  .tzchip .live {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    flex: none; animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  .searchwrap { position: relative; }
+  .searchwrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--faint); pointer-events: none; }
+  .search {
+    border: 1px solid var(--border-2); border-radius: 9px; padding: 7px 12px 7px 32px;
+    font-size: 13px; background: var(--surface); width: 250px; color: var(--ink);
+    font-family: var(--sans);
+    transition: border-color .18s, box-shadow .18s;
+  }
+  .search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .search::placeholder { color: var(--faint); }
+
+  /* ---------- Сетка недели ---------- */
+  .gridcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow-x: auto;
+    box-shadow: 0 1px 3px rgba(var(--shadow-tint), 0.04);
+  }
+  table.sched { border-collapse: collapse; width: 100%; min-width: 940px; }
+  table.sched th {
+    font-size: 11px; font-weight: 700; color: var(--ink-2); text-align: left;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 13px 14px 11px; border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    position: sticky; top: 0;
+  }
+  table.sched th .d {
+    font-family: var(--mono); font-weight: 400; font-variant-numeric: tabular-nums;
+    color: var(--faint); font-size: 11px; margin-left: 7px;
+  }
+  table.sched th.today-col { color: var(--accent-ink); }
+  table.sched th.today-col .d { color: var(--accent); }
+  table.sched th.tcol { width: 86px; }
+  table.sched td { border-bottom: 1px solid var(--border); vertical-align: top; padding: 6px; height: 62px; }
+  table.sched tr:last-child td { border-bottom: none; }
+  td.time {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 11.5px; color: var(--muted);
+    vertical-align: middle; padding: 6px 14px; white-space: nowrap;
+    border-right: 1px solid var(--border); background: var(--surface-2);
+  }
+  td.slot { cursor: pointer; transition: background .15s; min-width: 152px; position: relative; }
+  td.slot:hover { background: var(--surface-2); }
+  td.slot .empty {
+    height: 100%; min-height: 48px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: transparent; font-size: 12.5px; font-weight: 500;
+    border: 1px dashed transparent;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  td.slot:hover .empty { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  td.slot:hover .empty::before { content: "+"; font-size: 15px; font-weight: 600; }
+  td.slot:hover .empty::after { content: "добавить"; }
+  .lead-card {
+    border: 1px solid var(--border); border-left: 3px solid var(--lc, var(--faint));
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 7px 10px; min-height: 50px;
+    display: flex; flex-direction: column; gap: 2px;
+    transition: box-shadow .2s, transform .2s cubic-bezier(.32,.72,0,1);
+  }
+  td.slot:hover .lead-card { box-shadow: 0 6px 16px rgba(var(--shadow-tint), 0.09); transform: translateY(-1px); }
+  .lead-card .nm { font-weight: 600; font-size: 12.5px; color: var(--ink); line-height: 1.3; letter-spacing: -0.005em; }
+  .lead-card .meta { color: var(--muted); font-size: 11px; font-family: var(--mono); font-variant-numeric: tabular-nums; line-height: 1.45; }
+  .lead-card .st { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; margin-top: 1px; }
+  .lead-card.dim { opacity: .2; }
+
+  /* ---------- Слайд-панель лида ---------- */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(22, 26, 43, 0.28);
+    backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none; transition: opacity .25s; z-index: var(--z-panel);
+  }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 440px; max-width: 94vw;
+    background: var(--surface); z-index: calc(var(--z-panel) + 1);
+    border-left: 1px solid var(--border);
+    box-shadow: -12px 0 40px rgba(var(--shadow-tint), 0.12);
+    transform: translateX(105%);
+    transition: transform .32s cubic-bezier(.32,.72,0,1);
+    display: flex; flex-direction: column;
+  }
+  .panel.open { transform: none; }
+  .panel-h { padding: 20px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+  .panel-h .t { font-size: 17px; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink); line-height: 1.2; }
+  .panel-h .slotmeta { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .panel-h .x {
+    margin-left: auto; cursor: pointer; background: none; border: none; color: var(--muted);
+    width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex: none;
+    transition: background .15s, color .15s;
+  }
+  .panel-h .x:hover { background: var(--surface-3); color: var(--ink); }
+  .panel-b { flex: 1; overflow-y: auto; padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 14px; align-content: start; }
+  .fld { display: flex; flex-direction: column; gap: 5px; }
+  .fld.full { grid-column: 1 / -1; }
+  .fld label { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .fld label .req { color: var(--st-refus-tx); }
+  .fld input, .fld select, .fld textarea {
+    border: 1px solid var(--border-2); border-radius: 9px; padding: 8px 11px;
+    font-size: 13.5px; font-family: var(--sans); background: var(--surface); color: var(--ink); width: 100%;
+    transition: border-color .18s, box-shadow .18s;
+  }
+  .fld input:focus, .fld select:focus, .fld textarea:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .fld .err { font-size: 11.5px; color: var(--st-refus-tx); display: none; }
+  .fld .hint {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 11px; color: var(--accent-ink); display: none;
+  }
+  .fld .hint.on { display: block; }
+  .fld.invalid input { border-color: var(--st-refus-tx); }
+  .fld.invalid .err { display: block; }
+  .panel-f { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; background: var(--surface-2); }
+  .panel-f .left { margin-right: auto; }
+  /* поля быстрого добавления (менеджер / день / время) */
+  .quick-only { display: none; }
+  .panel.quick .quick-only { display: flex; }
+  .quick-block {
+    grid-column: 1 / -1; display: none;
+    background: var(--accent-soft); border: 1px solid #f5cfb0; border-radius: 10px;
+    padding: 12px; gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .panel.quick .quick-block { display: grid; }
+  .quick-block .fld.full { grid-column: 1 / -1; }
+  /* плитки выбора дня и времени */
+  .chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
+  .chips.slots { grid-template-columns: repeat(4, 1fr); }
+  .chip {
+    font-family: var(--sans); border: 1px solid var(--border-2); border-radius: 8px;
+    background: var(--surface); color: var(--ink-2); cursor: pointer;
+    padding: 7px 4px; text-align: center; font-size: 12px; font-weight: 600; line-height: 1.25;
+    transition: background .15s, border-color .15s, color .15s, transform .1s;
+  }
+  .chip .sub { display: block; font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--muted); }
+  .chip:hover:not(:disabled):not(.sel) { border-color: var(--accent); color: var(--accent-ink); }
+  .chip:active:not(:disabled) { transform: scale(0.96); }
+  .chip.sel { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 3px 10px rgba(242,101,18,0.3); }
+  .chip.sel .sub { color: rgba(255,255,255,.75); }
+  .chip:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+  /* листание недель внутри быстрого добавления */
+  .qweek {
+    display: flex; align-items: center; gap: 2px;
+    background: var(--surface-3); border-radius: 9px; padding: 2px 4px;
+    margin-bottom: 7px;
+  }
+  .qweek .lbl {
+    flex: 1; text-align: center;
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 12px; color: var(--ink);
+  }
+  .qweek .lbl .tag {
+    font-family: var(--sans); font-size: 10px; font-weight: 700;
+    color: var(--accent-ink); text-transform: uppercase; letter-spacing: 0.05em;
+    margin-left: 7px;
+  }
+  .qweek .iconbtn { width: 24px; height: 24px; }
+
+  /* ---------- Тост ---------- */
+  #toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: var(--ink); color: #fff; padding: 9px 18px; border-radius: 10px;
+    font-size: 13px; opacity: 0; pointer-events: none; z-index: var(--z-toast);
+    transition: opacity .25s, transform .25s cubic-bezier(.32,.72,0,1);
+    box-shadow: 0 10px 30px rgba(var(--shadow-tint), 0.25);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- Каскадное появление ---------- */
+  .reveal { opacity: 0; transform: translateY(10px); transition: opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1); transition-delay: calc(var(--i, 0) * 70ms); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 1080px) { .stats { grid-template-columns: repeat(3, 1fr); } .tile.hero .num { font-size: 32px; } }
+  @media (max-width: 700px) {
+    .wrap { padding: 18px 14px 64px; }
+    .topbar-in { padding: 10px 14px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .panel-b { grid-template-columns: 1fr; }
+    .search { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-layer"><div class="glow"></div><div class="grain"></div></div>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12 13 4.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="t"><em>График</em> созвонов</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="weeknav">
+      <button class="iconbtn" id="prevW" title="Предыдущая неделя" aria-label="Предыдущая неделя">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="wk" id="wkLabel"></div>
+      <button class="iconbtn" id="nextW" title="Следующая неделя" aria-label="Следующая неделя">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <button class="btn" id="todayW">Сегодня</button>
+    <button class="btn subtle" id="xlsxBtn">Сохранить</button>
+    <label class="btn subtle" style="cursor:pointer;">Загрузить<input type="file" id="importFile" accept=".json" style="display:none"></label>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="stats" id="stats" aria-label="Статистика недели"></section>
+
+  <div class="controls reveal" style="--i:2">
+    <div class="seg" id="tabs" role="tablist"></div>
+    <div class="tzchip" id="tzChip"></div>
+    <div class="spacer"></div>
+    <div class="searchwrap">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.4" stroke="currentColor" stroke-width="1.6"/><path d="M10.4 10.4L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input class="search" id="search" placeholder="Имя, город или контакт" aria-label="Поиск по лидам">
+    </div>
+  </div>
+
+  <section class="gridcard reveal" style="--i:3" aria-label="Недельная сетка созвонов">
+    <table class="sched" id="sched"></table>
+  </section>
+
+</main>
+
+<!-- Слайд-панель лида -->
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-hidden="true">
+  <div class="panel-h">
+    <div>
+      <div class="t" id="mTitle">Новый созвон</div>
+      <div class="slotmeta" id="mMeta"></div>
+    </div>
+    <button class="x" id="mClose" aria-label="Закрыть панель">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="panel-b">
+    <div class="quick-block">
+      <div class="fld full"><label>Менеджер</label><select id="f_mgr"></select></div>
+      <div class="fld full"><label>День</label>
+        <div class="qweek">
+          <button type="button" class="iconbtn" id="qPrevW" title="Предыдущая неделя" aria-label="Предыдущая неделя">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="lbl" id="qWkLabel"></span>
+          <button type="button" class="iconbtn" id="qNextW" title="Следующая неделя" aria-label="Следующая неделя">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="chips" id="dayChips"></div></div>
+      <div class="fld full"><label id="slotLabel">Время (МСК)</label><div class="chips slots" id="slotChips"></div></div>
+    </div>
+    <div class="fld" id="w_name"><label>Имя <span class="req">*</span></label><input id="f_name" placeholder="Сергей Владимиров"><span class="err">Укажите имя клиента</span></div>
+    <div class="fld" id="w_contact"><label>Контакт <span class="req">*</span></label><input id="f_contact" placeholder="+7 921 405-18-32"><span class="err">Укажите телефон или ник</span></div>
+    <div class="fld"><label>Город</label><input id="f_city" placeholder="Казань" list="cityList"><datalist id="cityList"></datalist><span class="hint" id="cityTime"></span></div>
+    <div class="fld"><label>Откуда узнали</label>
+      <select id="f_source">
+        <option value=""></option>
+        <option>Instagram</option><option>Telegram</option><option>Сайт</option>
+        <option>Реклама</option><option>Рекомендация</option><option>Звонок</option><option>Другое</option>
+      </select></div>
+    <div class="fld"><label>Опыт предпринимательства</label><input id="f_exp" placeholder="2 года, розница"></div>
+    <div class="fld"><label>Сумма вложений</label><input id="f_budget" placeholder="3–5 млн руб."></div>
+    <div class="fld"><label>Сроки открытия</label><input id="f_terms" placeholder="осень 2026"></div>
+    <div class="fld"><label>Статус</label>
+      <select id="f_status">
+        <option value="planned">Запланирован</option>
+        <option value="done">Проведён</option>
+        <option value="moved">Перенос</option>
+        <option value="noanswer">Не дозвонились</option>
+        <option value="refused">Отказ клиента</option>
+      </select></div>
+    <div class="fld full"><label>Комментарий</label><textarea id="f_comment" rows="3" placeholder="Отправлена ссылка на Zoom"></textarea></div>
+  </div>
+  <div class="panel-f">
+    <button class="btn ghost-danger left" id="mDelete" style="display:none">Удалить</button>
+    <button class="btn" id="mCancel">Отмена</button>
+    <button class="btn primary" id="mSave">Сохранить созвон</button>
+  </div>
+</aside>
+
+<div id="toast" role="status"></div>
+
+<script>
+/* ================= Данные ================= */
+const MANAGERS = ["Алексей Казачкин","Павел Коровин","Юрий Партала","Илья Пецух","Елназ Бегалы"];
+/* город и часовой пояс каждого менеджера (сдвиг относительно МСК) */
+const MANAGER_TZ = {
+  "Алексей Казачкин": { city:"МСК",  note:"Москва",      off:0 },
+  "Павел Коровин":    { city:"МСК",  note:"Москва",      off:0 },
+  "Юрий Партала":     { city:"МСК",  note:"Москва",      off:0 },
+  "Илья Пецух":       { city:"НСК",  note:"Новосибирск", off:4 },
+  "Елназ Бегалы":     { city:"АЛА",  note:"Алматы",      off:2 }
+};
+function tzLabel(m){ const t=MANAGER_TZ[m]; return t ? (t.off? `${t.city} · МСК+${t.off}` : t.city) : ""; }
+/* часовые пояса городов клиентов (сдвиг относительно МСК) — для подсказки в карточке */
+const CITY_TZ = {
+  "москва":0,"санкт-петербург":0,"спб":0,"питер":0,"нижний новгород":0,"казань":0,
+  "ростов-на-дону":0,"краснодар":0,"сочи":0,"воронеж":0,"волгоград":0,"тула":0,
+  "ярославль":0,"рязань":0,"липецк":0,"пенза":0,"киров":0,"чебоксары":0,"мурманск":0,
+  "архангельск":0,"вологда":0,"тверь":0,"брянск":0,"курск":0,"белгород":0,"смоленск":0,
+  "калуга":0,"владимир":0,"иваново":0,"кострома":0,"тамбов":0,"орёл":0,"орел":0,
+  "калининград":-1,
+  "самара":1,"тольятти":1,"саратов":1,"ульяновск":1,"ижевск":1,"астрахань":1,
+  "екатеринбург":2,"екб":2,"челябинск":2,"пермь":2,"уфа":2,"тюмень":2,"оренбург":2,
+  "курган":2,"сургут":2,"нижневартовск":2,"магнитогорск":2,
+  "омск":3,
+  "новосибирск":4,"нск":4,"томск":4,"кемерово":4,"барнаул":4,"новокузнецк":4,
+  "красноярск":4,"абакан":4,"норильск":4,
+  "иркутск":5,"улан-удэ":5,"братск":5,
+  "чита":6,"якутск":6,"благовещенск":6,
+  "владивосток":7,"хабаровск":7,"находка":7,"уссурийск":7,
+  "южно-сахалинск":8,"магадан":8,
+  "петропавловск-камчатский":9,"анадырь":9,
+  "минск":0,"алматы":2,"астана":2,"шымкент":2,"ташкент":2,"самарканд":2,
+  "бишкек":3,"душанбе":2,"ереван":1,"баку":1,"тбилиси":1
+};
+function cityOffset(name){
+  const key=String(name||"").trim().toLowerCase().replace(/ё/g,"е");
+  return key in CITY_TZ ? CITY_TZ[key] : null;
+}
+/* слоты — по МЕСТНОМУ времени менеджера (каждый работает 10:00–18:00 у себя);
+   часовой пояс показывается одной сноской над сеткой и над плитками времени */
+const SLOTS = ["10:00–11:00","11:00–12:00","12:00–13:00","13:00–14:00","14:00–15:00","15:00–16:00","16:00–17:00","17:00–18:00"];
+const DAYS = ["Понедельник","Вторник","Среда","Четверг","Пятница"];
+const DAYS_SHORT = ["Пн","Вт","Ср","Чт","Пт"];
+const STATUS = {
+  planned:  { label:"Запланирован",   tx:"var(--st-planned-tx)", dot:"var(--st-planned-dot)" },
+  done:     { label:"Проведён",       tx:"var(--st-done-tx)",    dot:"var(--st-done-dot)" },
+  moved:    { label:"Перенос",        tx:"var(--st-moved-tx)",   dot:"var(--st-moved-dot)" },
+  noanswer: { label:"Не дозвонились", tx:"var(--st-noans-tx)",   dot:"var(--st-noans-dot)" },
+  refused:  { label:"Отказ",          tx:"var(--st-refus-tx)",   dot:"var(--st-refus-dot)" }
+};
+
+/* Хранилище: общая база — лист «Данные» Google Таблицы, доступ через Apps Script API.
+   Ключ доступа передаётся в адресе после решётки (…/#КЛЮЧ) и запоминается в браузере;
+   localStorage используется как локальный кеш для мгновенного открытия. */
+const LS_KEY="fit_calls_store_v1";
+let store = {};
+function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch{} }
+const API_URL="https://script.google.com/macros/s/AKfycbwcEdMiX1AnbZpP36nUa8Oo4G8g7fBSXpztRFhapW6pwV6tR2prwmzI9TULBsGUOx80kg/exec";
+const API_TOKEN=(function(){
+  const h=location.hash.slice(1);
+  if(h){ try{ localStorage.setItem("fit_api_token",h); }catch{} return h; }
+  try{ return localStorage.getItem("fit_api_token")||""; }catch{ return ""; }
+})();
+const HAS_GS=!!API_TOKEN;
+function api(payload){
+  return fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body:JSON.stringify({ token:API_TOKEN, ...payload })
+  }).then(r=>r.json());
+}
+function gsSave(key){
+  if(!HAS_GS) return;
+  api({action:"save", key, lead:store[key]||{}})
+    .then(r=>{ if(!r.ok) toast("Сервер отклонил сохранение: "+(r.error||"нет доступа")); })
+    .catch(()=>toast("Не удалось сохранить на сервере — проверьте интернет"));
+}
+function gsDelete(key){
+  if(!HAS_GS) return;
+  api({action:"delete", key})
+    .then(r=>{ if(!r.ok) toast("Сервер отклонил удаление: "+(r.error||"нет доступа")); })
+    .catch(()=>toast("Не удалось удалить на сервере — проверьте интернет"));
+}
+function gsRefresh(silent){
+  if(!HAS_GS) return;
+  api({action:"get"}).then(r=>{
+    if(!r.ok) throw new Error(r.error||"");
+    // не перерисовываем, пока открыта карточка — чтобы не сбить редактирование
+    if(document.getElementById("panel").classList.contains("open")) return;
+    store=r.store||{}; persist(); render();
+    if(!silent) toast("Данные обновлены");
+  }).catch(()=>{ if(!silent) toast("Нет связи с сервером"); });
+}
+setInterval(()=>gsRefresh(true), 30000); // подтягивать изменения коллег раз в 30 секунд
+let currentMonday = mondayOf(new Date());
+let activeManager = MANAGERS[0];
+let editingKey = null;
+let freeInfoOpen = false;
+
+/* ================= Утилиты ================= */
+function mondayOf(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
+function iso(d){ return d.toISOString().slice(0,10); }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function fmt(d){ return d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"}); }
+function weekKey(){ return iso(currentMonday); }
+function slotKey(mgr,dayI,slotI){ return `${weekKey()}|${mgr}|${dayI}|${slotI}`; }
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2400); }
+
+/* ================= Отрисовка ================= */
+function render(){ renderWeekLabel(); renderTabs(); renderTzChip(); renderStats(); renderGrid(); }
+
+/* время активного менеджера: МСК = UTC+3, сдвиг из MANAGER_TZ */
+function renderTzChip(){
+  const t=MANAGER_TZ[activeManager]; if(!t) return;
+  const now=new Date();
+  const local=new Date(now.getTime()+now.getTimezoneOffset()*60000+(3+t.off)*3600000);
+  const hh=String(local.getHours()).padStart(2,"0"), mm=String(local.getMinutes()).padStart(2,"0");
+  document.getElementById("tzChip").innerHTML=`
+    <span class="live"></span>
+    <span class="clock">${hh}<span class="sec">:</span>${mm}</span>
+    <span class="sep"></span>
+    <span class="loc">
+      <span class="city">${esc(t.note)}${t.off?` · МСК+${t.off}`:""}</span>
+      <span class="off">время менеджера</span>
+    </span>`;
+}
+setInterval(()=>{ renderTzChip(); updateCityTime(); }, 15000);
+
+/* живое местное время клиента по введённому городу */
+function updateCityTime(){
+  const el=document.getElementById("cityTime");
+  const off=cityOffset(document.getElementById("f_city").value);
+  if(off===null){ el.classList.remove("on"); el.textContent=""; return; }
+  const now=new Date();
+  const local=new Date(now.getTime()+now.getTimezoneOffset()*60000+(3+off)*3600000);
+  const hh=String(local.getHours()).padStart(2,"0"), mm=String(local.getMinutes()).padStart(2,"0");
+  el.textContent=`у клиента сейчас ${hh}:${mm} · ${off?`МСК${off>0?"+":"−"}${Math.abs(off)}`:"МСК"}`;
+  el.classList.add("on");
+}
+
+function renderWeekLabel(){
+  const end=addDays(currentMonday,4);
+  document.getElementById("wkLabel").textContent = `${fmt(currentMonday)} — ${fmt(end)}.${String(end.getFullYear()).slice(2)}`;
+}
+
+function renderTabs(){
+  const el=document.getElementById("tabs");
+  el.innerHTML = MANAGERS.map(m=>{
+    const n=Object.keys(store).filter(k=>k.startsWith(weekKey()+"|"+m+"|")).length;
+    return `<button role="tab" aria-selected="${m===activeManager}" class="${m===activeManager?'active':''}" data-m="${esc(m)}" title="${esc(MANAGER_TZ[m]?.note||"")}">${esc(m)}${n?`<span class="cnt">${n}</span>`:""}</button>`;
+  }).join("");
+  el.querySelectorAll("button").forEach(t=>t.onclick=()=>{ activeManager=t.dataset.m; render(); });
+}
+
+function weekLeads(){ return Object.entries(store).filter(([k])=>k.startsWith(weekKey()+"|")); }
+
+function renderStats(){
+  const leads=weekLeads().map(([,v])=>v);
+  const total=leads.length;
+  const cnt=s=>leads.filter(l=>l.status===s).length;
+  const free=MANAGERS.length*DAYS.length*SLOTS.length-total;
+  const tiles=[
+    { v: total, l: "созвонов на неделе", hero: true, add: true },
+    { v: cnt("planned"), l: "запланировано", d: "var(--st-planned-dot)" },
+    { v: cnt("done"), l: "проведено", d: "var(--st-done-dot)" },
+    { v: cnt("moved")+cnt("noanswer"), l: "перенос и недозвон", d: "var(--st-moved-dot)" },
+    { v: cnt("refused"), l: "отказы", d: "var(--st-refus-dot)" },
+    { v: free, l: "свободно слотов", info: true }
+  ];
+  const perMgr=MANAGERS.map(m=>{
+    const busy=Object.keys(store).filter(k=>k.startsWith(weekKey()+"|"+m+"|")).length;
+    return { m, free: DAYS.length*SLOTS.length-busy };
+  });
+  const maxFree=DAYS.length*SLOTS.length;
+  document.getElementById("stats").innerHTML = tiles.map((t,i)=>{
+    const body=`<div class="num">${t.v}</div>
+      <div class="cap">${t.d?`<span class="dot" style="background:${t.d}"></span>`:""}${t.l}</div>`;
+    if(t.hero) return `<div class="tile hero reveal in" style="--i:${i}">
+      <div class="hero-body">${body}</div>
+      <button class="addbtn-big" id="quickAdd" title="Добавить созвон" aria-label="Добавить созвон">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </button></div>`;
+    if(t.info) return `<div class="tile free reveal in" style="--i:${i}">${body}
+      <button class="infobtn" id="freeInfo" title="Свободно по менеджерам" aria-label="Свободно по менеджерам">i</button>
+      <div class="freepop ${freeInfoOpen?'open':''}" id="freePop">
+        <div class="fp-t">Свободно на этой неделе</div>
+        ${perMgr.map(r=>`<div class="fp-row">
+          <span class="nm" title="${esc(MANAGER_TZ[r.m]?.note||"")}">${esc(r.m)}<span class="ct">${esc(MANAGER_TZ[r.m]?.city||"")}</span></span>
+          <span class="bar"><i style="width:${Math.round(r.free/maxFree*100)}%"></i></span>
+          <span class="n">${r.free}</span></div>`).join("")}
+      </div></div>`;
+    return `<div class="tile reveal in" style="--i:${i}">${body}</div>`;
+  }).join("");
+  const qa=document.getElementById("quickAdd");
+  if(qa) qa.onclick=openQuickAdd;
+  const fi=document.getElementById("freeInfo");
+  if(fi) fi.onclick=e=>{ e.stopPropagation(); freeInfoOpen=!freeInfoOpen; renderStats(); };
+}
+/* закрытие раскладки кликом вне её */
+document.addEventListener("click",e=>{
+  if(freeInfoOpen && !e.target.closest("#freePop") && !e.target.closest("#freeInfo")){
+    freeInfoOpen=false; renderStats();
+  }
+});
+
+function renderGrid(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const tbl=document.getElementById("sched");
+  const todayIso=iso(new Date());
+  const gOff=MANAGER_TZ[activeManager]?.off||0;
+  const tzNote=gOff?`${MANAGER_TZ[activeManager].note} · МСК+${gOff}`:"МСК";
+  let html=`<thead><tr><th class='tcol'>Время <span class='d'>${tzNote}</span></th>`;
+  DAYS.forEach((d,i)=>{
+    const dayIso=iso(addDays(currentMonday,i));
+    html+=`<th class="${dayIso===todayIso?'today-col':''}">${d}<span class="d">${fmt(addDays(currentMonday,i))}</span></th>`;
+  });
+  html+="</tr></thead><tbody>";
+  SLOTS.forEach((slot,si)=>{
+    html+=`<tr><td class="time">${slot}</td>`;
+    DAYS.forEach((_,di)=>{
+      const key=slotKey(activeManager,di,si);
+      const lead=store[key];
+      if(lead){
+        const st=STATUS[lead.status]||STATUS.planned;
+        const match=!q||[lead.name,lead.city,lead.contact].some(v=>(v||"").toLowerCase().includes(q));
+        html+=`<td class="slot" data-k="${esc(key)}">
+          <div class="lead-card ${match?'':'dim'}" style="--lc:${st.dot}">
+            <div class="nm">${esc(lead.name)}</div>
+            <div class="meta">${esc([lead.city,lead.contact].filter(Boolean).join(" · "))}</div>
+            <div class="st" style="color:${st.tx}"><span class="dot" style="background:${st.dot};width:6px;height:6px"></span>${st.label}</div>
+          </div></td>`;
+      } else {
+        html+=`<td class="slot" data-k="${esc(key)}"><div class="empty"></div></td>`;
+      }
+    });
+    html+="</tr>";
+  });
+  html+="</tbody>";
+  tbl.innerHTML=html;
+  tbl.querySelectorAll("td.slot").forEach(td=>td.onclick=()=>openPanel(td.dataset.k));
+}
+
+/* ================= Слайд-панель ================= */
+const F=id=>document.getElementById(id);
+function openPanel(key){
+  editingKey=key;
+  const lead=store[key];
+  const [,mgr,di,si]=key.split("|");
+  F("mTitle").textContent = lead ? "Созвон" : "Новый созвон";
+  F("mMeta").textContent = `${mgr} · ${tzLabel(mgr)} · ${DAYS_SHORT[di]} ${fmt(addDays(currentMonday,+di))} · ${SLOTS[si]}`;
+  F("f_name").value=lead?.name||""; F("f_contact").value=lead?.contact||"";
+  F("f_city").value=lead?.city||""; F("f_source").value=lead?.source||"";
+  F("f_exp").value=lead?.exp||""; F("f_budget").value=lead?.budget||"";
+  F("f_terms").value=lead?.terms||""; F("f_status").value=lead?.status||"planned";
+  F("f_comment").value=lead?.comment||"";
+  F("mDelete").style.display=lead?"":"none";
+  F("w_name").classList.remove("invalid"); F("w_contact").classList.remove("invalid");
+  const cities=[...new Set(Object.values(store).map(l=>l.city).filter(Boolean))];
+  F("cityList").innerHTML=cities.map(c=>`<option value="${esc(c)}">`).join("");
+  updateCityTime();
+  F("scrim").classList.add("open");
+  F("panel").classList.add("open");
+  F("panel").setAttribute("aria-hidden","false");
+  setTimeout(()=>F("f_name").focus(),200);
+}
+function closePanel(){
+  F("scrim").classList.remove("open");
+  F("panel").classList.remove("open");
+  F("panel").classList.remove("quick");
+  F("panel").setAttribute("aria-hidden","true");
+  editingKey=null; quickMode=false;
+}
+
+/* ---- Быстрое добавление из плитки статистики ---- */
+let quickMode=false, quickDay=0, quickSlot=null, quickMonday=null;
+function qKey(mgr,dayI,slotI){ return `${iso(quickMonday)}|${mgr}|${dayI}|${slotI}`; }
+function openQuickAdd(){
+  quickMode=true; editingKey=null;
+  quickMonday=new Date(currentMonday);
+  F("mTitle").textContent="Новый созвон";
+  F("mMeta").textContent="Выберите менеджера, день и время";
+  // менеджеры
+  F("f_mgr").innerHTML=MANAGERS.map(m=>`<option value="${esc(m)}" ${m===activeManager?'selected':''}>${esc(m)}</option>`).join("");
+  // день по умолчанию — сегодня, если открыта текущая неделя
+  const todayIdx=Math.round((mondayOf(new Date())-quickMonday)/86400000)===0 ? (new Date().getDay()+6)%7 : 0;
+  quickDay = todayIdx>=0 && todayIdx<5 ? todayIdx : 0;
+  quickSlot=null;
+  renderQuickWeek(); renderDayChips(); refreshQuickSlots();
+  F("f_mgr").onchange=()=>{ quickSlot=null; refreshQuickSlots(); };
+  // очистить поля лида
+  ["f_name","f_contact","f_city","f_exp","f_budget","f_terms","f_comment"].forEach(id=>F(id).value="");
+  F("f_source").value=""; F("f_status").value="planned";
+  F("mDelete").style.display="none";
+  F("w_name").classList.remove("invalid"); F("w_contact").classList.remove("invalid");
+  const cities=[...new Set(Object.values(store).map(l=>l.city).filter(Boolean))];
+  F("cityList").innerHTML=cities.map(c=>`<option value="${esc(c)}">`).join("");
+  updateCityTime();
+  F("panel").classList.add("quick");
+  F("scrim").classList.add("open");
+  F("panel").classList.add("open");
+  F("panel").setAttribute("aria-hidden","false");
+  setTimeout(()=>F("f_mgr").focus(),200);
+}
+function renderQuickWeek(){
+  const isCurrent = +quickMonday === +mondayOf(new Date());
+  F("qWkLabel").innerHTML =
+    `${fmt(quickMonday)} — ${fmt(addDays(quickMonday,4))}${isCurrent?'<span class="tag">эта неделя</span>':''}`;
+}
+F("qPrevW").onclick=()=>{ quickMonday=addDays(quickMonday,-7); quickSlot=null; renderQuickWeek(); renderDayChips(); refreshQuickSlots(); };
+F("qNextW").onclick=()=>{ quickMonday=addDays(quickMonday,7); quickSlot=null; renderQuickWeek(); renderDayChips(); refreshQuickSlots(); };
+function renderDayChips(){
+  F("dayChips").innerHTML=DAYS_SHORT.map((d,i)=>
+    `<button type="button" class="chip ${i===quickDay?'sel':''}" data-d="${i}">${d}<span class="sub">${fmt(addDays(quickMonday,i))}</span></button>`
+  ).join("");
+  F("dayChips").querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{
+    quickDay=+ch.dataset.d; quickSlot=null; renderDayChips(); refreshQuickSlots();
+  });
+}
+function refreshQuickSlots(){
+  const mgr=F("f_mgr").value;
+  const off=MANAGER_TZ[mgr]?.off||0;
+  // слоты всегда 10:00–18:00 по местному времени менеджера; пояс — одной сноской
+  F("slotLabel").textContent = off
+    ? `Время (${MANAGER_TZ[mgr].note} · МСК+${off})`
+    : "Время (МСК)";
+  // если выбранный слот занят у нового менеджера/дня — сбросить
+  if(quickSlot!==null && store[qKey(mgr,quickDay,quickSlot)]) quickSlot=null;
+  // по умолчанию — первый свободный
+  if(quickSlot===null){
+    const first=SLOTS.findIndex((_,si)=>!store[qKey(mgr,quickDay,si)]);
+    quickSlot=first>=0?first:null;
+  }
+  F("slotChips").innerHTML=SLOTS.map((s,si)=>{
+    const busy=!!store[qKey(mgr,quickDay,si)];
+    return `<button type="button" class="chip ${si===quickSlot?'sel':''}" data-s="${si}" ${busy?'disabled title="Занято"':''}>${s.slice(0,5)}<span class="sub">${busy?'занято':s.slice(6)}</span></button>`;
+  }).join("");
+  F("slotChips").querySelectorAll(".chip:not(:disabled)").forEach(ch=>ch.onclick=()=>{
+    quickSlot=+ch.dataset.s; refreshQuickSlots();
+  });
+}
+
+F("mSave").onclick=()=>{
+  const name=F("f_name").value.trim(), contact=F("f_contact").value.trim();
+  let bad=false;
+  F("w_name").classList.toggle("invalid", !name); if(!name) bad=true;
+  F("w_contact").classList.toggle("invalid", !contact); if(!contact) bad=true;
+  if(bad){ (name?F("f_contact"):F("f_name")).focus(); return; }
+  if(quickMode){
+    const mgr=F("f_mgr").value;
+    if(quickSlot===null){ toast("У этого менеджера нет свободных слотов в выбранный день"); return; }
+    const key=qKey(mgr,quickDay,quickSlot);
+    if(store[key]){ toast("Слот уже занят — выберите другое время"); quickSlot=null; refreshQuickSlots(); return; }
+    editingKey=key;
+    activeManager=mgr;                    // показать сетку выбранного менеджера после сохранения
+    currentMonday=new Date(quickMonday);  // и ту неделю, куда поставили созвон
+  }
+  store[editingKey]={
+    name, contact,
+    city:F("f_city").value.trim(), source:F("f_source").value,
+    exp:F("f_exp").value.trim(), budget:F("f_budget").value.trim(),
+    terms:F("f_terms").value.trim(), status:F("f_status").value,
+    comment:F("f_comment").value.trim()
+  };
+  persist(); gsSave(editingKey); closePanel(); render(); toast("Созвон сохранён");
+};
+F("mDelete").onclick=()=>{ const k=editingKey; delete store[k]; persist(); gsDelete(k); closePanel(); render(); toast("Созвон удалён"); };
+F("mCancel").onclick=closePanel;
+F("mClose").onclick=closePanel;
+F("scrim").onclick=closePanel;
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closePanel(); });
+
+/* ================= Навигация ================= */
+document.getElementById("prevW").onclick=()=>{ currentMonday=addDays(currentMonday,-7); render(); };
+document.getElementById("nextW").onclick=()=>{ currentMonday=addDays(currentMonday,7); render(); };
+document.getElementById("todayW").onclick=()=>{ currentMonday=mondayOf(new Date()); render(); };
+document.getElementById("search").oninput=renderGrid;
+document.getElementById("f_city").oninput=updateCityTime;
+
+/* ================= Импорт JSON-выгрузки ================= */
+document.getElementById("importFile").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+    const data=JSON.parse(r.result); store=data.store||{}; persist(); render();
+    if(HAS_GS){
+      toast("Загружаю данные на сервер…");
+      api({action:"import", store})
+        .then(r=>toast(r.ok?"Данные загружены и сохранены на сервере":"Сервер отклонил загрузку: "+(r.error||"")))
+        .catch(()=>toast("Файл прочитан, но на сервер не сохранился — проверьте интернет"));
+    } else toast("Данные загружены");
+  } catch{ toast("Не удалось прочитать файл — проверьте, что это JSON выгрузки"); } };
+  r.readAsText(f); e.target.value="";
+};
+/* ================= Экспорт в Excel (визуал как в Google-шаблоне) ================= */
+function ensureExcelJS(){
+  if(window.ExcelJS) return Promise.resolve();
+  return new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";
+    s.onload=res; s.onerror=()=>rej(new Error("cdn"));
+    document.head.appendChild(s);
+  });
+}
+document.getElementById("xlsxBtn").onclick=async()=>{
+  toast("Готовлю Excel-файл…");
+  try { await ensureExcelJS(); } catch { toast("Нет доступа к библиотеке Excel — проверьте интернет"); return; }
+  const wb=new ExcelJS.Workbook();
+  const THIN={style:"thin",color:{argb:"FFBFBFBF"}};
+  const BORDER={top:THIN,left:THIN,bottom:THIN,right:THIN};
+  const COLS=[
+    {h:"Время (местное)",w:14},{h:"Имя",w:20},{h:"Контакт",w:20},{h:"Город",w:16},
+    {h:"Откуда узнали",w:18},{h:"Опыт предпринимательства",w:22},{h:"Сумма вложений",w:16},
+    {h:"Сроки открытия",w:16},{h:"Статус",w:15},{h:"Комментарий",w:24}
+  ];
+  const NC=COLS.length;
+  const dfmt=d=>d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"});
+
+  /* Лист «Инструкция» */
+  const wi=wb.addWorksheet("Инструкция",{views:[{showGridLines:false}]});
+  wi.columns=[{width:2},{width:24},{width:80}];
+  wi.mergeCells("B2:C2");
+  const t=wi.getCell("B2");
+  t.value="График видеовстреч с потенциальными клиентами";
+  t.font={name:"Arial",size:16,bold:true,color:{argb:"FFFFFFFF"}};
+  t.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1F3864"}};
+  t.alignment={horizontal:"center",vertical:"middle"};
+  wi.getRow(2).height=34;
+  const info=[
+    ["Ответственный","Мария Иванищенко — первичный контакт, отсев неквалифицированных лидов, постановка созвонов."],
+    ["Время созвонов","Рабочие слоты с 10:00 до 18:00 по местному времени менеджера, длительность 1 час."],
+    ["Неделя выгрузки",`${dfmt(currentMonday)} — ${dfmt(addDays(currentMonday,4))}`],
+    ["Менеджеры","На каждого менеджера — свой лист (вкладки внизу), внутри пять блоков дней Пн–Пт."],
+    ["Часовые пояса","Казачкин, Коровин, Партала — Москва (МСК); Пецух — Новосибирск (МСК+4); Бегалы — Алматы (МСК+2)."],
+    ["Источник","Выгружено из CRM-дашборда «График созвонов»."]
+  ];
+  info.forEach((r,i)=>{
+    const row=wi.getRow(4+i);
+    row.getCell(2).value=r[0];
+    row.getCell(2).font={name:"Arial",size:10,bold:true,color:{argb:"FF1F3864"}};
+    row.getCell(2).alignment={vertical:"top",wrapText:true};
+    row.getCell(3).value=r[1];
+    row.getCell(3).font={name:"Arial",size:10};
+    row.getCell(3).alignment={vertical:"top",wrapText:true};
+    row.height=22;
+  });
+
+  /* Листы менеджеров */
+  MANAGERS.forEach(mgr=>{
+    const ws=wb.addWorksheet(mgr.slice(0,31),{views:[{showGridLines:false}]});
+    ws.columns=COLS.map(c=>({width:c.w}));
+    ws.mergeCells(1,1,1,NC);
+    const tt=ws.getCell(1,1);
+    tt.value=`График созвонов на неделю — ${mgr} (${tzLabel(mgr)})`;
+    tt.font={name:"Arial",size:15,bold:true,color:{argb:"FFFFFFFF"}};
+    tt.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1F3864"}};
+    tt.alignment={horizontal:"center",vertical:"middle"};
+    ws.getRow(1).height=30;
+    let r=2;
+    DAYS.forEach((day,di)=>{
+      r+=1; // отступ
+      // плашка дня
+      ws.mergeCells(r,1,r,2);
+      const dc=ws.getCell(r,1);
+      dc.value=day;
+      dc.font={name:"Arial",size:11,bold:true,color:{argb:"FFFFFFFF"}};
+      dc.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF4472C4"}};
+      dc.alignment={horizontal:"center",vertical:"middle"};
+      ws.getCell(r,3).value="Дата:";
+      ws.getCell(r,3).font={name:"Arial",size:11,bold:true};
+      ws.getCell(r,3).alignment={horizontal:"right",vertical:"middle"};
+      ws.mergeCells(r,4,r,5);
+      const df=ws.getCell(r,4);
+      df.value=dfmt(addDays(currentMonday,di));
+      df.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFFFF2CC"}};
+      df.border=BORDER;
+      df.font={name:"Arial",size:10,bold:true};
+      df.alignment={horizontal:"center",vertical:"middle"};
+      ws.getRow(r).height=22;
+      r+=1;
+      // шапка
+      COLS.forEach((c,ci)=>{
+        const cell=ws.getCell(r,ci+1);
+        cell.value=c.h;
+        cell.font={name:"Arial",size:10,bold:true,color:{argb:"FFFFFFFF"}};
+        cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF2E5496"}};
+        cell.alignment={horizontal:"center",vertical:"middle",wrapText:true};
+        cell.border=BORDER;
+      });
+      ws.getRow(r).height=30;
+      r+=1;
+      // слоты
+      SLOTS.forEach((slot,si)=>{
+        const lead=store[slotKey(mgr,di,si)];
+        const vals=[slot,
+          lead?.name||"", lead?.contact||"", lead?.city||"", lead?.source||"",
+          lead?.exp||"", lead?.budget||"", lead?.terms||"",
+          lead?(STATUS[lead.status]||{}).label||"":"", lead?.comment||""];
+        for(let ci=0;ci<NC;ci++){
+          const cell=ws.getCell(r,ci+1);
+          cell.value=vals[ci];
+          cell.border=BORDER;
+          cell.font={name:"Arial",size:10,bold:ci===0};
+          if(ci===0){
+            cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFD9E1F2"}};
+            cell.alignment={horizontal:"center",vertical:"middle"};
+          } else {
+            cell.alignment={horizontal:"left",vertical:"middle",wrapText:true};
+            if(si%2===1) cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF2F2F2"}};
+          }
+        }
+        ws.getRow(r).height=24;
+        r+=1;
+      });
+    });
+    ws.pageSetup={orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0};
+  });
+
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`график_созвонов_${weekKey()}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Excel выгружен — визуал как в шаблоне");
+};
+
+/* ================= Появление блоков ================= */
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }),{threshold:.05});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+
+/* ================= Загрузка данных ================= */
+(function init(){
+  // сначала мгновенно показываем локальный кеш, свежие данные придут с сервера
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(raw!==null){ store=JSON.parse(raw)||{}; return; }
+  }catch{}
+})();
+
+render();
+if(HAS_GS){
+  gsRefresh(true); // сразу подтянуть общую базу с сервера
+} else {
+  // страницу открыли без ключа доступа — синхронизация выключена
+  const b=document.createElement("div");
+  b.style.cssText="position:fixed;bottom:0;left:0;right:0;z-index:70;background:#a03434;color:#fff;padding:10px 18px;font:13px/1.5 'Manrope',sans-serif;text-align:center;";
+  b.textContent="Нет ключа доступа — данные не синхронизируются. Откройте дашборд по полной ссылке (с #ключом после адреса), которую вам прислали.";
+  document.body.appendChild(b);
+}
+</script>
+</body>
+</html>
