@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     /* светлая деловая гамма в стилистике FIT SERVICE: оранжевый акцент + графит */
@@ -427,6 +428,39 @@
   }
   .qweek .iconbtn { width: 24px; height: 24px; }
 
+  /* ---------- Экран входа ---------- */
+  #authwrap {
+    position: fixed; inset: 0; z-index: 80;
+    background: var(--canvas);
+    display: none; align-items: center; justify-content: center;
+  }
+  #authwrap.on { display: flex; }
+  .auth-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+    padding: 40px 48px; text-align: center;
+    box-shadow: 0 14px 44px rgba(var(--shadow-tint), 0.1);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    max-width: 92vw;
+  }
+  .auth-logo {
+    width: 46px; height: 46px; border-radius: 13px; background: var(--accent);
+    display: grid; place-items: center;
+    box-shadow: 0 6px 18px rgba(242, 101, 18, 0.35);
+    margin-bottom: 4px;
+  }
+  .auth-t {
+    font-weight: 800; font-size: 17px; color: var(--ink);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .auth-t em { font-style: normal; color: var(--accent); }
+  .auth-s { color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 10px; }
+  .auth-err { color: var(--st-refus-tx); font-size: 12.5px; min-height: 20px; max-width: 300px; }
+  .userchip {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--muted);
+    font-family: var(--mono);
+  }
+
   /* ---------- Тост ---------- */
   #toast {
     position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(8px);
@@ -477,6 +511,7 @@
     <button class="btn" id="todayW">Сегодня</button>
     <button class="btn subtle" id="xlsxBtn">Сохранить</button>
     <label class="btn subtle" style="cursor:pointer;">Загрузить<input type="file" id="importFile" accept=".json" style="display:none"></label>
+    <div class="userchip" id="userChip"></div>
   </div>
 </header>
 
@@ -557,6 +592,19 @@
   </div>
 </aside>
 
+<!-- Экран входа -->
+<div id="authwrap">
+  <div class="auth-card">
+    <div class="auth-logo" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12 13 4.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="auth-t"><em>График</em> созвонов</div>
+    <div class="auth-s">Войдите через свой Google-аккаунт.<br>Доступ выдаёт администратор.</div>
+    <div id="gbtn"></div>
+    <div class="auth-err" id="authErr"></div>
+  </div>
+</div>
+
 <div id="toast" role="status"></div>
 
 <script>
@@ -611,41 +659,58 @@ const STATUS = {
 };
 
 /* Хранилище: общая база — лист «Данные» Google Таблицы, доступ через Apps Script API.
-   Ключ доступа передаётся в адресе после решётки (…/#КЛЮЧ) и запоминается в браузере;
+   Вход — через Google-аккаунт (кнопка на экране входа), сервер проверяет почту
+   по белому списку (лист «Доступ» таблицы) и выдаёт сессию на 30 дней.
    localStorage используется как локальный кеш для мгновенного открытия. */
 const LS_KEY="fit_calls_store_v1";
 let store = {};
 function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch{} }
 const API_URL="https://script.google.com/macros/s/AKfycbwcEdMiX1AnbZpP36nUa8Oo4G8g7fBSXpztRFhapW6pwV6tR2prwmzI9TULBsGUOx80kg/exec";
-const API_TOKEN=(function(){
-  const h=location.hash.slice(1);
-  if(h){ try{ localStorage.setItem("fit_api_token",h); }catch{} return h; }
-  try{ return localStorage.getItem("fit_api_token")||""; }catch{ return ""; }
-})();
-const HAS_GS=!!API_TOKEN;
+const GOOGLE_CLIENT_ID="47135213873-qicnrlgs09lgsainmplocu85qm0fpa98.apps.googleusercontent.com";
+let SESSION=null, USER_EMAIL="";
+try{
+  const s=JSON.parse(localStorage.getItem("fit_session")||"null");
+  if(s&&s.session){ SESSION=s.session; USER_EMAIL=s.email||""; }
+}catch{}
 function api(payload){
   return fetch(API_URL,{
     method:"POST",
     headers:{ "Content-Type":"text/plain;charset=utf-8" },
-    body:JSON.stringify({ token:API_TOKEN, ...payload })
+    body:JSON.stringify({ session:SESSION, ...payload })
   }).then(r=>r.json());
 }
+/* сессия умерла или доступ отозван — возвращаем на экран входа */
+function authRequired(){
+  SESSION=null; USER_EMAIL="";
+  try{ localStorage.removeItem("fit_session"); }catch{}
+  renderUserChip(); showAuth();
+}
 function gsSave(key){
-  if(!HAS_GS) return;
+  if(!SESSION) return;
   api({action:"save", key, lead:store[key]||{}})
-    .then(r=>{ if(!r.ok) toast("Сервер отклонил сохранение: "+(r.error||"нет доступа")); })
+    .then(r=>{ if(!r.ok){
+      if(r.error==="unauthorized"){ authRequired(); toast("Сессия истекла — войдите снова"); }
+      else toast("Сервер отклонил сохранение: "+(r.error||""));
+    }})
     .catch(()=>toast("Не удалось сохранить на сервере — проверьте интернет"));
 }
 function gsDelete(key){
-  if(!HAS_GS) return;
+  if(!SESSION) return;
   api({action:"delete", key})
-    .then(r=>{ if(!r.ok) toast("Сервер отклонил удаление: "+(r.error||"нет доступа")); })
+    .then(r=>{ if(!r.ok){
+      if(r.error==="unauthorized"){ authRequired(); toast("Сессия истекла — войдите снова"); }
+      else toast("Сервер отклонил удаление: "+(r.error||""));
+    }})
     .catch(()=>toast("Не удалось удалить на сервере — проверьте интернет"));
 }
 function gsRefresh(silent){
-  if(!HAS_GS) return;
+  if(!SESSION) return;
   api({action:"get"}).then(r=>{
-    if(!r.ok) throw new Error(r.error||"");
+    if(!r.ok){
+      if(r.error==="unauthorized"){ authRequired(); if(!silent) toast("Сессия истекла — войдите снова"); }
+      else if(!silent) toast("Нет связи с сервером");
+      return;
+    }
     // не перерисовываем, пока открыта карточка — чтобы не сбить редактирование
     if(document.getElementById("panel").classList.contains("open")) return;
     store=r.store||{}; persist(); render();
@@ -944,7 +1009,7 @@ document.getElementById("importFile").onchange=e=>{
   const r=new FileReader();
   r.onload=()=>{ try{
     const data=JSON.parse(r.result); store=data.store||{}; persist(); render();
-    if(HAS_GS){
+    if(SESSION){
       toast("Загружаю данные на сервер…");
       api({action:"import", store})
         .then(r=>toast(r.ok?"Данные загружены и сохранены на сервере":"Сервер отклонил загрузку: "+(r.error||"")))
@@ -1101,15 +1166,56 @@ document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 })();
 
 render();
-if(HAS_GS){
-  gsRefresh(true); // сразу подтянуть общую базу с сервера
-} else {
-  // страницу открыли без ключа доступа — синхронизация выключена
-  const b=document.createElement("div");
-  b.style.cssText="position:fixed;bottom:0;left:0;right:0;z-index:70;background:#a03434;color:#fff;padding:10px 18px;font:13px/1.5 'Manrope',sans-serif;text-align:center;";
-  b.textContent="Нет ключа доступа — данные не синхронизируются. Откройте дашборд по полной ссылке (с #ключом после адреса), которую вам прислали.";
-  document.body.appendChild(b);
+
+/* ================= Вход через Google ================= */
+function renderUserChip(){
+  const el=document.getElementById("userChip");
+  el.innerHTML = SESSION
+    ? `<span>${esc(USER_EMAIL)}</span><button class="btn subtle" id="logoutBtn">Выйти</button>`
+    : "";
+  const b=document.getElementById("logoutBtn");
+  if(b) b.onclick=()=>{ api({action:"logout"}).catch(()=>{}); authRequired(); toast("Вы вышли"); };
 }
+function showAuth(){
+  document.getElementById("authwrap").classList.add("on");
+  initGsi();
+}
+function hideAuth(){
+  document.getElementById("authwrap").classList.remove("on");
+  document.getElementById("authErr").textContent="";
+}
+let gsiInited=false;
+function initGsi(){
+  if(gsiInited) return;
+  // библиотека Google подгружается асинхронно — ждём её
+  if(!(window.google&&window.google.accounts&&window.google.accounts.id)){ setTimeout(initGsi,300); return; }
+  gsiInited=true;
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleCredential });
+  google.accounts.id.renderButton(document.getElementById("gbtn"),
+    { theme:"outline", size:"large", text:"signin_with", locale:"ru", width:280 });
+}
+function onGoogleCredential(resp){
+  document.getElementById("authErr").textContent="Проверяю доступ…";
+  fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action:"login", id_token:resp.credential})})
+    .then(r=>r.json())
+    .then(r=>{
+      if(r.ok){
+        SESSION=r.session; USER_EMAIL=r.email||"";
+        try{ localStorage.setItem("fit_session", JSON.stringify({session:SESSION,email:USER_EMAIL})); }catch{}
+        hideAuth(); renderUserChip(); gsRefresh(true);
+        toast("Вы вошли как "+USER_EMAIL);
+      } else if(r.error==="not_allowed"){
+        document.getElementById("authErr").textContent=
+          `Аккаунту ${r.email||""} доступ не выдан. Обратитесь к администратору.`;
+      } else {
+        document.getElementById("authErr").textContent="Не удалось войти — попробуйте ещё раз.";
+      }
+    })
+    .catch(()=>{ document.getElementById("authErr").textContent="Нет связи с сервером."; });
+}
+renderUserChip();
+if(SESSION){ gsRefresh(true); } else { showAuth(); }
 </script>
 </body>
 </html>
