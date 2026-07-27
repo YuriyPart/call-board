@@ -546,6 +546,10 @@
   .hm-up .t { font-variant-numeric:tabular-nums; color:var(--hm-ink); font-weight:700; white-space:nowrap; font-size:12px; }
   .hm-up .n { color:var(--hm-ink); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .hm-up .m { color:var(--hm-mut); font-size:12px; white-space:nowrap; }
+  .hm-doclinks { display:flex; flex-direction:column; gap:2px; margin-top:8px; }
+  .hm-doclinks button { border:none; background:none; text-align:left; font:600 13px var(--sans); color:var(--hm-ink); padding:6px 9px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:background .13s; }
+  .hm-doclinks button::before { content:"→"; color:#a1a1aa; font-weight:700; }
+  .hm-doclinks button:hover { background:#f4f4f5; }
   .hm-mini { display:inline-flex; border:1px solid var(--hm-b); border-radius:9px; overflow:hidden; }
   .hm-mini button { border:none; background:#fff; padding:6px 13px; font:600 12px var(--sans); color:#71717a; cursor:pointer; }
   .hm-mini button.on { background:#18181b; color:#fff; }
@@ -2295,7 +2299,7 @@ function renderDocs(){
       .filter(x=>(x.d.g||"other")===gid)
       .filter(x=>!q||x.d.n.toLowerCase().includes(q)||(x.d.d||"").toLowerCase().includes(q));
     if(!items.length) return "";
-    return `<div class="docsec"><div class="dh">${DOC_ICONS[gid]}${title}<span class="dcnt">${items.length}</span></div><div class="doclist">
+    return `<div class="docsec" id="docsec-${gid}"><div class="dh">${DOC_ICONS[gid]}${title}<span class="dcnt">${items.length}</span></div><div class="doclist">
       ${items.map(({d,i})=>{
         const cc=/\(РФ\)|— РФ|\bРФ\b/.test(d.n)?'<span class="cc rf">РФ</span>':(/\(КЗ\)|— КЗ|\bКЗ\b/.test(d.n)?'<span class="cc kz">КЗ</span>':"");
         return `<div class="docrow">
@@ -2679,6 +2683,10 @@ function hmPersonal(k,v){
   }catch{}
   return false;
 }
+function openDocsGroup(gid){
+  showPage("docs");
+  setTimeout(()=>{ const el=document.getElementById("docsec-"+gid); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); },100);
+}
 function renderHome(){
   const h=new Date().getHours();
   const hi=h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер";
@@ -2704,9 +2712,15 @@ function renderHome(){
   document.getElementById("hmKpis").innerHTML=[
     {l:"Созвонов на неделе",v:cur.length,p:trend,s:"к прошлой неделе, вся команда"},
     {l:"Проведено",v:done,p:conv+"%",s:"конверсия в проведённый"},
-    {l:"Свободно слотов",v:free,p:"окно 10–18",s:"на текущей неделе"},
-    {l:"Тренажёр",v:trainData().best+"%",p:trainLevel(trainData().best),s:"ваш лучший результат"}
-  ].map(k=>`<div class="hm-kpi"><div class="l">${k.l}<span class="hm-pill">${k.p}</span></div><div class="v">${k.v}</div><div class="s">${k.s}</div></div>`).join("");
+    {l:"Свободно слотов",v:free,p:"окно 10–18",s:"на текущей неделе"}
+  ].map(k=>`<div class="hm-kpi"><div class="l">${k.l}<span class="hm-pill">${k.p}</span></div><div class="v">${k.v}</div><div class="s">${k.s}</div></div>`).join("")+`
+    <div class="hm-kpi"><div class="l">Документация</div>
+      <div class="hm-doclinks">
+        <button onclick="openDocsGroup('contracts')">Договоры</button>
+        <button onclick="openDocsGroup('present')">Презентации</button>
+        <button onclick="openDocsGroup('launch')">Запуск и помещение</button>
+        <button onclick="openDocsGroup('sales')">Продажи и финансы</button>
+      </div></div>`;
   // переключатель Команда/Мои
   document.querySelectorAll("#hmMode button").forEach(b=>{
     b.classList.toggle("on", b.dataset.m===hmMode);
