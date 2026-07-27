@@ -465,7 +465,10 @@
   .stmenu .cur { font-weight: 700; color: var(--ink); }
 
   /* ---------- Дневная сетка ---------- */
-  table.sched th.mgrcol { min-width: 150px; }
+  table.sched.dayview { table-layout: fixed; }
+  table.sched.dayview th.tcol { width: 96px; }
+  table.sched.dayview th.mgrcol { width: auto; }
+  table.sched.dayview td.slot { min-width: 0; }
   .panel-f .leftgrp { margin-right: auto; display: flex; gap: 8px; }
   /* режим «нерабочий слот» в панели: только комментарий */
   .panel.blockmode .fld { display: none; }
@@ -826,6 +829,7 @@ function renderGrid(){
     html+="</tr>";
   });
   html+="</tbody>";
+  tbl.classList.remove("dayview");
   tbl.innerHTML=html;
   wireGrid(tbl);
 }
@@ -872,6 +876,7 @@ function renderDayGrid(){
     html+="</tr>";
   });
   html+="</tbody>";
+  tbl.classList.add("dayview");
   tbl.innerHTML=html;
   wireGrid(tbl);
 }
