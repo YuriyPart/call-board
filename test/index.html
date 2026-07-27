@@ -1672,8 +1672,8 @@ document.querySelectorAll("#anSeg button").forEach(b=>b.onclick=()=>{
 function colChartSvg(pts){
   const n=pts.length;
   if(!n) return "<p>Нет данных за период.</p>";
-  const bw=Math.max(10,Math.min(22,Math.floor(620/n)-6));
-  const gap=6, padL=10, padR=26, padT=16, padB=24, H=150;
+  const bw=Math.max(12,Math.min(56,Math.floor(680/n)-8));
+  const gap=8, padL=10, padR=28, padT=18, padB=26, H=190;
   const W=padL+padR+n*(bw+gap);
   const max=Math.max(1,...pts.map(p=>p.n));
   const ih=H-padT-padB;
