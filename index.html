@@ -286,7 +286,7 @@
     overflow-x: auto;
     box-shadow: 0 1px 3px rgba(var(--shadow-tint), 0.04);
   }
-  table.sched { border-collapse: collapse; width: 100%; min-width: 940px; }
+  table.sched { border-collapse: collapse; width: 100%; min-width: 940px; table-layout: fixed; }
   table.sched th {
     font-size: 11px; font-weight: 700; color: var(--ink-2); text-align: left;
     text-transform: uppercase; letter-spacing: 0.06em;
@@ -309,7 +309,7 @@
     vertical-align: middle; padding: 6px 14px; white-space: nowrap;
     border-right: 1px solid var(--border); background: var(--surface-2);
   }
-  td.slot { cursor: pointer; transition: background .15s; min-width: 152px; position: relative; }
+  td.slot { cursor: pointer; transition: background .15s; min-width: 0; position: relative; }
   td.slot:hover { background: var(--surface-2); }
   td.slot .empty {
     height: 100%; min-height: 48px; border-radius: 9px;
@@ -428,6 +428,103 @@
   }
   .qweek .iconbtn { width: 24px; height: 24px; }
 
+  /* ---------- Меню ---------- */
+  .btn.menuopen {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-weight: 700;
+    border-color: var(--accent); background: var(--accent); color: #fff;
+    box-shadow: 0 4px 14px rgba(242, 101, 18, 0.30);
+  }
+  .btn.menuopen:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+  .mscrim {
+    position: fixed; inset: 0; background: rgba(22,26,43,.28); backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none; transition: opacity .25s; z-index: var(--z-panel);
+  }
+  .mscrim.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 292px; max-width: 90vw;
+    background: var(--canvas); z-index: calc(var(--z-panel) + 1);
+    border-left: 1px solid var(--border);
+    box-shadow: -12px 0 40px rgba(var(--shadow-tint), 0.12);
+    transform: translateX(105%);
+    transition: transform .3s cubic-bezier(.32,.72,0,1);
+    overflow-y: auto; padding: 18px 14px 24px;
+  }
+  .drawer.open { transform: none; }
+  .drawer .dhead {
+    font-size: 15px; font-weight: 800; color: var(--ink);
+    letter-spacing: 0.03em; text-transform: uppercase;
+    padding: 4px 10px 14px;
+  }
+  .mgroup {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 12px; margin-bottom: 12px;
+  }
+  .mgroup .glabel {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .07em; padding: 2px 10px 8px;
+  }
+  .mitem {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 10px 12px; border: none; border-radius: 10px; background: none;
+    cursor: pointer; font-family: var(--sans); font-size: 14px; font-weight: 600;
+    color: var(--ink); text-align: left; transition: background .15s;
+  }
+  .mitem:hover { background: var(--surface-3); }
+  .mitem.active { background: var(--surface-3); }
+  .mitem svg { flex: none; width: 18px; height: 18px; }
+
+  /* ---------- Страницы ---------- */
+  .page { display: none; }
+  .page.on { display: block; }
+  .pagehead { margin: 2px 0 18px; }
+  .pagehead h2 { font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+  .pagehead p { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+  .card h3 { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card p { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .badge { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 2px 9px; }
+  .badge.ok { background: var(--st-done-bg); color: var(--st-done-tx); }
+  .badge.soon { background: var(--st-moved-bg); color: var(--st-moved-tx); }
+  .badge.no { background: var(--surface-3); color: var(--muted); }
+  .hbar { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; margin-top: 4px; }
+  .hbar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tbl th { text-align: left; color: var(--muted); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .tbl td { padding: 7px 8px; border-bottom: 1px solid var(--surface-3); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .tbl td:first-child { font-weight: 600; color: var(--ink); }
+  .copybtn { margin-top: 12px; }
+  .fldrow { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .fldrow label { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .fldrow input, .fldrow select {
+    border: 1px solid var(--border-2); border-radius: 9px; padding: 8px 11px;
+    font-size: 13.5px; font-family: var(--sans); background: var(--surface); color: var(--ink);
+  }
+  .statrow { display: flex; justify-content: space-between; margin-top: 7px; font-size: 12.5px; color: var(--muted); }
+  .statrow b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ctip {
+    position: absolute; pointer-events: none; z-index: 5;
+    background: var(--ink); color: #fff; font-size: 12px;
+    padding: 5px 10px; border-radius: 8px; white-space: nowrap;
+    opacity: 0; transition: opacity .12s;
+    box-shadow: 0 6px 18px rgba(var(--shadow-tint), 0.25);
+  }
+  .dr { display: inline-flex; align-items: center; gap: 6px; }
+  .dr label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .dr input[type="date"] {
+    border: 1px solid var(--border-2); border-radius: 9px; padding: 6px 9px;
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink); background: var(--surface);
+  }
+
+  /* ---------- Печать ---------- */
+  @media print {
+    .topbar, .testbar, #toast, .drawer, .mscrim, .controls, .scrim, .panel { display: none !important; }
+    .wrap { padding: 0; max-width: 100%; }
+    .bg-layer { display: none; }
+    .card, .tile, .gridcard { box-shadow: none; break-inside: avoid; }
+  }
+
   /* ---------- Экран входа ---------- */
   #authwrap {
     position: fixed; inset: 0; z-index: 80;
@@ -455,11 +552,6 @@
   .auth-t em { font-style: normal; color: var(--accent); }
   .auth-s { color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 10px; }
   .auth-err { color: var(--st-refus-tx); font-size: 12.5px; min-height: 20px; max-width: 300px; }
-  .userchip {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 12px; color: var(--muted);
-    font-family: var(--mono);
-  }
   /* переключатель интеграции с календарём */
   .sw {
     display: inline-flex; align-items: center; gap: 7px;
@@ -479,6 +571,57 @@
   }
   .sw input:checked + .tr { background: var(--accent); }
   .sw input:checked + .tr::after { left: 16px; }
+
+  /* ---------- Нерабочий слот ---------- */
+  .lead-card.blockcard {
+    background: repeating-linear-gradient(135deg, var(--surface-3) 0 8px, var(--surface-2) 8px 16px);
+    border-left-color: var(--faint);
+    justify-content: center; align-items: flex-start;
+  }
+  .lead-card.blockcard .nm {
+    color: var(--muted); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .lead-card.blockcard .meta { color: var(--faint); font-family: var(--sans); }
+
+  /* ---------- Быстрая смена статуса ---------- */
+  .lead-card .st { cursor: pointer; border-radius: 6px; padding: 1px 5px; margin-left: -5px; width: fit-content; transition: background .15s; }
+  .lead-card .st:hover { background: var(--surface-3); }
+  .stmenu {
+    position: absolute; z-index: 35; min-width: 172px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(var(--shadow-tint), 0.16); padding: 5px;
+  }
+  .stmenu button {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    border: none; background: none; padding: 7px 10px; border-radius: 7px;
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink-2);
+    cursor: pointer; text-align: left; white-space: nowrap;
+  }
+  .stmenu button:hover { background: var(--surface-3); color: var(--ink); }
+  .stmenu .cur { font-weight: 700; color: var(--ink); }
+
+  /* ---------- Слоты вне основного окна 10–18 ---------- */
+  td.time.off { color: var(--faint); background: var(--surface-3); }
+  td.slot.off { background: var(--surface-2); }
+  td.slot.off:hover { background: var(--surface-3); }
+  .chip.offc:not(.sel):not(:disabled) { background: var(--surface-2); color: var(--muted); }
+
+  /* ---------- Перетаскивание карточек ---------- */
+  .lead-card[draggable="true"] { cursor: grab; }
+  .lead-card.dragging { opacity: .35; cursor: grabbing; }
+  td.slot.dropok { background: var(--accent-soft); }
+  td.slot.dropok .empty { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- Дневная сетка ---------- */
+  table.sched.dayview { table-layout: fixed; }
+  table.sched.dayview th.tcol { width: 96px; }
+  table.sched.dayview th.mgrcol { width: auto; }
+  table.sched.dayview td.slot { min-width: 0; }
+  .panel-f .leftgrp { margin-right: auto; display: flex; gap: 8px; }
+  /* режим «нерабочий слот» в панели: только комментарий */
+  .panel.blockmode .fld { display: none; }
+  .panel.blockmode .fld#w_comment { display: flex; }
 
   /* ---------- Тост ---------- */
   #toast {
@@ -528,21 +671,25 @@
       </button>
     </div>
     <button class="btn" id="todayW">Сегодня</button>
-    <button class="btn subtle" id="xlsxBtn">Сохранить</button>
-    <label class="btn subtle" style="cursor:pointer;">Загрузить<input type="file" id="importFile" accept=".json" style="display:none"></label>
-    <label class="sw" title="Создавать события в Google Календаре при постановке созвона">
-      <input type="checkbox" id="calTgl"><span class="tr"></span>Календарь
-    </label>
-    <div class="userchip" id="userChip"></div>
+    <button class="btn menuopen" id="menuBtn" aria-haspopup="true" aria-controls="drawer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+      Меню
+    </button>
   </div>
 </header>
 
 <main class="wrap">
 
+<div class="page on" id="page-board">
   <section class="stats" id="stats" aria-label="Статистика недели"></section>
 
   <div class="controls reveal" style="--i:2">
+    <div class="seg" id="viewSeg">
+      <button data-v="week">Неделя</button>
+      <button data-v="day">День</button>
+    </div>
     <div class="seg" id="tabs" role="tablist"></div>
+    <div class="seg" id="dayTabs" style="display:none"></div>
     <div class="tzchip" id="tzChip"></div>
     <div class="spacer"></div>
     <div class="searchwrap">
@@ -554,8 +701,215 @@
   <section class="gridcard reveal" style="--i:3" aria-label="Недельная сетка созвонов">
     <table class="sched" id="sched"></table>
   </section>
+</div>
+
+  <!-- Аналитика -->
+  <section class="page" id="page-analytics">
+    <div class="pagehead"><h2>Аналитика</h2><p>Сводка по созвонам: динамика, статусы, источники лидов, конверсия и загрузка менеджеров.</p></div>
+    <div class="controls" style="margin-bottom:14px">
+      <div class="seg" id="anSeg">
+        <button data-r="week" class="active">Эта неделя</button>
+        <button data-r="4w">4 недели</button>
+        <button data-r="month">Этот месяц</button>
+        <button data-r="all">Всё время</button>
+      </div>
+      <div class="dr">
+        <label for="anFrom">с</label><input type="date" id="anFrom">
+        <label for="anTo">по</label><input type="date" id="anTo">
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" onclick="anCsv()">Скачать CSV</button>
+      <button class="btn" onclick="window.print()">Печать / PDF</button>
+    </div>
+    <div id="anContent"></div>
+  </section>
+
+  <!-- Журнал -->
+  <section class="page" id="page-journal">
+    <div class="pagehead"><h2>Журнал действий</h2><p>Ваши действия в этом браузере. Полный журнал всей команды с почтами — лист «Журнал» в Google Таблице.</p></div>
+    <div id="jrContent"></div>
+  </section>
+
+  <!-- Документы -->
+  <section class="page" id="page-docs">
+    <div class="pagehead"><h2>Документы</h2><p>Хранилище рабочих документов: договоры, презентация, регламенты. Прикрепите к каждому ссылку (Google Диск, Документы и т.п.) — и открывайте в один клик.</p></div>
+    <div class="cards" id="docsList"></div>
+    <div class="pagehead" style="margin-top:26px"><h2 style="font-size:16px">Шаблоны сообщений клиентам</h2><p>Копируются в один клик.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Приглашение на созвон</h3>
+        <p id="tpl1">Здравствуйте, {Имя}! Подтверждаю нашу видеовстречу {дата} в {время}. Ссылка для подключения: {ссылка}. Встреча займёт до часа. Хорошего дня!</p>
+        <button class="btn copybtn" onclick="copyTxt('tpl1')">Скопировать текст</button></div>
+      <div class="card"><h3>Напоминание за час</h3>
+        <p id="tpl2">{Имя}, напоминаю: через час наша видеовстреча по франшизе FIT SERVICE. Ссылка: {ссылка}. До связи!</p>
+        <button class="btn copybtn" onclick="copyTxt('tpl2')">Скопировать текст</button></div>
+      <div class="card"><h3>Перенос встречи</h3>
+        <p id="tpl3">{Имя}, к сожалению, нам нужно перенести встречу. Удобно ли вам {новая дата} в {время}? Если нет — предложите своё время, подстроимся.</p>
+        <button class="btn copybtn" onclick="copyTxt('tpl3')">Скопировать текст</button></div>
+      <div class="card"><h3>Регламент созвона</h3>
+        <p>1. Слоты — 10:00–18:00 по местному времени менеджера, 1 час.<br>
+        2. Созвон ставится только квалифицированному лиду.<br>
+        3. За час до встречи клиенту уходит напоминание.<br>
+        4. Недозвон — статус «Не дозвонились» + комментарий.<br>
+        5. Перенос — кнопкой или мышкой, запись не удаляем.<br>
+        6. Слоты вне 10–18 — по согласованию с менеджером.</p></div>
+    </div>
+  </section>
+
+  <!-- Создание документов -->
+  <section class="page" id="page-docgen">
+    <div class="pagehead"><h2>Создание документов</h2><p>Расчёт бизнес-плана для партнёра и подготовка договоров ДКК и ДПН с его данными.</p></div>
+    <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">
+      <div class="card"><h3>Реквизиты правообладателя</h3>
+        <p style="margin-bottom:10px">Заполняются один раз — подставляются во все создаваемые договоры.</p>
+        <div class="fldrow"><label>Наименование</label><input id="rq_name" placeholder="ООО «ФИТ Автосервис»"></div>
+        <div class="fldrow"><label>ИНН</label><input id="rq_inn" placeholder="5400000000"></div>
+        <div class="fldrow"><label>КПП</label><input id="rq_kpp" placeholder="540000000"></div>
+        <div class="fldrow"><label>ОГРН</label><input id="rq_ogrn" placeholder="1105400000000"></div>
+        <div class="fldrow"><label>Юридический адрес</label><input id="rq_addr" placeholder="г. Новосибирск, ул. …"></div>
+        <div class="fldrow"><label>Банк</label><input id="rq_bank" placeholder="ПАО «…»"></div>
+        <div class="fldrow"><label>Расчётный счёт</label><input id="rq_rs" placeholder="40702810…"></div>
+        <div class="fldrow"><label>Корр. счёт</label><input id="rq_ks" placeholder="30101810…"></div>
+        <div class="fldrow"><label>БИК</label><input id="rq_bik" placeholder="045000000"></div>
+        <div class="fldrow"><label>Руководитель (ФИО, должность)</label><input id="rq_dir" placeholder="Генеральный директор Иванов И.И."></div>
+        <div class="fldrow"><label>Действует на основании</label><input id="rq_osn" placeholder="Устава"></div>
+        <div class="fldrow"><label>Телефон / e-mail</label><input id="rq_contact" placeholder="+7 …, info@…"></div>
+        <p style="color:var(--st-done-tx)">Сохраняются автоматически.</p>
+      </div>
+      <div class="card"><h3>Расчёт БП (бизнес-план)</h3>
+        <div class="fldrow"><label>Инвестиции в открытие, ₽</label><input id="bp_inv" type="number" value="5000000"></div>
+        <div class="fldrow"><label>Паушальный взнос, ₽</label><input id="bp_fee" type="number" value="990000"></div>
+        <div class="fldrow"><label>Средний чек, ₽</label><input id="bp_check" type="number" value="7500"></div>
+        <div class="fldrow"><label>Заездов в день</label><input id="bp_cars" type="number" value="10"></div>
+        <div class="fldrow"><label>Рабочих дней в месяц</label><input id="bp_days" type="number" value="26"></div>
+        <div class="fldrow"><label>Операционные расходы в месяц, ₽</label><input id="bp_exp" type="number" value="1200000"></div>
+        <div class="fldrow"><label>Роялти, % от выручки</label><input id="bp_roy" type="number" value="5"></div>
+        <div id="bp_out" style="border-top:1px solid var(--border);margin-top:6px;padding-top:4px"></div>
+        <button class="btn copybtn" onclick="bpCopy()">Скопировать расчёт</button>
+      </div>
+      <div class="card"><h3>Данные партнёра → ДКК и ДПН</h3>
+        <div class="fldrow"><label>ФИО партнёра</label><input id="pr_fio" placeholder="Иванов Иван Иванович"></div>
+        <div class="fldrow"><label>ИНН</label><input id="pr_inn" placeholder="123456789012"></div>
+        <div class="fldrow"><label>ОГРНИП / ОГРН</label><input id="pr_ogrn" placeholder="323100000000000"></div>
+        <div class="fldrow"><label>Паспорт (серия, номер, кем выдан)</label><input id="pr_pass" placeholder="0000 000000, выдан …"></div>
+        <div class="fldrow"><label>Адрес регистрации</label><input id="pr_addr" placeholder="г. …, ул. …, д. …"></div>
+        <div class="fldrow"><label>Город открытия</label><input id="pr_city" placeholder="Пермь"></div>
+        <div class="fldrow"><label>Телефон</label><input id="pr_phone" placeholder="+7 900 000-00-00"></div>
+        <div class="fldrow"><label>E-mail</label><input id="pr_email" placeholder="partner@mail.ru"></div>
+        <div class="fldrow"><label>Номер договора</label><input id="pr_num" placeholder="ДКК-2026/12"></div>
+        <div class="fldrow"><label>Дата договора</label><input id="pr_date" type="date"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          <button class="btn primary" onclick="makeContract('dkk')">Скачать ДКК (.doc)</button>
+          <button class="btn primary" onclick="makeContract('dpn')">Скачать ДПН (.doc)</button>
+          <button class="btn" onclick="copyPartnerReq()">Скопировать реквизиты</button>
+        </div>
+        <p style="margin-top:10px">В файл подставляются данные партнёра; текст разделов договора вставьте из шаблона, утверждённого юристом.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Скачать -->
+  <section class="page" id="page-export">
+    <div class="pagehead"><h2>Скачать</h2><p>Выгрузки графика в разных форматах.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Excel — текущая неделя</h3><p>Оформленный .xlsx в формате шаблона: лист на менеджера, блоки Пн–Пт, статусы и комментарии.</p><button class="btn primary copybtn" onclick="exportXlsx()">Скачать .xlsx</button></div>
+      <div class="card"><h3>CSV — все данные</h3><p>Полная база созвонов одним списком: удобно для сводных таблиц или импорта в CRM.</p><button class="btn copybtn" onclick="exportCsv()">Скачать .csv</button></div>
+      <div class="card"><h3>JSON — резервная копия</h3><p>Технический слепок всех данных дашборда. Пригодится для переноса или восстановления.</p><button class="btn copybtn" onclick="exportJson()">Скачать .json</button></div>
+    </div>
+  </section>
+
+  <!-- Профиль -->
+  <section class="page" id="page-profile">
+    <div class="pagehead"><h2>Профиль</h2><p>Личные настройки дашборда — сохраняются в этом браузере.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Данные и настройки</h3>
+        <div class="fldrow"><label>Имя</label><input id="pf_name"></div>
+        <div class="fldrow"><label>Менеджер по умолчанию</label><select id="pf_mgr"></select></div>
+        <div class="fldrow"><label>Стартовый вид</label><select id="pf_view"><option value="week">Неделя</option><option value="day">День</option></select></div>
+        <button class="btn primary" onclick="saveProfile()">Сохранить</button></div>
+      <div class="card"><h3>Моя статистика</h3><div id="pf_stats"></div></div>
+    </div>
+  </section>
+
+  <!-- Интеграции -->
+  <section class="page" id="page-integrations">
+    <div class="pagehead"><h2>Интеграции</h2><p>Подключённые сервисы и то, что на подходе.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Google Таблица <span class="badge ok">подключено</span></h3><p>Общая база созвонов: лист «Данные», зеркало на листах менеджеров (окно 10–18), журнал изменений, белый список доступа.</p></div>
+      <div class="card"><h3>Вход через Google <span class="badge ok">подключено</span></h3><p>Авторизация по белому списку почт (лист «Доступ» таблицы). Сессия на 30 дней.</p></div>
+      <div class="card"><h3>Google Календарь <span class="badge ok">доступно</span></h3>
+        <p>Постановка созвона создаёт событие в календаре менеджера с приглашением и напоминанием; удаление созвона отменяет событие. По умолчанию выключено — включите, когда команда будет готова.</p>
+        <label class="sw" style="margin-top:14px">
+          <input type="checkbox" id="calTgl"><span class="tr"></span><span id="calState">выключен</span>
+        </label></div>
+      <div class="card"><h3>GitHub Pages <span class="badge ok">подключено</span></h3><p>Хостинг дашборда: правка выкатывается за минуту, ссылка не меняется.</p></div>
+      <div class="card"><h3>Яндекс Телемост <span class="badge soon">ждёт токена</span></h3><p>Автосоздание ссылки на видеовстречу при постановке созвона — без лимита 40 минут. Останется вставить токен Яндекса.</p></div>
+      <div class="card"><h3>Zoom <span class="badge no">не планируется</span></h3><p>На бесплатном тарифе лимит 40 минут на встречу — вместо него выбран Телемост.</p></div>
+    </div>
+  </section>
+
+  <!-- Справка -->
+  <section class="page" id="page-help">
+    <div class="pagehead"><h2>Справка</h2><p>Короткая шпаргалка по работе с графиком.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Постановка созвона</h3><p>Оранжевая кнопка «+» или клик по пустому слоту. Обязательные поля — имя и контакт. Слот по умолчанию — первый свободный в окне 10–18.</p></div>
+      <div class="card"><h3>Виды «Неделя» и «День»</h3><p>«Неделя» — сетка одного менеджера на неделю. «День» — все менеджеры на один день: удобно быстро найти свободное время под клиента.</p></div>
+      <div class="card"><h3>Перенос</h3><p>Перетащите карточку мышкой в свободный слот или откройте её и нажмите «Перенести». Статус «Перенос» у запланированных ставится сам.</p></div>
+      <div class="card"><h3>Нерабочее время</h3><p>Клик по пустому слоту → «Нерабочий слот» (можно указать причину). Серые полосатые ячейки недоступны для записи. Вернуть — «Сделать рабочим».</p></div>
+      <div class="card"><h3>Быстрый статус</h3><p>Клик по статусу прямо на карточке в сетке — выбор из списка без открытия панели.</p></div>
+      <div class="card"><h3>Часовые пояса</h3><p>Слоты идут по местному времени менеджера (пояс — сноской над сеткой). При вводе города клиента в карточке показывается его текущее время.</p></div>
+    </div>
+  </section>
 
 </main>
+
+<!-- Меню -->
+<div class="mscrim" id="mscrim"></div>
+<nav class="drawer" id="drawer" aria-label="Главное меню">
+  <div class="dhead">Меню</div>
+  <div class="mgroup">
+    <div class="glabel">Работа</div>
+    <button class="mitem active" data-p="board">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+      График</button>
+    <button class="mitem" data-p="analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/></svg>
+      Аналитика</button>
+    <button class="mitem" data-p="journal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="0.5"/><circle cx="4" cy="12" r="0.5"/><circle cx="4" cy="18" r="0.5"/></svg>
+      Журнал</button>
+  </div>
+  <div class="mgroup">
+    <div class="glabel">Материалы</div>
+    <button class="mitem" data-p="docs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+      Документы</button>
+    <button class="mitem" data-p="docgen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/></svg>
+      Создание документов</button>
+    <button class="mitem" data-p="export">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 21h16"/></svg>
+      Скачать</button>
+  </div>
+  <div class="mgroup">
+    <div class="glabel">Настройки</div>
+    <button class="mitem" data-p="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      Профиль</button>
+    <button class="mitem" data-p="integrations">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V3M15 7V3"/><path d="M6 7h12v4a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></svg>
+      Интеграции</button>
+    <button class="mitem" data-p="help">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.8 2.1c-.8.5-1.3 1-1.3 1.9"/><circle cx="12" cy="17" r="0.5"/></svg>
+      Справка</button>
+  </div>
+  <div class="mgroup" id="mAccount" style="display:none">
+    <div class="glabel">Аккаунт</div>
+    <div style="padding:2px 10px 8px;font-size:12px;color:var(--muted);word-break:break-all" id="mAccEmail"></div>
+    <button class="mitem" id="mLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+      Выйти из аккаунта</button>
+  </div>
+</nav>
 
 <!-- Слайд-панель лида -->
 <div class="scrim" id="scrim"></div>
@@ -607,10 +961,14 @@
         <option value="noanswer">Не дозвонились</option>
         <option value="refused">Отказ клиента</option>
       </select></div>
-    <div class="fld full"><label>Комментарий</label><textarea id="f_comment" rows="3" placeholder="Отправлена ссылка на Zoom"></textarea></div>
+    <div class="fld full" id="w_comment"><label>Комментарий</label><textarea id="f_comment" rows="3" placeholder="Отправлена ссылка на Zoom"></textarea></div>
   </div>
   <div class="panel-f">
-    <button class="btn ghost-danger left" id="mDelete" style="display:none">Удалить</button>
+    <div class="leftgrp">
+      <button class="btn ghost-danger" id="mDelete" style="display:none">Удалить</button>
+      <button class="btn" id="mMove" style="display:none">Перенести</button>
+      <button class="btn subtle" id="mBlock" style="display:none">Нерабочий слот</button>
+    </div>
     <button class="btn" id="mCancel">Отмена</button>
     <button class="btn primary" id="mSave">Сохранить созвон</button>
   </div>
@@ -671,7 +1029,10 @@ function cityOffset(name){
 }
 /* слоты — по МЕСТНОМУ времени менеджера (каждый работает 10:00–18:00 у себя);
    часовой пояс показывается одной сноской над сеткой и над плитками времени */
-const SLOTS = ["10:00–11:00","11:00–12:00","12:00–13:00","13:00–14:00","14:00–15:00","15:00–16:00","16:00–17:00","17:00–18:00"];
+const SLOTS = ["09:00–10:00","10:00–11:00","11:00–12:00","12:00–13:00","13:00–14:00","14:00–15:00",
+               "15:00–16:00","16:00–17:00","17:00–18:00","18:00–19:00","19:00–20:00","20:00–21:00"];
+/* основное окно созвонов 10:00–18:00; остальные слоты доступны, но приглушены */
+const coreSlot = si => { const h = 9 + si; return h >= 10 && h < 18; };
 const DAYS = ["Понедельник","Вторник","Среда","Четверг","Пятница"];
 const DAYS_SHORT = ["Пн","Вт","Ср","Чт","Пт"];
 const STATUS = {
@@ -682,11 +1043,12 @@ const STATUS = {
   refused:  { label:"Отказ",          tx:"var(--st-refus-tx)",   dot:"var(--st-refus-dot)" }
 };
 
+/* Хранилище: автоматически сохраняется в localStorage браузера при каждом изменении.
+   «Загрузить» дополнительно восстанавливает данные из JSON-файла старых выгрузок. */
 /* Хранилище: общая база — лист «Данные» Google Таблицы, доступ через Apps Script API.
-   Вход — через Google-аккаунт (кнопка на экране входа), сервер проверяет почту
-   по белому списку (лист «Доступ» таблицы) и выдаёт сессию на 30 дней.
-   localStorage используется как локальный кеш для мгновенного открытия. */
-const LS_KEY="fit_calls_store_v1";
+   Вход через Google-аккаунт, сервер проверяет почту по листу «Доступ».
+   localStorage — локальный кеш для мгновенного открытия. */
+const LS_KEY="fit_calls_store_v2"; // v2: сетка 09:00–21:00
 let store = {};
 function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch{} }
 const API_URL="https://script.google.com/macros/s/AKfycbwcEdMiX1AnbZpP36nUa8Oo4G8g7fBSXpztRFhapW6pwV6tR2prwmzI9TULBsGUOx80kg/exec";
@@ -703,7 +1065,6 @@ function api(payload){
     body:JSON.stringify({ session:SESSION, ...payload })
   }).then(r=>r.json());
 }
-/* сессия умерла или доступ отозван — возвращаем на экран входа */
 function authRequired(){
   SESSION=null; USER_EMAIL="";
   try{ localStorage.removeItem("fit_session"); }catch{}
@@ -716,8 +1077,7 @@ function gsSave(key){
       if(r.error==="unauthorized"){ authRequired(); toast("Сессия истекла — войдите снова"); }
       else toast("Сервер отклонил сохранение: "+(r.error||""));
     } else {
-      // подтянуть ссылку Телемоста и автора, которые проставил сервер
-      setTimeout(()=>gsRefresh(true), 2500);
+      setTimeout(()=>gsRefresh(true), 2500); // подтянуть ссылку Телемоста и автора
     }})
     .catch(()=>toast("Не удалось сохранить на сервере — проверьте интернет"));
 }
@@ -744,11 +1104,13 @@ function gsRefresh(silent){
     if(!silent) toast("Данные обновлены");
   }).catch(()=>{ if(!silent) toast("Нет связи с сервером"); });
 }
-setInterval(()=>gsRefresh(true), 30000); // подтягивать изменения коллег раз в 30 секунд
+setInterval(()=>gsRefresh(true), 30000); // изменения коллег — раз в 30 секунд
 let currentMonday = mondayOf(new Date());
 let activeManager = MANAGERS[0];
 let editingKey = null;
 let freeInfoOpen = false;
+let viewMode = "week";
+let currentDayIdx = (()=>{ const t=(new Date().getDay()+6)%7; return t<5?t:0; })();
 
 /* ================= Утилиты ================= */
 function mondayOf(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
@@ -761,7 +1123,30 @@ function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&
 function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2400); }
 
 /* ================= Отрисовка ================= */
-function render(){ renderWeekLabel(); renderTabs(); renderTzChip(); renderStats(); renderGrid(); }
+function render(){
+  renderWeekLabel(); renderViewSeg(); renderTabs(); renderDayTabs();
+  renderTzChip(); renderStats();
+  if(viewMode==="day") renderDayGrid(); else renderGrid();
+}
+
+/* переключатель «Неделя / День» */
+function renderViewSeg(){
+  const el=document.getElementById("viewSeg");
+  el.querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.v===viewMode);
+    b.onclick=()=>{ viewMode=b.dataset.v; render(); };
+  });
+  document.getElementById("tabs").style.display = viewMode==="day" ? "none" : "";
+  document.getElementById("tzChip").style.display = viewMode==="day" ? "none" : "";
+  document.getElementById("dayTabs").style.display = viewMode==="day" ? "" : "none";
+}
+function renderDayTabs(){
+  const el=document.getElementById("dayTabs");
+  el.innerHTML=DAYS_SHORT.map((d,i)=>
+    `<button class="${i===currentDayIdx?'active':''}" data-d="${i}">${d}<span class="tz">${fmt(addDays(currentMonday,i))}</span></button>`
+  ).join("");
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>{ currentDayIdx=+b.dataset.d; render(); });
+}
 
 /* время активного менеджера: МСК = UTC+3, сдвиг из MANAGER_TZ */
 function renderTzChip(){
@@ -800,7 +1185,7 @@ function renderWeekLabel(){
 function renderTabs(){
   const el=document.getElementById("tabs");
   el.innerHTML = MANAGERS.map(m=>{
-    const n=Object.keys(store).filter(k=>k.startsWith(weekKey()+"|"+m+"|")).length;
+    const n=Object.entries(store).filter(([k,v])=>k.startsWith(weekKey()+"|"+m+"|")&&!v.blocked).length;
     return `<button role="tab" aria-selected="${m===activeManager}" class="${m===activeManager?'active':''}" data-m="${esc(m)}" title="${esc(MANAGER_TZ[m]?.note||"")}">${esc(m)}${n?`<span class="cnt">${n}</span>`:""}</button>`;
   }).join("");
   el.querySelectorAll("button").forEach(t=>t.onclick=()=>{ activeManager=t.dataset.m; render(); });
@@ -809,10 +1194,14 @@ function renderTabs(){
 function weekLeads(){ return Object.entries(store).filter(([k])=>k.startsWith(weekKey()+"|")); }
 
 function renderStats(){
-  const leads=weekLeads().map(([,v])=>v);
+  const entries=weekLeads();
+  const leads=entries.map(([,v])=>v).filter(l=>!l.blocked);
   const total=leads.length;
   const cnt=s=>leads.filter(l=>l.status===s).length;
-  const free=MANAGERS.length*DAYS.length*SLOTS.length-total;
+  // свободные слоты считаем только в основном окне созвонов 10–18
+  const CORE_COUNT=SLOTS.filter((_,si)=>coreSlot(si)).length;
+  const busyCore=entries.filter(([k])=>coreSlot(+k.split("|")[3])).length;
+  const free=MANAGERS.length*DAYS.length*CORE_COUNT-busyCore;
   const tiles=[
     { v: total, l: "созвонов на неделе", hero: true, add: true },
     { v: cnt("planned"), l: "запланировано", d: "var(--st-planned-dot)" },
@@ -822,10 +1211,11 @@ function renderStats(){
     { v: free, l: "свободно слотов", info: true }
   ];
   const perMgr=MANAGERS.map(m=>{
-    const busy=Object.keys(store).filter(k=>k.startsWith(weekKey()+"|"+m+"|")).length;
-    return { m, free: DAYS.length*SLOTS.length-busy };
+    const busy=Object.keys(store).filter(k=>
+      k.startsWith(weekKey()+"|"+m+"|") && coreSlot(+k.split("|")[3])).length;
+    return { m, free: DAYS.length*CORE_COUNT-busy };
   });
-  const maxFree=DAYS.length*SLOTS.length;
+  const maxFree=DAYS.length*CORE_COUNT;
   document.getElementById("stats").innerHTML = tiles.map((t,i)=>{
     const body=`<div class="num">${t.v}</div>
       <div class="cap">${t.d?`<span class="dot" style="background:${t.d}"></span>`:""}${t.l}</div>`;
@@ -870,35 +1260,137 @@ function renderGrid(){
   });
   html+="</tr></thead><tbody>";
   SLOTS.forEach((slot,si)=>{
-    html+=`<tr><td class="time">${slot}</td>`;
-    DAYS.forEach((_,di)=>{
-      const key=slotKey(activeManager,di,si);
-      const lead=store[key];
-      if(lead){
-        const st=STATUS[lead.status]||STATUS.planned;
-        const match=!q||[lead.name,lead.city,lead.contact].some(v=>(v||"").toLowerCase().includes(q));
-        html+=`<td class="slot" data-k="${esc(key)}">
-          <div class="lead-card ${match?'':'dim'}" style="--lc:${st.dot}">
-            <div class="nm">${esc(lead.name)}</div>
-            <div class="meta">${esc([lead.city,lead.contact].filter(Boolean).join(" · "))}</div>
-            <div class="st" style="color:${st.tx}"><span class="dot" style="background:${st.dot};width:6px;height:6px"></span>${st.label}</div>
-          </div></td>`;
-      } else {
-        html+=`<td class="slot" data-k="${esc(key)}"><div class="empty"></div></td>`;
-      }
-    });
+    html+=`<tr><td class="time${coreSlot(si)?'':' off'}">${slot}</td>`;
+    DAYS.forEach((_,di)=>{ html+=cellHtml(slotKey(activeManager,di,si),q); });
     html+="</tr>";
   });
   html+="</tbody>";
+  tbl.classList.remove("dayview");
   tbl.innerHTML=html;
-  tbl.querySelectorAll("td.slot").forEach(td=>td.onclick=()=>openPanel(td.dataset.k));
+  wireGrid(tbl);
 }
+
+/* общая отрисовка ячейки слота: созвон / нерабочий / пустой */
+function cellHtml(key,q){
+  const lead=store[key];
+  const off=coreSlot(+key.split("|")[3])?"":" off";
+  if(lead&&lead.blocked){
+    return `<td class="slot${off}" data-k="${esc(key)}"><div class="lead-card blockcard">
+      <div class="nm">недоступно</div>${lead.comment?`<div class="meta">${esc(lead.comment)}</div>`:""}
+    </div></td>`;
+  }
+  if(lead){
+    const st=STATUS[lead.status]||STATUS.planned;
+    const match=!q||[lead.name,lead.city,lead.contact].some(v=>(v||"").toLowerCase().includes(q));
+    return `<td class="slot${off}" data-k="${esc(key)}">
+      <div class="lead-card ${match?'':'dim'}" draggable="true" title="Перетащите в другой слот" style="--lc:${st.dot}">
+        <div class="nm">${esc(lead.name)}</div>
+        <div class="meta">${esc([lead.city,lead.contact].filter(Boolean).join(" · "))}</div>
+        <div class="st" data-st="${esc(key)}" title="Сменить статус" style="color:${st.tx}"><span class="dot" style="background:${st.dot};width:6px;height:6px"></span>${st.label}</div>
+      </div></td>`;
+  }
+  return `<td class="slot${off}" data-k="${esc(key)}"><div class="empty"></div></td>`;
+}
+let dragKey=null, lastDragTs=0;
+function wireGrid(tbl){
+  tbl.querySelectorAll("td.slot").forEach(td=>td.onclick=()=>{
+    if(Date.now()-lastDragTs<300) return; // не открывать карточку сразу после перетаскивания
+    openPanel(td.dataset.k);
+  });
+  tbl.querySelectorAll(".st[data-st]").forEach(el=>el.onclick=e=>{ e.stopPropagation(); openStMenu(el, el.dataset.st); });
+  // перетаскивание карточек между слотами
+  tbl.querySelectorAll('.lead-card[draggable="true"]').forEach(c=>{
+    c.addEventListener("dragstart",e=>{
+      dragKey=c.closest("td.slot").dataset.k;
+      e.dataTransfer.effectAllowed="move";
+      try{ e.dataTransfer.setData("text/plain", dragKey); }catch{}
+      c.classList.add("dragging");
+    });
+    c.addEventListener("dragend",()=>{
+      dragKey=null; lastDragTs=Date.now();
+      c.classList.remove("dragging");
+      document.querySelectorAll("td.slot.dropok").forEach(x=>x.classList.remove("dropok"));
+    });
+  });
+  tbl.querySelectorAll("td.slot").forEach(td=>{
+    td.addEventListener("dragover",e=>{
+      if(!dragKey) return;
+      const k=td.dataset.k;
+      if(k===dragKey||store[k]) return; // занятые и нерабочие — нельзя
+      e.preventDefault(); e.dataTransfer.dropEffect="move";
+      td.classList.add("dropok");
+    });
+    td.addEventListener("dragleave",()=>td.classList.remove("dropok"));
+    td.addEventListener("drop",e=>{
+      e.preventDefault(); td.classList.remove("dropok");
+      const k=td.dataset.k;
+      if(!dragKey||k===dragKey||store[k]) return;
+      const rec=store[dragKey];
+      delete store[dragKey];
+      if(rec.status==="planned") rec.status="moved"; // запланированный при переносе помечаем «перенос»
+      store[k]=rec;
+      journalLog("Перенос мышкой", `${rec.name} → ${keyStr(k)}`);
+      const dragOld=dragKey;
+      dragKey=null; lastDragTs=Date.now();
+      gsSave(k); gsDelete(dragOld);
+      persist(); render(); toast("Созвон перенесён");
+    });
+  });
+}
+
+/* дневная сетка: все менеджеры колонками */
+function renderDayGrid(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const tbl=document.getElementById("sched");
+  const dayIso=iso(addDays(currentMonday,currentDayIdx));
+  const todayCls=dayIso===iso(new Date())?"today-col":"";
+  let html=`<thead><tr><th class='tcol'>Время <span class='d'>у менеджера</span></th>`;
+  MANAGERS.forEach(m=>{
+    html+=`<th class="mgrcol ${todayCls}">${esc(m)}<span class="d">${tzLabel(m)}</span></th>`;
+  });
+  html+="</tr></thead><tbody>";
+  SLOTS.forEach((slot,si)=>{
+    html+=`<tr><td class="time${coreSlot(si)?'':' off'}">${slot}</td>`;
+    MANAGERS.forEach(m=>{ html+=cellHtml(slotKey(m,currentDayIdx,si),q); });
+    html+="</tr>";
+  });
+  html+="</tbody>";
+  tbl.classList.add("dayview");
+  tbl.innerHTML=html;
+  wireGrid(tbl);
+}
+
+/* всплывающее меню быстрой смены статуса */
+let stMenuEl=null;
+function openStMenu(anchor,key){
+  closeStMenu();
+  const lead=store[key]; if(!lead||lead.blocked) return;
+  stMenuEl=document.createElement("div");
+  stMenuEl.className="stmenu";
+  stMenuEl.innerHTML=Object.entries(STATUS).map(([id,s])=>
+    `<button data-s="${id}" class="${id===lead.status?'cur':''}"><span class="dot" style="background:${s.dot}"></span>${s.label}${id===lead.status?" ✓":""}</button>`
+  ).join("");
+  document.body.appendChild(stMenuEl);
+  const r=anchor.getBoundingClientRect();
+  stMenuEl.style.left=Math.min(r.left, window.innerWidth-190)+"px";
+  stMenuEl.style.top=(r.bottom+6+window.scrollY)+"px";
+  stMenuEl.querySelectorAll("button").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    lead.status=b.dataset.s; persist(); closeStMenu(); render();
+    journalLog("Статус: "+STATUS[b.dataset.s].label, `${lead.name} · ${keyStr(key)}`);
+    gsSave(key);
+    toast("Статус: "+STATUS[b.dataset.s].label);
+  });
+}
+function closeStMenu(){ if(stMenuEl){ stMenuEl.remove(); stMenuEl=null; } }
+document.addEventListener("click",()=>closeStMenu());
 
 /* ================= Слайд-панель ================= */
 const F=id=>document.getElementById(id);
 function openPanel(key){
-  editingKey=key;
   const lead=store[key];
+  if(lead&&lead.blocked){ openBlockPanel(key); return; }
+  editingKey=key;
   const [,mgr,di,si]=key.split("|");
   F("mTitle").textContent = lead ? "Созвон" : "Новый созвон";
   F("mMeta").textContent = `${mgr} · ${tzLabel(mgr)} · ${DAYS_SHORT[di]} ${fmt(addDays(currentMonday,+di))} · ${SLOTS[si]}`;
@@ -925,6 +1417,9 @@ function openPanel(key){
   F("f_terms").value=lead?.terms||""; F("f_status").value=lead?.status||"planned";
   F("f_comment").value=lead?.comment||"";
   F("mDelete").style.display=lead?"":"none";
+  F("mDelete").textContent="Удалить";
+  F("mMove").style.display=lead?"":"none";
+  F("mBlock").style.display=lead?"none":"";
   F("w_name").classList.remove("invalid"); F("w_contact").classList.remove("invalid");
   const cities=[...new Set(Object.values(store).map(l=>l.city).filter(Boolean))];
   F("cityList").innerHTML=cities.map(c=>`<option value="${esc(c)}">`).join("");
@@ -934,12 +1429,36 @@ function openPanel(key){
   F("panel").setAttribute("aria-hidden","false");
   setTimeout(()=>F("f_name").focus(),200);
 }
+
+/* панель нерабочего слота: только причина + «Сделать рабочим» */
+let blockMode=false;
+function openBlockPanel(key){
+  editingKey=key; blockMode=true;
+  const lead=store[key];
+  const [,mgr,di,si]=key.split("|");
+  F("mTitle").textContent="Нерабочий слот";
+  F("mMeta").textContent=`${mgr} · ${DAYS_SHORT[di]} ${fmt(addDays(currentMonday,+di))} · ${SLOTS[si]}`;
+  F("mWho").style.display="none"; F("mLink").style.display="none";
+  F("f_comment").value=lead.comment||"";
+  F("mDelete").style.display=""; F("mDelete").textContent="Сделать рабочим";
+  F("mMove").style.display="none"; F("mBlock").style.display="none";
+  F("mSave").textContent="Сохранить";
+  F("panel").classList.add("blockmode");
+  F("scrim").classList.add("open");
+  F("panel").classList.add("open");
+  F("panel").setAttribute("aria-hidden","false");
+  setTimeout(()=>F("f_comment").focus(),200);
+}
+
 function closePanel(){
   F("scrim").classList.remove("open");
   F("panel").classList.remove("open");
   F("panel").classList.remove("quick");
+  F("panel").classList.remove("blockmode");
   F("panel").setAttribute("aria-hidden","true");
-  editingKey=null; quickMode=false;
+  F("mSave").textContent="Сохранить созвон";
+  F("mDelete").textContent="Удалить";
+  editingKey=null; quickMode=false; blockMode=false; moveMode=false;
 }
 
 /* ---- Быстрое добавление из плитки статистики ---- */
@@ -962,7 +1481,7 @@ function openQuickAdd(){
   // очистить поля лида
   ["f_name","f_contact","f_city","f_exp","f_budget","f_terms","f_comment"].forEach(id=>F(id).value="");
   F("f_source").value=""; F("f_status").value="planned";
-  F("mDelete").style.display="none";
+  F("mDelete").style.display="none"; F("mMove").style.display="none"; F("mBlock").style.display="none";
   F("w_name").classList.remove("invalid"); F("w_contact").classList.remove("invalid");
   const cities=[...new Set(Object.values(store).map(l=>l.city).filter(Boolean))];
   F("cityList").innerHTML=cities.map(c=>`<option value="${esc(c)}">`).join("");
@@ -997,14 +1516,17 @@ function refreshQuickSlots(){
     : "Время (МСК)";
   // если выбранный слот занят у нового менеджера/дня — сбросить
   if(quickSlot!==null && store[qKey(mgr,quickDay,quickSlot)]) quickSlot=null;
-  // по умолчанию — первый свободный
+  // по умолчанию — первый свободный слот основного окна 10–18, иначе любой свободный
   if(quickSlot===null){
-    const first=SLOTS.findIndex((_,si)=>!store[qKey(mgr,quickDay,si)]);
+    let first=SLOTS.findIndex((_,si)=>coreSlot(si)&&!store[qKey(mgr,quickDay,si)]);
+    if(first<0) first=SLOTS.findIndex((_,si)=>!store[qKey(mgr,quickDay,si)]);
     quickSlot=first>=0?first:null;
   }
   F("slotChips").innerHTML=SLOTS.map((s,si)=>{
-    const busy=!!store[qKey(mgr,quickDay,si)];
-    return `<button type="button" class="chip ${si===quickSlot?'sel':''}" data-s="${si}" ${busy?'disabled title="Занято"':''}>${s.slice(0,5)}<span class="sub">${busy?'занято':s.slice(6)}</span></button>`;
+    const e=store[qKey(mgr,quickDay,si)];
+    const busy=!!e;
+    const sub=busy?(e.blocked?"недоступно":"занято"):(coreSlot(si)?s.slice(6):"вне 10–18");
+    return `<button type="button" class="chip ${si===quickSlot?'sel':''}${coreSlot(si)?'':' offc'}" data-s="${si}" ${busy?'disabled title="Занято"':''}>${s.slice(0,5)}<span class="sub">${sub}</span></button>`;
   }).join("");
   F("slotChips").querySelectorAll(".chip:not(:disabled)").forEach(ch=>ch.onclick=()=>{
     quickSlot=+ch.dataset.s; refreshQuickSlots();
@@ -1012,11 +1534,43 @@ function refreshQuickSlots(){
 }
 
 F("mSave").onclick=()=>{
+  // нерабочий слот: сохраняем только причину
+  if(blockMode){
+    store[editingKey]={ blocked:true, comment:F("f_comment").value.trim() };
+    journalLog("Нерабочий слот", keyStr(editingKey));
+    gsSave(editingKey);
+    persist(); closePanel(); render(); toast("Нерабочий слот сохранён");
+    return;
+  }
   const name=F("f_name").value.trim(), contact=F("f_contact").value.trim();
   let bad=false;
   F("w_name").classList.toggle("invalid", !name); if(!name) bad=true;
   F("w_contact").classList.toggle("invalid", !contact); if(!contact) bad=true;
   if(bad){ (name?F("f_contact"):F("f_name")).focus(); return; }
+  // перенос существующего созвона в другой слот
+  if(moveMode){
+    const mgr=F("f_mgr").value;
+    if(quickSlot===null){ toast("У этого менеджера нет свободных слотов в выбранный день"); return; }
+    const newKey=qKey(mgr,quickDay,quickSlot);
+    if(newKey!==editingKey && store[newKey]){ toast("Слот уже занят — выберите другое время"); quickSlot=null; refreshQuickSlots(); return; }
+    const moved={
+      name, contact,
+      city:F("f_city").value.trim(), source:F("f_source").value,
+      exp:F("f_exp").value.trim(), budget:F("f_budget").value.trim(),
+      terms:F("f_terms").value.trim(), status:"moved",
+      comment:F("f_comment").value.trim()
+    };
+    journalLog("Перенос", `${name}: ${keyStr(editingKey)} → ${keyStr(newKey)}`);
+    const oldKey=editingKey;
+    delete store[oldKey];
+    store[newKey]=moved;
+    activeManager=mgr;
+    currentMonday=new Date(quickMonday);
+    currentDayIdx=quickDay;
+    gsSave(newKey); gsDelete(oldKey);
+    persist(); closePanel(); render(); toast("Созвон перенесён");
+    return;
+  }
   if(quickMode){
     const mgr=F("f_mgr").value;
     if(quickSlot===null){ toast("У этого менеджера нет свободных слотов в выбранный день"); return; }
@@ -1033,9 +1587,45 @@ F("mSave").onclick=()=>{
     terms:F("f_terms").value.trim(), status:F("f_status").value,
     comment:F("f_comment").value.trim()
   };
-  persist(); gsSave(editingKey); closePanel(); render(); toast("Созвон сохранён");
+  journalLog("Созвон сохранён", `${name} · ${keyStr(editingKey)}`);
+  gsSave(editingKey);
+  persist(); closePanel(); render(); toast("Созвон сохранён");
 };
-F("mDelete").onclick=()=>{ const k=editingKey; delete store[k]; persist(); gsDelete(k); closePanel(); render(); toast("Созвон удалён"); };
+F("mDelete").onclick=()=>{
+  const nm=(store[editingKey]&&store[editingKey].name)||"";
+  journalLog(blockMode?"Слот снова рабочий":"Удалён", `${nm?nm+" · ":""}${keyStr(editingKey)}`);
+  const delKey=editingKey;
+  delete store[delKey]; persist();
+  gsDelete(delKey);
+  const wasBlock=blockMode;
+  closePanel(); render();
+  toast(wasBlock?"Слот снова рабочий":"Созвон удалён");
+};
+/* перевод пустого слота в нерабочие */
+F("mBlock").onclick=()=>{
+  if(!editingKey) return;
+  store[editingKey]={ blocked:true, comment:F("f_comment").value.trim() };
+  journalLog("Нерабочий слот", keyStr(editingKey));
+  gsSave(editingKey);
+  persist(); closePanel(); render(); toast("Слот помечен нерабочим");
+};
+/* режим переноса: показываем плитки выбора нового места */
+let moveMode=false;
+F("mMove").onclick=()=>{
+  if(!editingKey) return;
+  moveMode=true;
+  const [wk,mgr,di,si]=editingKey.split("|");
+  quickMonday=new Date(wk+"T00:00:00");
+  quickDay=+di; quickSlot=null;
+  F("f_mgr").innerHTML=MANAGERS.map(m=>`<option value="${esc(m)}" ${m===mgr?'selected':''}>${esc(m)}</option>`).join("");
+  F("mTitle").textContent="Перенос созвона";
+  F("mMeta").textContent=`Сейчас: ${mgr} · ${DAYS_SHORT[di]} ${fmt(addDays(new Date(wk+"T00:00:00"),+di))} · ${SLOTS[si]}`;
+  renderQuickWeek(); renderDayChips(); refreshQuickSlots();
+  F("f_mgr").onchange=()=>{ quickSlot=null; refreshQuickSlots(); };
+  F("mMove").style.display="none";
+  F("mSave").textContent="Перенести сюда";
+  F("panel").classList.add("quick");
+};
 F("mCancel").onclick=closePanel;
 F("mClose").onclick=closePanel;
 F("scrim").onclick=closePanel;
@@ -1048,21 +1638,6 @@ document.getElementById("todayW").onclick=()=>{ currentMonday=mondayOf(new Date(
 document.getElementById("search").oninput=renderGrid;
 document.getElementById("f_city").oninput=updateCityTime;
 
-/* ================= Импорт JSON-выгрузки ================= */
-document.getElementById("importFile").onchange=e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{ try{
-    const data=JSON.parse(r.result); store=data.store||{}; persist(); render();
-    if(SESSION){
-      toast("Загружаю данные на сервер…");
-      api({action:"import", store})
-        .then(r=>toast(r.ok?"Данные загружены и сохранены на сервере":"Сервер отклонил загрузку: "+(r.error||"")))
-        .catch(()=>toast("Файл прочитан, но на сервер не сохранился — проверьте интернет"));
-    } else toast("Данные загружены");
-  } catch{ toast("Не удалось прочитать файл — проверьте, что это JSON выгрузки"); } };
-  r.readAsText(f); e.target.value="";
-};
 /* ================= Экспорт в Excel (визуал как в Google-шаблоне) ================= */
 function ensureExcelJS(){
   if(window.ExcelJS) return Promise.resolve();
@@ -1073,7 +1648,7 @@ function ensureExcelJS(){
     document.head.appendChild(s);
   });
 }
-document.getElementById("xlsxBtn").onclick=async()=>{
+async function exportXlsx(){
   toast("Готовлю Excel-файл…");
   try { await ensureExcelJS(); } catch { toast("Нет доступа к библиотеке Excel — проверьте интернет"); return; }
   const wb=new ExcelJS.Workbook();
@@ -1163,7 +1738,9 @@ document.getElementById("xlsxBtn").onclick=async()=>{
       // слоты
       SLOTS.forEach((slot,si)=>{
         const lead=store[slotKey(mgr,di,si)];
-        const vals=[slot,
+        const vals=lead?.blocked
+          ? [slot,"— нерабочий слот —","","","","","","","",lead.comment||""]
+          : [slot,
           lead?.name||"", lead?.contact||"", lead?.city||"", lead?.source||"",
           lead?.exp||"", lead?.budget||"", lead?.terms||"",
           lead?(STATUS[lead.status]||{}).label||"":"", lead?.comment||""];
@@ -1197,16 +1774,513 @@ document.getElementById("xlsxBtn").onclick=async()=>{
   toast("Excel выгружен — визуал как в шаблоне");
 };
 
+/* ================= Меню и страницы ================= */
+const PAGES=["board","analytics","journal","docs","docgen","export","profile","integrations","help"];
+let currentPage="board";
+function openMenu(){ F("drawer").classList.add("open"); F("mscrim").classList.add("open"); }
+function closeMenu(){ F("drawer").classList.remove("open"); F("mscrim").classList.remove("open"); }
+F("menuBtn").onclick=openMenu;
+F("mscrim").onclick=closeMenu;
+function showPage(p){
+  currentPage=p;
+  PAGES.forEach(x=>{ const el=document.getElementById("page-"+x); if(el) el.classList.toggle("on", x===p); });
+  document.querySelectorAll(".mitem[data-p]").forEach(b=>b.classList.toggle("active", b.dataset.p===p));
+  closeMenu();
+  if(p==="analytics") renderAnalytics();
+  if(p==="journal") renderJournal();
+  if(p==="profile") renderProfilePage();
+  if(p==="docs") renderDocs();
+  if(p==="docgen") renderDocgen();
+  if(p==="integrations") loadSettings();
+}
+document.querySelectorAll(".mitem[data-p]").forEach(b=>b.onclick=()=>showPage(b.dataset.p));
+
+/* подпись слота для журнала и аналитики */
+function keyStr(k){
+  const p=String(k).split("|"); if(p.length!==4) return k;
+  const d=new Date(p[0]+"T00:00:00"); d.setDate(d.getDate()+ +p[2]);
+  return `${p[1]} · ${fmt(d)} · ${SLOTS[+p[3]]||""}`;
+}
+
+/* ================= Журнал действий (локальный) ================= */
+let jr=[];
+try{ jr=JSON.parse(localStorage.getItem("fit_test_journal")||"[]"); }catch{}
+function journalLog(action,details){
+  jr.unshift({ t:new Date().toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}), action, details });
+  jr=jr.slice(0,200);
+  try{ localStorage.setItem("fit_test_journal", JSON.stringify(jr)); }catch{}
+}
+function renderJournal(){
+  document.getElementById("jrContent").innerHTML = jr.length
+    ? `<div class="card" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Когда</th><th>Действие</th><th>Детали</th></tr></thead><tbody>
+       ${jr.map(r=>`<tr><td style="white-space:nowrap">${esc(r.t)}</td><td style="white-space:nowrap">${esc(r.action)}</td><td>${esc(r.details)}</td></tr>`).join("")}
+       </tbody></table></div>`
+    : `<div class="card"><p>Пока пусто — добавляйте, переносите и меняйте созвоны, действия будут записываться сюда.</p></div>`;
+}
+
+/* ================= Аналитика ================= */
+function recDate(k){ const p=k.split("|"); const d=new Date(p[0]+"T00:00:00"); d.setDate(d.getDate()+ +p[2]); return d; }
+function setAnRange(from,to){ F("anFrom").value=iso(from); F("anTo").value=iso(to); }
+function initAnRange(preset){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const m=mondayOf(today);
+  if(preset==="week") setAnRange(m, addDays(m,4));
+  else if(preset==="4w") setAnRange(addDays(m,-21), addDays(m,4));
+  else if(preset==="month") setAnRange(new Date(today.getFullYear(),today.getMonth(),1), new Date(today.getFullYear(),today.getMonth()+1,0));
+  else {
+    const ds=Object.keys(store).map(recDate);
+    if(ds.length) setAnRange(new Date(Math.min(...ds)), new Date(Math.max(...ds)));
+    else setAnRange(m, addDays(m,4));
+  }
+}
+document.querySelectorAll("#anSeg button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#anSeg button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); initAnRange(b.dataset.r); renderAnalytics();
+});
+["anFrom","anTo"].forEach(id=>F(id).onchange=()=>{
+  document.querySelectorAll("#anSeg button").forEach(x=>x.classList.remove("active"));
+  renderAnalytics();
+});
+
+/* интерактивный столбиковый график динамики: оси с подписями, ховер, тултип */
+function pluralCalls(n){ const m=n%10, h=n%100; if(m===1&&h!==11) return "созвон"; if(m>=2&&m<=4&&(h<12||h>14)) return "созвона"; return "созвонов"; }
+function colChart(el, pts){
+  if(!pts.length){ el.innerHTML="<p>Нет данных за период.</p>"; return; }
+  const W=Math.max(360, el.clientWidth||640);
+  const padL=46, padR=14, padT=30, padB=44, H=280;
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const max=Math.max(1,...pts.map(p=>p.n));
+  const tickN=4;
+  const niceMax=Math.max(tickN, Math.ceil(max/tickN)*tickN);
+  const n=pts.length;
+  const slot=iw/n;
+  const bw=Math.min(56, Math.max(8, slot*0.62));
+  const yOf=v=>padT+ih*(1-v/niceMax);
+  let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;max-width:100%" role="img" aria-label="Динамика созвонов">`;
+  // ось Y: сетка и значения
+  for(let i=0;i<=tickN;i++){
+    const v=Math.round(niceMax*i/tickN), yy=yOf(v);
+    s+=`<line x1="${padL}" x2="${W-padR}" y1="${yy}" y2="${yy}" stroke="var(--border)" stroke-width="1"/>`;
+    s+=`<text x="${padL-8}" y="${yy+3.5}" font-size="11" fill="var(--muted)" text-anchor="end">${v}</text>`;
+  }
+  s+=`<text x="${padL-38}" y="${padT-14}" font-size="11" fill="var(--muted)">созвонов</text>`;
+  s+=`<line x1="${padL}" x2="${W-padR}" y1="${yOf(0)}" y2="${yOf(0)}" stroke="var(--border-2)" stroke-width="1.2"/>`;
+  // подписи X: без наложений
+  const labelEvery=Math.max(1, Math.ceil(n/Math.floor(iw/52)));
+  pts.forEach((p,i)=>{
+    const cx=padL+slot*i+slot/2;
+    const h=p.n?Math.max(3, ih*p.n/niceMax):0;
+    const yy=p.n?yOf(p.n):yOf(0);
+    s+=`<g class="cg" data-i="${i}" style="cursor:default">`;
+    s+=`<rect x="${padL+slot*i}" y="${padT}" width="${slot}" height="${ih}" fill="transparent"/>`;
+    if(h) s+=`<rect class="cbar" x="${cx-bw/2}" y="${yy}" width="${bw}" height="${h}" rx="4" fill="var(--accent)"/>`;
+    s+=`<text class="cval" x="${cx}" y="${yy-6}" font-size="11" font-weight="700" fill="var(--ink-2)" text-anchor="middle" style="opacity:0">${p.n}</text>`;
+    if(i%labelEvery===0) s+=`<text x="${cx}" y="${H-18}" font-size="11" fill="var(--muted)" text-anchor="middle">${p.label}</text>`;
+    s+=`</g>`;
+  });
+  s+=`<text x="${padL+iw/2}" y="${H-2}" font-size="10.5" fill="var(--faint)" text-anchor="middle">${pts[0].axisTitle||"дни периода"}</text>`;
+  s+="</svg>";
+  el.innerHTML=s;
+  // ховер: подсветка столбика, значение и тултип
+  el.style.position="relative";
+  const tip=document.createElement("div");
+  tip.className="ctip";
+  el.appendChild(tip);
+  el.querySelectorAll(".cg").forEach(g=>{
+    const bar=g.querySelector(".cbar"), val=g.querySelector(".cval");
+    g.addEventListener("mouseenter",()=>{
+      if(bar) bar.setAttribute("fill","var(--accent-ink)");
+      if(val) val.style.opacity=1;
+      const p=pts[+g.dataset.i];
+      tip.textContent=`${p.title}: ${p.n} ${pluralCalls(p.n)}`;
+      tip.style.opacity=1;
+    });
+    g.addEventListener("mousemove",e=>{
+      const r=el.getBoundingClientRect();
+      tip.style.left=Math.max(0, Math.min(e.clientX-r.left+14, r.width-tip.offsetWidth-4))+"px";
+      tip.style.top=Math.max(0, e.clientY-r.top-36)+"px";
+    });
+    g.addEventListener("mouseleave",()=>{
+      if(bar) bar.setAttribute("fill","var(--accent)");
+      if(val) val.style.opacity=0;
+      tip.style.opacity=0;
+    });
+  });
+}
+let anResizeT=null;
+window.addEventListener("resize",()=>{
+  if(currentPage!=="analytics") return;
+  clearTimeout(anResizeT); anResizeT=setTimeout(renderAnalytics,200);
+});
+
+let lastAn=null;
+function anCsv(){
+  if(!lastAn){ renderAnalytics(); }
+  if(!lastAn){ toast("Нет данных для отчёта"); return; }
+  const a=lastAn, rows=[];
+  rows.push(["Отчёт по созвонам", `${fmt(a.from)} — ${fmt(a.to)}`]);
+  rows.push([]);
+  a.kpi.forEach(k=>rows.push([k[0],k[1]]));
+  rows.push([]);
+  rows.push(["Динамика","Созвонов"]);
+  a.dyn.forEach(d=>rows.push([d.title,d.n]));
+  rows.push([]);
+  rows.push(["Статус","Созвонов","Доля"]);
+  a.stArr.forEach(s=>rows.push([s.label,s.n,a.total?Math.round(s.n/a.total*100)+"%":"0%"]));
+  rows.push([]);
+  rows.push(["Источник","Лидов"]);
+  a.srcArr.forEach(s=>rows.push([s[0],s[1]]));
+  rows.push([]);
+  rows.push(["Менеджер","Поставлено","Проведено","Недозвон","Отказы","Конверсия","Загрузка 10–18"]);
+  a.rowsM.forEach(r=>{
+    const load=a.loadM.find(x=>x.m===r.m);
+    rows.push([r.m,r.n,r.d,r.na,r.rf,r.n?Math.round(r.d/r.n*100)+"%":"—",(load?load.pct:0)+"%"]);
+  });
+  const csv="﻿"+rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+  download(`аналитика_${iso(lastAn.from)}_${iso(lastAn.to)}.csv`, csv, "text/csv;charset=utf-8");
+  toast("Отчёт CSV выгружен");
+}
+function renderAnalytics(){
+  if(!F("anFrom").value) initAnRange("week");
+  const from=new Date(F("anFrom").value+"T00:00:00");
+  const to=new Date(F("anTo").value+"T00:00:00");
+  if(isNaN(from)||isNaN(to)||from>to){ document.getElementById("anContent").innerHTML='<div class="card"><p>Выберите корректный диапазон дат.</p></div>'; return; }
+  const inR=k=>{ const d=recDate(k); return d>=from&&d<=to; };
+  const entries=Object.entries(store)
+    .filter(([k,v])=>!v.blocked&&inR(k))
+    .map(([k,v])=>({k,...v}));
+  const total=entries.length;
+  const by=s=>entries.filter(e=>e.status===s).length;
+  const done=by("done");
+  const conv=total?Math.round(done/total*100):0;
+  // будние дни периода — для динамики и расчёта загрузки
+  const days=[];
+  for(let d=new Date(from); d<=to; d.setDate(d.getDate()+1)){
+    if(((d.getDay()+6)%7)<5) days.push({ date:new Date(d), n:0 });
+  }
+  entries.forEach(e=>{
+    const t=recDate(e.k).getTime();
+    const day=days.find(x=>x.date.getTime()===t);
+    if(day) day.n++;
+  });
+  // при длинном периоде укрупняем динамику до недель
+  let dyn;
+  if(days.length>31){
+    const wk={};
+    days.forEach(x=>{ const m=iso(mondayOf(x.date)); wk[m]=(wk[m]||0)+x.n; });
+    dyn=Object.entries(wk).map(([m,n])=>{
+      const d=new Date(m+"T00:00:00");
+      return { n, label:fmt(d), title:`Неделя ${fmt(d)} — ${fmt(addDays(d,4))}`, axisTitle:"недели периода" };
+    });
+  } else {
+    dyn=days.map(x=>({ n:x.n, label:fmt(x.date), title:`${DAYS_SHORT[(x.date.getDay()+6)%7]} ${fmt(x.date)}`, axisTitle:"рабочие дни периода" }));
+  }
+  const rowsM=MANAGERS.map(m=>{
+    const list=entries.filter(e=>e.k.split("|")[1]===m);
+    return { m, n:list.length,
+      d:list.filter(e=>e.status==="done").length,
+      na:list.filter(e=>e.status==="noanswer").length,
+      rf:list.filter(e=>e.status==="refused").length };
+  });
+  const src={};
+  entries.forEach(e=>{ const s=e.source||"Не указан"; src[s]=(src[s]||0)+1; });
+  const srcArr=Object.entries(src).sort((a,b)=>b[1]-a[1]);
+  const maxSrc=srcArr.length?srcArr[0][1]:1;
+  const stArr=Object.entries(STATUS).map(([id,s])=>({label:s.label,dot:s.dot,n:by(id)}));
+  const maxSt=Math.max(1,...stArr.map(x=>x.n));
+  const CORE_N=SLOTS.filter((_,si)=>coreSlot(si)).length;
+  const loadM=MANAGERS.map(m=>{
+    const busy=Object.keys(store).filter(k=>{
+      const p=k.split("|");
+      return p[1]===m&&coreSlot(+p[3])&&inR(k);
+    }).length;
+    return { m, pct:days.length?Math.min(100,Math.round(busy/(days.length*CORE_N)*100)):0 };
+  });
+  const kpi=[["Созвонов за период",total],["Проведено",done],["Конверсия в проведённый",conv+"%"],["Отказов",by("refused")]];
+  lastAn={ from, to, kpi, dyn, stArr, srcArr, loadM, rowsM, total };
+  document.getElementById("anContent").innerHTML=`
+    <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-bottom:14px">
+      ${kpi.map(x=>`<div class="card"><div style="font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums">${x[1]}</div><p>${x[0]}</p></div>`).join("")}
+    </div>
+    <div class="card" style="margin-bottom:14px"><h3>Динамика созвонов <span style="font-weight:400;color:var(--faint);font-size:12px">${fmt(from)} — ${fmt(to)}</span></h3>
+      <div id="dynChart" style="min-height:280px"></div>
+    </div>
+    <div class="cards">
+      <div class="card"><h3>Статусы</h3>
+        ${stArr.map(x=>`<div class="statrow"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${x.dot};margin-right:6px"></span>${x.label}</span><b>${x.n}${total?` · ${Math.round(x.n/total*100)}%`:""}</b></div><div class="hbar"><i style="width:${Math.round(x.n/maxSt*100)}%;background:${x.dot}"></i></div>`).join("")}
+      </div>
+      <div class="card"><h3>Источники лидов</h3>
+        ${srcArr.length?srcArr.map(x=>`<div class="statrow"><span>${esc(x[0])}</span><b>${x[1]}</b></div><div class="hbar"><i style="width:${Math.round(x[1]/maxSrc*100)}%"></i></div>`).join(""):"<p>Нет данных за период.</p>"}
+      </div>
+      <div class="card"><h3>Загрузка окна 10–18</h3>
+        ${loadM.map(x=>`<div class="statrow"><span>${esc(x.m)}</span><b>${x.pct}%</b></div><div class="hbar"><i style="width:${x.pct}%"></i></div>`).join("")}
+      </div>
+      <div class="card" style="grid-column:1/-1;overflow-x:auto"><h3>По менеджерам</h3>
+        <table class="tbl"><thead><tr><th>Менеджер</th><th>Поставлено</th><th>Проведено</th><th>Недозвон</th><th>Отказы</th><th>Конверсия</th></tr></thead><tbody>
+        ${rowsM.map(r=>`<tr><td>${esc(r.m)}</td><td>${r.n}</td><td>${r.d}</td><td>${r.na}</td><td>${r.rf}</td><td>${r.n?Math.round(r.d/r.n*100)+"%":"—"}</td></tr>`).join("")}
+        </tbody></table>
+      </div>
+    </div>`;
+  colChart(document.getElementById("dynChart"), dyn);
+}
+
+/* ================= Документы: копирование шаблонов ================= */
+function copyTxt(id){
+  const t=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(t).then(()=>toast("Текст скопирован")).catch(()=>toast("Не удалось скопировать"));
+}
+
+/* ================= Документы: хранилище ссылок ================= */
+const DOCS_KEY="fit_test_docs";
+let docsReg=[
+  { n:"ДКК — договор коммерческой концессии", d:"Утверждённый шаблон договора для партнёра", url:"" },
+  { n:"ДПН — договор о намерениях", d:"Предварительный договор с партнёром", url:"" },
+  { n:"Презентация франшизы", d:"Актуальная версия для отправки лидам", url:"" },
+  { n:"Финансовая модель (БП)", d:"Таблица расчёта бизнес-плана", url:"" },
+  { n:"Скрипт разговора", d:"Сценарий созвона с лидом: приветствие, квалификация, презентация, работа с возражениями", url:"" }
+];
+try{ const s=JSON.parse(localStorage.getItem(DOCS_KEY)||"null"); if(Array.isArray(s)&&s.length) docsReg=s; }catch{}
+// докидываем «Скрипт разговора» тем, у кого список сохранён без него
+if(!docsReg.some(d=>/скрипт/i.test(d.n))){
+  docsReg.push({ n:"Скрипт разговора", d:"Сценарий созвона с лидом: приветствие, квалификация, презентация, работа с возражениями", url:"" });
+}
+function saveDocsReg(){ try{ localStorage.setItem(DOCS_KEY, JSON.stringify(docsReg)); }catch{} }
+function renderDocs(){
+  const el=document.getElementById("docsList");
+  el.innerHTML=docsReg.map((doc,i)=>`
+    <div class="card"><h3>${esc(doc.n)} ${doc.url?'<span class="badge ok">ссылка есть</span>':'<span class="badge no">нет ссылки</span>'}</h3>
+      <p>${esc(doc.d)}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        ${doc.url?`<button class="btn primary" onclick="window.open(docsReg[${i}].url,'_blank')">Открыть</button>`:""}
+        <button class="btn" onclick="docSetUrl(${i})">${doc.url?"Изменить ссылку":"Прикрепить ссылку"}</button>
+        <button class="btn ghost-danger" onclick="docDel(${i})">Убрать</button>
+      </div>
+    </div>`).join("")+`
+    <div class="card" style="display:flex;align-items:center;justify-content:center;min-height:120px">
+      <button class="btn" onclick="docAdd()">+ Добавить документ</button>
+    </div>`;
+}
+function docSetUrl(i){
+  const u=prompt("Ссылка на документ (Google Диск, Документы и т.п.):", docsReg[i].url||"https://");
+  if(u===null) return;
+  docsReg[i].url=u.trim(); saveDocsReg(); renderDocs();
+}
+function docAdd(){
+  const n=prompt("Название документа:"); if(!n) return;
+  const d=prompt("Короткое описание:")||"";
+  const u=prompt("Ссылка (можно оставить пустой):")||"";
+  docsReg.push({ n:n.trim(), d:d.trim(), url:u.trim() });
+  saveDocsReg(); renderDocs();
+}
+function docDel(i){
+  if(!confirm(`Убрать «${docsReg[i].n}» из списка?`)) return;
+  docsReg.splice(i,1); saveDocsReg(); renderDocs();
+}
+
+/* ================= Создание документов ================= */
+const BP_KEY="fit_test_bp", PR_KEY="fit_test_partner", RQ_KEY="fit_test_requisites";
+const BP_IDS=["bp_inv","bp_fee","bp_check","bp_cars","bp_days","bp_exp","bp_roy"];
+const PR_IDS=["pr_fio","pr_inn","pr_ogrn","pr_pass","pr_addr","pr_city","pr_phone","pr_email","pr_num","pr_date"];
+const RQ_IDS=["rq_name","rq_inn","rq_kpp","rq_ogrn","rq_addr","rq_bank","rq_rs","rq_ks","rq_bik","rq_dir","rq_osn","rq_contact"];
+function rqValues(){ const v={}; RQ_IDS.forEach(id=>v[id]=F(id).value.trim()); return v; }
+const rub=n=>Math.round(n).toLocaleString("ru-RU")+" ₽";
+function bpValues(){ const v={}; BP_IDS.forEach(id=>v[id]=+F(id).value||0); return v; }
+function bpRows(){
+  const v=bpValues();
+  const rev=v.bp_check*v.bp_cars*v.bp_days;
+  const roy=rev*v.bp_roy/100;
+  const profit=rev-v.bp_exp-roy;
+  const invest=v.bp_inv+v.bp_fee;
+  const payback=profit>0?Math.ceil(invest/profit):null;
+  const margin=rev>0?Math.round(profit/rev*100):0;
+  return [
+    ["Выручка в месяц", rub(rev)],
+    ["Роялти в месяц", rub(roy)],
+    ["Прибыль в месяц", rub(profit)],
+    ["Вложения всего (с паушальным)", rub(invest)],
+    ["Окупаемость", payback?payback+" мес. (~"+(Math.round(payback/12*10)/10)+" г.)":"не окупается при этих параметрах"],
+    ["Рентабельность по выручке", margin+"%"]
+  ];
+}
+function bpRender(){
+  document.getElementById("bp_out").innerHTML=bpRows().map(r=>
+    `<div class="statrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+}
+function bpCopy(){
+  const v=bpValues();
+  const txt="Расчёт бизнес-плана FIT SERVICE\n"+
+    `Инвестиции: ${rub(v.bp_inv)} · Паушальный: ${rub(v.bp_fee)}\n`+
+    `Средний чек: ${rub(v.bp_check)} · Заездов в день: ${v.bp_cars} · Дней/мес: ${v.bp_days}\n`+
+    `Расходы/мес: ${rub(v.bp_exp)} · Роялти: ${v.bp_roy}%\n`+
+    "—\n"+bpRows().map(r=>`${r[0]}: ${r[1]}`).join("\n");
+  navigator.clipboard.writeText(txt).then(()=>toast("Расчёт скопирован")).catch(()=>toast("Не удалось скопировать"));
+}
+function prValues(){ const v={}; PR_IDS.forEach(id=>v[id]=F(id).value.trim()); return v; }
+function fmtDocDate(s){
+  if(!s) return "«___» __________ 20___ г.";
+  const d=new Date(s+"T00:00:00");
+  const M=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+  return `«${d.getDate()}» ${M[d.getMonth()]} ${d.getFullYear()} г.`;
+}
+function partnerBlockHtml(v){
+  return `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%">
+    <tr><td width="35%"><b>ФИО партнёра</b></td><td>${esc(v.pr_fio||"—")}</td></tr>
+    <tr><td><b>ИНН</b></td><td>${esc(v.pr_inn||"—")}</td></tr>
+    <tr><td><b>ОГРНИП / ОГРН</b></td><td>${esc(v.pr_ogrn||"—")}</td></tr>
+    <tr><td><b>Паспорт</b></td><td>${esc(v.pr_pass||"—")}</td></tr>
+    <tr><td><b>Адрес регистрации</b></td><td>${esc(v.pr_addr||"—")}</td></tr>
+    <tr><td><b>Город открытия</b></td><td>${esc(v.pr_city||"—")}</td></tr>
+    <tr><td><b>Телефон</b></td><td>${esc(v.pr_phone||"—")}</td></tr>
+    <tr><td><b>E-mail</b></td><td>${esc(v.pr_email||"—")}</td></tr>
+  </table>`;
+}
+function rqBlockHtml(r){
+  return `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%">
+    <tr><td width="35%"><b>Наименование</b></td><td>${esc(r.rq_name||"—")}</td></tr>
+    <tr><td><b>ИНН / КПП</b></td><td>${esc(r.rq_inn||"—")}${r.rq_kpp?" / "+esc(r.rq_kpp):""}</td></tr>
+    <tr><td><b>ОГРН</b></td><td>${esc(r.rq_ogrn||"—")}</td></tr>
+    <tr><td><b>Юридический адрес</b></td><td>${esc(r.rq_addr||"—")}</td></tr>
+    <tr><td><b>Банк</b></td><td>${esc(r.rq_bank||"—")}</td></tr>
+    <tr><td><b>Р/с</b></td><td>${esc(r.rq_rs||"—")}</td></tr>
+    <tr><td><b>К/с</b></td><td>${esc(r.rq_ks||"—")}</td></tr>
+    <tr><td><b>БИК</b></td><td>${esc(r.rq_bik||"—")}</td></tr>
+    <tr><td><b>Контакты</b></td><td>${esc(r.rq_contact||"—")}</td></tr>
+  </table>`;
+}
+function makeContract(kind){
+  const v=prValues();
+  const r=rqValues();
+  if(!v.pr_fio){ toast("Заполните хотя бы ФИО партнёра"); F("pr_fio").focus(); return; }
+  persistDocgen();
+  const isDkk=kind==="dkk";
+  const title=isDkk?"ДОГОВОР КОММЕРЧЕСКОЙ КОНЦЕССИИ":"ДОГОВОР О НАМЕРЕНИЯХ";
+  const num=v.pr_num||"____________";
+  const side=isDkk?"Пользователь":"Партнёр";
+  const holder=r.rq_name
+    ? `${esc(r.rq_name)} (ИНН ${esc(r.rq_inn||"—")}, ОГРН ${esc(r.rq_ogrn||"—")}), в лице ${esc(r.rq_dir||"____________")}, действующего на основании ${esc(r.rq_osn||"Устава")}`
+    : "[заполните реквизиты правообладателя на странице «Создание документов»]";
+  const html=`
+    <h2 style="text-align:center">${title}<br>№ ${esc(num)}</h2>
+    <p style="text-align:center">г. ${esc(v.pr_city||"____________")} · ${fmtDocDate(v.pr_date)}</p>
+    <p><b>Правообладатель:</b> ${holder}, в дальнейшем «Правообладатель», с одной стороны, и</p>
+    <p><b>${side}:</b> ${esc(v.pr_fio)}, в дальнейшем «${side}», с другой стороны, заключили настоящий договор о нижеследующем.</p>
+    <h3>1. Предмет договора</h3>
+    <p>[Вставьте текст раздела из шаблона ${isDkk?"ДКК":"ДПН"}, утверждённого юристом.]</p>
+    <h3>2. Права и обязанности сторон</h3>
+    <p>[Вставьте текст раздела из утверждённого шаблона.]</p>
+    <h3>3. Финансовые условия</h3>
+    <p>[Вставьте текст раздела из утверждённого шаблона.]</p>
+    <h3>Реквизиты Правообладателя</h3>
+    ${rqBlockHtml(r)}
+    <h3>Реквизиты ${side==="Пользователь"?"Пользователя":"Партнёра"}</h3>
+    ${partnerBlockHtml(v)}
+    <h3>Подписи сторон</h3>
+    <table width="100%"><tr>
+      <td width="50%">Правообладатель:<br><br>_______________ / ${esc(r.rq_dir||"____________")} /</td>
+      <td width="50%">${side}:<br><br>_______________ / ${esc(v.pr_fio)} /</td>
+    </tr></table>`;
+  const doc=`<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${title}</title></head>`+
+    `<body style="font-family:'Times New Roman',serif;font-size:12pt;line-height:1.4">${html}</body></html>`;
+  download(`${isDkk?"ДКК":"ДПН"}_${(v.pr_fio.split(" ")[0]||"партнёр")}_${v.pr_num||""}.doc`, doc, "application/msword");
+  journalLog(`Создан документ ${isDkk?"ДКК":"ДПН"}`, v.pr_fio);
+  toast(`${isDkk?"ДКК":"ДПН"} скачан — откройте в Word и вставьте текст разделов`);
+}
+function copyPartnerReq(){
+  const v=prValues();
+  const txt=`ФИО: ${v.pr_fio}\nИНН: ${v.pr_inn}\nОГРНИП/ОГРН: ${v.pr_ogrn}\nПаспорт: ${v.pr_pass}\nАдрес: ${v.pr_addr}\nГород открытия: ${v.pr_city}\nТелефон: ${v.pr_phone}\nE-mail: ${v.pr_email}\nДоговор: ${v.pr_num} от ${fmtDocDate(v.pr_date)}`;
+  persistDocgen();
+  navigator.clipboard.writeText(txt).then(()=>toast("Реквизиты скопированы")).catch(()=>toast("Не удалось скопировать"));
+}
+function persistDocgen(){
+  try{
+    localStorage.setItem(BP_KEY, JSON.stringify(bpValues()));
+    localStorage.setItem(PR_KEY, JSON.stringify(prValues()));
+    localStorage.setItem(RQ_KEY, JSON.stringify(rqValues()));
+  }catch{}
+}
+let docgenInited=false;
+function renderDocgen(){
+  if(!docgenInited){
+    docgenInited=true;
+    try{
+      const b=JSON.parse(localStorage.getItem(BP_KEY)||"null");
+      if(b) BP_IDS.forEach(id=>{ if(b[id]!=null) F(id).value=b[id]; });
+      const p=JSON.parse(localStorage.getItem(PR_KEY)||"null");
+      if(p) PR_IDS.forEach(id=>{ if(p[id]!=null) F(id).value=p[id]; });
+      const r=JSON.parse(localStorage.getItem(RQ_KEY)||"null");
+      if(r) RQ_IDS.forEach(id=>{ if(r[id]!=null) F(id).value=r[id]; });
+    }catch{}
+    BP_IDS.forEach(id=>F(id).oninput=()=>{ bpRender(); persistDocgen(); });
+    PR_IDS.forEach(id=>F(id).onchange=persistDocgen);
+    RQ_IDS.forEach(id=>F(id).onchange=persistDocgen);
+  }
+  bpRender();
+}
+
+/* ================= Выгрузки ================= */
+function download(name,content,type){
+  const blob=new Blob([content],{type});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  URL.revokeObjectURL(a.href);
+}
+function exportCsv(){
+  const rows=[["Неделя","Менеджер","День","Дата","Время","Имя","Контакт","Город","Откуда узнали","Опыт","Сумма вложений","Сроки открытия","Статус","Комментарий"]];
+  Object.entries(store).sort().forEach(([k,l])=>{
+    if(l.blocked) return;
+    const [wk,mgr,di,si]=k.split("|");
+    const date=iso(addDays(new Date(wk+"T00:00:00"),+di));
+    rows.push([wk,mgr,DAYS[di],date,SLOTS[si],l.name,l.contact,l.city,l.source,l.exp,l.budget,l.terms,(STATUS[l.status]||{}).label||l.status,l.comment]);
+  });
+  const csv="﻿"+rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+  download("график_созвонов.csv", csv, "text/csv;charset=utf-8");
+  toast("CSV выгружен");
+}
+function exportJson(){
+  download("график_созвонов_данные.json", JSON.stringify({version:1,store},null,2), "application/json");
+  toast("JSON выгружен");
+}
+
+/* ================= Профиль ================= */
+const PROFILE_KEY="fit_test_profile";
+let profile={ name:"Мария Иванищенко", role:"Администратор", mgr:MANAGERS[0], view:"week" };
+try{ Object.assign(profile, JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}")); }catch{}
+if(MANAGERS.includes(profile.mgr)) activeManager=profile.mgr;
+if(profile.view==="day"||profile.view==="week") viewMode=profile.view;
+function renderProfilePage(){
+  F("pf_name").value=profile.name;
+  F("pf_mgr").innerHTML=MANAGERS.map(m=>`<option ${m===profile.mgr?"selected":""}>${esc(m)}</option>`).join("");
+  F("pf_view").value=profile.view;
+  const all=Object.entries(store).filter(([,v])=>!v.blocked);
+  const thisWeek=all.filter(([k])=>k.startsWith(weekKey()+"|")).length;
+  const done=all.filter(([,v])=>v.status==="done").length;
+  F("pf_stats").innerHTML=`
+    <div class="statrow"><span>Аккаунт</span><b>${esc(USER_EMAIL||"—")}</b></div>
+    <div class="statrow"><span>Роль</span><b>${esc(profile.role)}</b></div>
+    <div class="statrow"><span>Всего созвонов в базе</span><b>${all.length}</b></div>
+    <div class="statrow"><span>На текущей неделе</span><b>${thisWeek}</b></div>
+    <div class="statrow"><span>Проведено всего</span><b>${done}</b></div>
+    <div class="statrow"><span>Действий в журнале</span><b>${jr.length}</b></div>`;
+}
+function saveProfile(){
+  profile.name=F("pf_name").value.trim()||profile.name;
+  profile.mgr=F("pf_mgr").value;
+  profile.view=F("pf_view").value;
+  try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch{}
+  activeManager=profile.mgr; viewMode=profile.view;
+  render(); toast("Настройки сохранены");
+}
+
 /* ================= Появление блоков ================= */
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }),{threshold:.05});
 document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 
 /* ================= Загрузка данных ================= */
 (function init(){
-  // сначала мгновенно показываем локальный кеш, свежие данные придут с сервера
+  // мгновенно показываем локальный кеш; свежие данные придут с сервера
   try{
     const raw=localStorage.getItem(LS_KEY);
-    if(raw!==null){ store=JSON.parse(raw)||{}; return; }
+    if(raw!==null) store=JSON.parse(raw)||{};
   }catch{}
 })();
 
@@ -1214,13 +2288,18 @@ render();
 
 /* ================= Вход через Google ================= */
 function renderUserChip(){
-  const el=document.getElementById("userChip");
-  el.innerHTML = SESSION
-    ? `<span>${esc(USER_EMAIL)}</span><button class="btn" id="logoutBtn" style="margin-left:6px">Выйти</button>`
-    : "";
-  const b=document.getElementById("logoutBtn");
-  if(b) b.onclick=()=>{ api({action:"logout"}).catch(()=>{}); authRequired(); toast("Вы вышли"); };
+  const acc=document.getElementById("mAccount");
+  if(SESSION){
+    acc.style.display="";
+    document.getElementById("mAccEmail").textContent=USER_EMAIL;
+  } else {
+    acc.style.display="none";
+  }
 }
+document.getElementById("mLogout").onclick=()=>{
+  api({action:"logout"}).catch(()=>{});
+  closeMenu(); authRequired(); toast("Вы вышли из аккаунта");
+};
 function showAuth(){
   document.getElementById("authwrap").classList.add("on");
   initGsi();
@@ -1232,7 +2311,6 @@ function hideAuth(){
 let gsiInited=false;
 function initGsi(){
   if(gsiInited) return;
-  // библиотека Google подгружается асинхронно — ждём её
   if(!(window.google&&window.google.accounts&&window.google.accounts.id)){ setTimeout(initGsi,300); return; }
   gsiInited=true;
   google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleCredential });
@@ -1259,18 +2337,25 @@ function onGoogleCredential(resp){
     })
     .catch(()=>{ document.getElementById("authErr").textContent="Нет связи с сервером."; });
 }
-/* переключатель интеграции с календарём (общая настройка, хранится на сервере) */
+/* интеграция с Google Календарём: общий рубильник на странице «Интеграции»,
+   настройка хранится на сервере, по умолчанию выключена */
+function setCalUi(on){
+  F("calTgl").checked=on;
+  F("calState").textContent=on?"включён":"выключен";
+}
 function loadSettings(){
   if(!SESSION) return;
   api({action:"getsettings"}).then(r=>{
-    if(r.ok) F("calTgl").checked = r.cal !== "0";
+    if(r.ok) setCalUi(r.cal==="1");
   }).catch(()=>{});
 }
 F("calTgl").onchange=()=>{
-  if(!SESSION){ F("calTgl").checked=!F("calTgl").checked; toast("Сначала войдите"); return; }
-  api({action:"setsetting", ckey:"CAL_ENABLED", cvalue:F("calTgl").checked?"1":"0"})
+  if(!SESSION){ setCalUi(!F("calTgl").checked); toast("Сначала войдите"); return; }
+  const on=F("calTgl").checked;
+  setCalUi(on);
+  api({action:"setsetting", ckey:"CAL_ENABLED", cvalue:on?"1":"0"})
     .then(r=>toast(r.ok
-      ? "Google Календарь: "+(F("calTgl").checked?"включён — события будут создаваться":"выключен")
+      ? "Google Календарь: "+(on?"включён — события будут создаваться":"выключен")
       : "Не удалось сохранить настройку"))
     .catch(()=>toast("Нет связи с сервером"));
 };
