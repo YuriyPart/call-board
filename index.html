@@ -2802,7 +2802,7 @@ function asWho(){
 }
 function asTasks(){
   try{ const t=localStorage.getItem(AS_TASKS_KEY); if(t) return JSON.parse(t); }catch{}
-  return ["Отчёты еженедельные","Обработка почты (фр., аренда) и новых запросов с Авито","Обработка новых лидов","Активный поиск локаций"];
+  return []; // ничего не выдумываем: только задачи, которые человек внёс сам
 }
 function asEditTasks(){
   const t=prompt("Ваши регулярные задачи на день (по одной на строку) — попадут в «План на день»:", asTasks().join("\n"));
@@ -2836,7 +2836,9 @@ function asPlan(){
     .filter(([k,v])=>!v.blocked&&v.status==="noanswer"&&recDate(k)>=weekAgo&&recDate(k)<=new Date())
     .map(([k,v])=>`${v.name} · ${fmt(recDate(k))}`);
   let t=`${asWho()} · План ${dstr}\n`;
-  asTasks().forEach(x=>{ t+=`— ${x}\n`; });
+  const myTasks=asTasks();
+  if(myTasks.length) myTasks.forEach(x=>{ t+=`— ${x}\n`; });
+  else t+=`(Регулярные задачи не заданы — нажмите «✎ задачи» и внесите свои, они будут появляться в плане.)\n`;
   const list=mine.length?mine:items;
   t+=`\n${mine.length?"Мои созвоны":"Созвоны команды"} сегодня (${list.length}):\n`;
   t+=list.length?list.map(x=>`— ${SLOTS[x.si].slice(0,5)} ${esc0(x.v.name)} · ${x.mgr.split(" ")[0]}${x.v.status==="moved"?" (перенос)":""}`).join("\n"):"— нет запланированных";
