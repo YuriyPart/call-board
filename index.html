@@ -542,6 +542,8 @@
     <div>
       <div class="t" id="mTitle">Новый созвон</div>
       <div class="slotmeta" id="mMeta"></div>
+      <div class="slotmeta" id="mWho" style="display:none"></div>
+      <div class="slotmeta" id="mLink" style="display:none;margin-top:4px"></div>
     </div>
     <button class="x" id="mClose" aria-label="Закрыть панель">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -691,6 +693,9 @@ function gsSave(key){
     .then(r=>{ if(!r.ok){
       if(r.error==="unauthorized"){ authRequired(); toast("Сессия истекла — войдите снова"); }
       else toast("Сервер отклонил сохранение: "+(r.error||""));
+    } else {
+      // подтянуть ссылку Телемоста и автора, которые проставил сервер
+      setTimeout(()=>gsRefresh(true), 2500);
     }})
     .catch(()=>toast("Не удалось сохранить на сервере — проверьте интернет"));
 }
@@ -875,6 +880,23 @@ function openPanel(key){
   const [,mgr,di,si]=key.split("|");
   F("mTitle").textContent = lead ? "Созвон" : "Новый созвон";
   F("mMeta").textContent = `${mgr} · ${tzLabel(mgr)} · ${DAYS_SHORT[di]} ${fmt(addDays(currentMonday,+di))} · ${SLOTS[si]}`;
+  // кто поставил созвон
+  const who=F("mWho");
+  if(lead&&lead.creator){
+    const mine=USER_EMAIL&&lead.creator.toLowerCase()===USER_EMAIL.toLowerCase();
+    who.textContent="Поставил(а): "+(mine?"вы":lead.creator);
+    who.style.display="";
+  } else { who.style.display="none"; who.textContent=""; }
+  // ссылка на видеовстречу
+  const ml=F("mLink");
+  if(lead&&lead.link){
+    ml.innerHTML=`<a href="${esc(lead.link)}" target="_blank" rel="noopener" style="color:var(--accent-ink);font-weight:600">Открыть Телемост</a> · <a href="#" id="copyLinkA" style="color:var(--muted)">скопировать ссылку</a>`;
+    ml.style.display="";
+    setTimeout(()=>{
+      const a=document.getElementById("copyLinkA");
+      if(a) a.onclick=e=>{ e.preventDefault(); navigator.clipboard.writeText(lead.link).then(()=>toast("Ссылка скопирована")); };
+    },0);
+  } else { ml.style.display="none"; ml.innerHTML=""; }
   F("f_name").value=lead?.name||""; F("f_contact").value=lead?.contact||"";
   F("f_city").value=lead?.city||""; F("f_source").value=lead?.source||"";
   F("f_exp").value=lead?.exp||""; F("f_budget").value=lead?.budget||"";
@@ -906,6 +928,7 @@ function openQuickAdd(){
   quickMonday=new Date(currentMonday);
   F("mTitle").textContent="Новый созвон";
   F("mMeta").textContent="Выберите менеджера, день и время";
+  F("mWho").style.display="none"; F("mLink").style.display="none";
   // менеджеры
   F("f_mgr").innerHTML=MANAGERS.map(m=>`<option value="${esc(m)}" ${m===activeManager?'selected':''}>${esc(m)}</option>`).join("");
   // день по умолчанию — сегодня, если открыта текущая неделя
