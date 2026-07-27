@@ -1216,7 +1216,7 @@ render();
 function renderUserChip(){
   const el=document.getElementById("userChip");
   el.innerHTML = SESSION
-    ? `<span>${esc(USER_EMAIL)}</span><button class="btn subtle" id="logoutBtn">Выйти</button>`
+    ? `<span>${esc(USER_EMAIL)}</span><button class="btn" id="logoutBtn" style="margin-left:6px">Выйти</button>`
     : "";
   const b=document.getElementById("logoutBtn");
   if(b) b.onclick=()=>{ api({action:"logout"}).catch(()=>{}); authRequired(); toast("Вы вышли"); };
