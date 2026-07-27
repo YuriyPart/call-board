@@ -464,6 +464,12 @@
   .stmenu button:hover { background: var(--surface-3); color: var(--ink); }
   .stmenu .cur { font-weight: 700; color: var(--ink); }
 
+  /* ---------- Перетаскивание карточек ---------- */
+  .lead-card[draggable="true"] { cursor: grab; }
+  .lead-card.dragging { opacity: .35; cursor: grabbing; }
+  td.slot.dropok { background: var(--accent-soft); }
+  td.slot.dropok .empty { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
   /* ---------- Дневная сетка ---------- */
   table.sched.dayview { table-layout: fixed; }
   table.sched.dayview th.tcol { width: 96px; }
@@ -846,7 +852,7 @@ function cellHtml(key,q){
     const st=STATUS[lead.status]||STATUS.planned;
     const match=!q||[lead.name,lead.city,lead.contact].some(v=>(v||"").toLowerCase().includes(q));
     return `<td class="slot" data-k="${esc(key)}">
-      <div class="lead-card ${match?'':'dim'}" style="--lc:${st.dot}">
+      <div class="lead-card ${match?'':'dim'}" draggable="true" title="Перетащите в другой слот" style="--lc:${st.dot}">
         <div class="nm">${esc(lead.name)}</div>
         <div class="meta">${esc([lead.city,lead.contact].filter(Boolean).join(" · "))}</div>
         <div class="st" data-st="${esc(key)}" title="Сменить статус" style="color:${st.tx}"><span class="dot" style="background:${st.dot};width:6px;height:6px"></span>${st.label}</div>
@@ -854,9 +860,48 @@ function cellHtml(key,q){
   }
   return `<td class="slot" data-k="${esc(key)}"><div class="empty"></div></td>`;
 }
+let dragKey=null, lastDragTs=0;
 function wireGrid(tbl){
-  tbl.querySelectorAll("td.slot").forEach(td=>td.onclick=()=>openPanel(td.dataset.k));
+  tbl.querySelectorAll("td.slot").forEach(td=>td.onclick=()=>{
+    if(Date.now()-lastDragTs<300) return; // не открывать карточку сразу после перетаскивания
+    openPanel(td.dataset.k);
+  });
   tbl.querySelectorAll(".st[data-st]").forEach(el=>el.onclick=e=>{ e.stopPropagation(); openStMenu(el, el.dataset.st); });
+  // перетаскивание карточек между слотами
+  tbl.querySelectorAll('.lead-card[draggable="true"]').forEach(c=>{
+    c.addEventListener("dragstart",e=>{
+      dragKey=c.closest("td.slot").dataset.k;
+      e.dataTransfer.effectAllowed="move";
+      try{ e.dataTransfer.setData("text/plain", dragKey); }catch{}
+      c.classList.add("dragging");
+    });
+    c.addEventListener("dragend",()=>{
+      dragKey=null; lastDragTs=Date.now();
+      c.classList.remove("dragging");
+      document.querySelectorAll("td.slot.dropok").forEach(x=>x.classList.remove("dropok"));
+    });
+  });
+  tbl.querySelectorAll("td.slot").forEach(td=>{
+    td.addEventListener("dragover",e=>{
+      if(!dragKey) return;
+      const k=td.dataset.k;
+      if(k===dragKey||store[k]) return; // занятые и нерабочие — нельзя
+      e.preventDefault(); e.dataTransfer.dropEffect="move";
+      td.classList.add("dropok");
+    });
+    td.addEventListener("dragleave",()=>td.classList.remove("dropok"));
+    td.addEventListener("drop",e=>{
+      e.preventDefault(); td.classList.remove("dropok");
+      const k=td.dataset.k;
+      if(!dragKey||k===dragKey||store[k]) return;
+      const rec=store[dragKey];
+      delete store[dragKey];
+      if(rec.status==="planned") rec.status="moved"; // запланированный при переносе помечаем «перенос»
+      store[k]=rec;
+      dragKey=null; lastDragTs=Date.now();
+      persist(); render(); toast("Созвон перенесён");
+    });
+  });
 }
 
 /* дневная сетка: все менеджеры колонками */
