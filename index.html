@@ -546,6 +546,9 @@
   .hm-up .t { font-variant-numeric:tabular-nums; color:var(--hm-ink); font-weight:700; white-space:nowrap; font-size:12px; }
   .hm-up .n { color:var(--hm-ink); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .hm-up .m { color:var(--hm-mut); font-size:12px; white-space:nowrap; }
+  .hm-mini { display:inline-flex; border:1px solid var(--hm-b); border-radius:9px; overflow:hidden; }
+  .hm-mini button { border:none; background:#fff; padding:6px 13px; font:600 12px var(--sans); color:#71717a; cursor:pointer; }
+  .hm-mini button.on { background:#18181b; color:#fff; }
   .hm-navs { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
   .hm-nav { background:#fff; border:1px solid var(--hm-b); border-radius:16px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
   .hm-nav .g { font-size:13px; color:var(--hm-mut); font-weight:600; padding:4px 12px 10px; }
@@ -801,8 +804,14 @@
   <div class="hm-kpis" id="hmKpis"></div>
   <div class="hm-grid">
     <div class="hm-card">
-      <div class="hm-ct">Созвоны команды</div>
-      <div class="hm-cs">прошлая и текущая недели, рабочие дни</div>
+      <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px"><div class="hm-ct" id="hmChartT">Созвоны команды</div>
+        <div class="hm-cs">прошлая и текущая недели, рабочие дни</div></div>
+        <div class="hm-mini" id="hmMode">
+          <button data-m="team" class="on">Команда</button>
+          <button data-m="my">Мои</button>
+        </div>
+      </div>
       <div id="hmChart"></div>
     </div>
     <div class="hm-card">
@@ -998,7 +1007,7 @@
     <div class="pagehead"><h2>Профиль</h2><p>Личные настройки дашборда — сохраняются в этом браузере.</p></div>
     <div class="cards">
       <div class="card"><h3>Данные и настройки</h3>
-        <div class="fldrow"><label>Имя</label><input id="pf_name"></div>
+        <div class="fldrow"><label>Имя (для приветствия)</label><input id="pf_name" placeholder="Ваше имя"></div>
         <div class="fldrow"><label>Менеджер по умолчанию</label><select id="pf_mgr"></select></div>
         <div class="fldrow"><label>Стартовый вид</label><select id="pf_view"><option value="week">Неделя</option><option value="day">День</option></select></div>
         <button class="btn primary" onclick="saveProfile()">Сохранить</button></div>
@@ -1238,10 +1247,10 @@ let store = {};
 function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch{} }
 const API_URL="https://script.google.com/macros/s/AKfycbwcEdMiX1AnbZpP36nUa8Oo4G8g7fBSXpztRFhapW6pwV6tR2prwmzI9TULBsGUOx80kg/exec";
 const GOOGLE_CLIENT_ID="47135213873-qicnrlgs09lgsainmplocu85qm0fpa98.apps.googleusercontent.com";
-let SESSION=null, USER_EMAIL="";
+let SESSION=null, USER_EMAIL="", USER_NAME="";
 try{
   const s=JSON.parse(localStorage.getItem("fit_session")||"null");
-  if(s&&s.session){ SESSION=s.session; USER_EMAIL=s.email||""; }
+  if(s&&s.session){ SESSION=s.session; USER_EMAIL=s.email||""; USER_NAME=s.name||""; }
 }catch{}
 function api(payload){
   return fetch(API_URL,{
@@ -1251,7 +1260,7 @@ function api(payload){
   }).then(r=>r.json());
 }
 function authRequired(){
-  SESSION=null; USER_EMAIL="";
+  SESSION=null; USER_EMAIL=""; USER_NAME="";
   try{ localStorage.removeItem("fit_session"); }catch{}
   renderUserChip(); showAuth();
 }
@@ -2490,7 +2499,7 @@ function exportJson(){
 
 /* ================= Профиль ================= */
 const PROFILE_KEY="fit_test_profile";
-let profile={ name:"Мария Иванищенко", role:"Администратор", mgr:MANAGERS[0], view:"week" };
+let profile={ name:"", role:"Администратор", mgr:MANAGERS[0], view:"week" };
 try{ Object.assign(profile, JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}")); }catch{}
 if(MANAGERS.includes(profile.mgr)) activeManager=profile.mgr;
 if(profile.view==="day"||profile.view==="week") viewMode=profile.view;
@@ -2656,11 +2665,29 @@ function trainFinish(){
 
 
 /* ================= Главная ================= */
+let hmMode="team";
+try{ hmMode=localStorage.getItem("fit_hm_mode")||"team"; }catch{}
+/* «мой» созвон: я его создал, либо я — менеджер этого слота */
+function hmPersonal(k,v){
+  const mgr=k.split("|")[1];
+  try{
+    const em=(typeof USER_EMAIL!=="undefined"&&USER_EMAIL)?USER_EMAIL.toLowerCase():"";
+    const un=(typeof USER_NAME!=="undefined"&&USER_NAME)?USER_NAME:"";
+    if(em&&v.creator&&String(v.creator).toLowerCase()===em) return true;
+    if(un&&mgr===un) return true;
+    if(!em&&typeof profile!=="undefined"&&profile.mgr===mgr) return true;
+  }catch{}
+  return false;
+}
 function renderHome(){
   const h=new Date().getHours();
   const hi=h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер";
   let nm="";
-  try{ nm=(typeof USER_EMAIL!=="undefined"&&USER_EMAIL)?USER_EMAIL.split("@")[0]:(profile&&profile.name?profile.name.split(" ")[0]:""); }catch{}
+  try{
+    if(typeof profile!=="undefined"&&profile.name) nm=profile.name.split(" ")[0];
+    else if(typeof USER_NAME!=="undefined"&&USER_NAME) nm=USER_NAME.split(" ")[0];
+    else if(typeof USER_EMAIL!=="undefined"&&USER_EMAIL) nm=USER_EMAIL.split("@")[0];
+  }catch{}
   document.getElementById("hmHi").textContent=hi+(nm?", "+nm:"")+"!";
   document.getElementById("hmDate").textContent=new Date().toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
   const wkNow=iso(mondayOf(new Date()));
@@ -2680,11 +2707,18 @@ function renderHome(){
     {l:"Свободно слотов",v:free,p:"окно 10–18",s:"на текущей неделе"},
     {l:"Тренажёр",v:trainData().best+"%",p:trainLevel(trainData().best),s:"ваш лучший результат"}
   ].map(k=>`<div class="hm-kpi"><div class="l">${k.l}<span class="hm-pill">${k.p}</span></div><div class="v">${k.v}</div><div class="s">${k.s}</div></div>`).join("");
+  // переключатель Команда/Мои
+  document.querySelectorAll("#hmMode button").forEach(b=>{
+    b.classList.toggle("on", b.dataset.m===hmMode);
+    b.onclick=()=>{ hmMode=b.dataset.m; try{ localStorage.setItem("fit_hm_mode",hmMode); }catch{} renderHome(); };
+  });
+  document.getElementById("hmChartT").textContent = hmMode==="my" ? "Мои созвоны" : "Созвоны команды";
   const days=[];
   const start=addDays(mondayOf(new Date()),-7);
   for(let i=0;i<14;i++){ const dt=addDays(start,i); if(((dt.getDay()+6)%7)<5) days.push({date:dt,n:0}); }
   Object.entries(store).forEach(([k,v])=>{
     if(v.blocked) return;
+    if(hmMode==="my"&&!hmPersonal(k,v)) return;
     const t=recDate(k).getTime();
     const day=days.find(x=>x.date.getTime()===t);
     if(day) day.n++;
@@ -2754,8 +2788,8 @@ function onGoogleCredential(resp){
     .then(r=>r.json())
     .then(r=>{
       if(r.ok){
-        SESSION=r.session; USER_EMAIL=r.email||"";
-        try{ localStorage.setItem("fit_session", JSON.stringify({session:SESSION,email:USER_EMAIL})); }catch{}
+        SESSION=r.session; USER_EMAIL=r.email||""; USER_NAME=r.name||"";
+        try{ localStorage.setItem("fit_session", JSON.stringify({session:SESSION,email:USER_EMAIL,name:USER_NAME})); }catch{}
         hideAuth(); renderUserChip(); gsRefresh(true); loadSettings();
         toast("Вы вошли как "+USER_EMAIL);
       } else if(r.error==="not_allowed"){
