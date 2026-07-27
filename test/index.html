@@ -516,6 +516,46 @@
     font-family: var(--sans); font-size: 12.5px; color: var(--ink); background: var(--surface);
   }
 
+  /* ===== shadcn-скин внутренних страниц (.shx) ===== */
+  .shx { --zb:#e4e4e7; --zi:#09090b; --zm:#71717a; --zf:#a1a1aa; }
+  .shx .pagehead h2 { color:var(--zi); letter-spacing:-.02em; }
+  .shx .pagehead p { color:var(--zm); }
+  .shx .card { border-color:var(--zb); border-radius:16px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .shx .card h3 { color:var(--zi); }
+  .shx .card p { color:var(--zm); }
+  .shx .btn { border-color:var(--zb); border-radius:10px; color:var(--zi); box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .shx .btn:hover { background:#f4f4f5; border-color:var(--zb); box-shadow:none; }
+  .shx .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .shx .btn.primary:hover { background:var(--accent-ink); }
+  .shx .btn.ghost-danger { box-shadow:none; }
+  .shx .badge { border-radius:999px; }
+  .shx .seg { background:#f4f4f5; border-radius:10px; }
+  .shx .tbl th { color:var(--zm); }
+  .shx .tbl td { border-color:#f4f4f5; }
+  .shx table { border-color:var(--zb); }
+  .shx .fldrow input, .shx .fldrow select,
+  .shx .search, .shx .dr input[type="date"] { border-color:var(--zb); border-radius:10px; }
+  .shx .fldrow input:focus, .shx .fldrow select:focus, .shx .search:focus {
+    border-color:#18181b; box-shadow:0 0 0 3px rgba(24,24,27,.08); outline:none;
+  }
+  .shx .doclist { border-color:var(--zb); border-radius:16px; }
+  .shx .docsec .dh svg { color:var(--zi); }
+  .shx .hbar { background:#f4f4f5; }
+  .shx .statrow { color:var(--zm); }
+  .shx .statrow b { color:var(--zi); }
+  .shx .cheat, .shx .fp-row { border-color:var(--zb); }
+
+  /* ===== постоянный сайдбар на десктопе ===== */
+  @media (min-width:1100px) {
+    body { padding-left:248px; }
+    .drawer {
+      transform:none; width:248px; box-shadow:none;
+      border-right:1px solid var(--border); z-index:15; padding-top:14px;
+    }
+    .mscrim { display:none !important; }
+    .btn.menuopen { display:none; }
+  }
+
   /* ---------- Главная (стиль shadcn, монохром) ---------- */
   #page-home { --hm-b:#e4e4e7; --hm-ink:#09090b; --hm-mut:#71717a; }
   .hm-head { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
@@ -855,7 +895,7 @@
 </div>
 
   <!-- Аналитика -->
-  <section class="page" id="page-analytics">
+  <section class="page shx" id="page-analytics">
     <div class="pagehead"><h2>Аналитика</h2><p>Сводка по созвонам: динамика, статусы, источники лидов, конверсия и загрузка менеджеров.</p></div>
     <div class="controls" style="margin-bottom:14px">
       <div class="seg" id="anSeg">
@@ -876,13 +916,13 @@
   </section>
 
   <!-- Журнал -->
-  <section class="page" id="page-journal">
+  <section class="page shx" id="page-journal">
     <div class="pagehead"><h2>Журнал действий</h2><p>Последние изменения графика в этом браузере. В боевой версии — общий журнал с почтами сотрудников (лист «Журнал» таблицы).</p></div>
     <div id="jrContent"></div>
   </section>
 
   <!-- Документы -->
-  <section class="page" id="page-docs">
+  <section class="page shx" id="page-docs">
     <div class="pagehead"><h2>Документы</h2><p>Хранилище рабочих документов по разделам: договоры, презентации, запуск, продажи. У каждого документа — ссылка (Google Диск, сайт), открывается в один клик. Метки РФ/КЗ — страна материала.</p></div>
     <div class="controls" style="margin-bottom:12px">
       <div class="searchwrap">
@@ -913,7 +953,7 @@
   </section>
 
   <!-- Скрипт продаж -->
-  <section class="page" id="page-salescript">
+  <section class="page shx" id="page-salescript">
     <div class="pagehead" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
       <div><h2>Скрипт продаж</h2><p>Две ветки: открытие с нуля и ребрендинг действующего СТО. Переключатель веток — внутри страницы.</p></div>
       <a class="btn" style="margin-left:auto;text-decoration:none" href="../docs/skript.html" target="_blank" rel="noopener">Открыть отдельно</a>
@@ -924,13 +964,13 @@
   </section>
 
   <!-- Тренажёр -->
-  <section class="page" id="page-training">
+  <section class="page shx" id="page-training">
     <div class="pagehead"><h2>Тренажёр по скрипту продаж</h2><p>16 вопросов по цифрам, возражениям и технике. Отвечайте как на живом звонке — после каждого ответа будет разбор. Результат и уровень сохраняются в вашем Профиле.</p></div>
     <div id="trainBox"></div>
   </section>
 
   <!-- Создание документов -->
-  <section class="page" id="page-docgen">
+  <section class="page shx" id="page-docgen">
     <div class="pagehead"><h2>Создание документов</h2><p>Расчёт бизнес-плана для партнёра и подготовка договоров ДКК и ДПН с его данными.</p></div>
     <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">
       <div class="card"><h3>Реквизиты правообладателя</h3>
@@ -982,7 +1022,7 @@
   </section>
 
   <!-- Скачать -->
-  <section class="page" id="page-export">
+  <section class="page shx" id="page-export">
     <div class="pagehead"><h2>Скачать</h2><p>Выгрузки графика в разных форматах.</p></div>
     <div class="cards">
       <div class="card"><h3>Excel — текущая неделя</h3><p>Оформленный .xlsx в формате шаблона: лист на менеджера, блоки Пн–Пт, статусы и комментарии.</p><button class="btn primary copybtn" onclick="exportXlsx()">Скачать .xlsx</button></div>
@@ -992,7 +1032,7 @@
   </section>
 
   <!-- Профиль -->
-  <section class="page" id="page-profile">
+  <section class="page shx" id="page-profile">
     <div class="pagehead"><h2>Профиль</h2><p>Личные настройки дашборда — сохраняются в этом браузере.</p></div>
     <div class="cards">
       <div class="card"><h3>Данные и настройки</h3>
@@ -1005,7 +1045,7 @@
   </section>
 
   <!-- Интеграции -->
-  <section class="page" id="page-integrations">
+  <section class="page shx" id="page-integrations">
     <div class="pagehead"><h2>Интеграции</h2><p>Подключённые сервисы и то, что на подходе.</p></div>
     <div class="cards">
       <div class="card"><h3>Google Таблица <span class="badge ok">демо</span></h3><p>Общая база созвонов: лист «Данные», зеркало на листах менеджеров, журнал изменений. В тестовой версии данные локальные.</p></div>
@@ -1018,7 +1058,7 @@
   </section>
 
   <!-- Справка -->
-  <section class="page" id="page-help">
+  <section class="page shx" id="page-help">
     <div class="pagehead"><h2>Справка</h2><p>Короткая шпаргалка по работе с графиком.</p></div>
     <div class="cards">
       <div class="card"><h3>Постановка созвона</h3><p>Оранжевая кнопка «+» или клик по пустому слоту. Обязательные поля — имя и контакт. Слот по умолчанию — первый свободный в окне 10–18.</p></div>
