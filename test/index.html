@@ -2380,6 +2380,8 @@ function exportJson(){
 const PROFILE_KEY="fit_test_profile";
 let profile={ name:"", role:"Администратор", mgr:MANAGERS[0], view:"week" };
 try{ Object.assign(profile, JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}")); }catch{}
+// миграция: стираем старое дефолтное имя-заглушку, чтобы приветствие брало реальное имя аккаунта
+if(profile.name==="Мария Иванищенко"){ profile.name=""; try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch{} }
 if(MANAGERS.includes(profile.mgr)) activeManager=profile.mgr;
 if(profile.view==="day"||profile.view==="week") viewMode=profile.view;
 function renderProfilePage(){
