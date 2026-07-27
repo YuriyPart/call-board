@@ -897,7 +897,7 @@
       <button class="hm-item" onclick="showPage('help')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.8 2.1c-.8.5-1.3 1-1.3 1.9"/><circle cx="12" cy="17" r="0.5"/></svg>Справка</button>
     </div>
     <div class="hm-nav">
-      <div class="g" style="display:flex;justify-content:space-between;align-items:center;gap:8px">Ассистент <span class="hm-pill">скоро ИИ</span></div>
+      <div class="g" style="display:flex;justify-content:space-between;align-items:center;gap:8px">Ассистент <span class="hm-pill">GPT</span></div>
       <div class="hm-chat" id="hmChat"></div>
       <div class="hm-chips">
         <button onclick="asPlan()">План на день</button>
@@ -2828,7 +2828,7 @@ function asRender(){
   const el=document.getElementById("hmChat"); if(!el) return;
   el.innerHTML=asMsgs.length
     ? asMsgs.map(m=>`<div class="msg ${m.r==="u"?"u":"a"}">${esc(m.t)}</div>`).join("")
-    : '<div class="msg a">Здравствуйте! Пока я умею собирать «План на день» и «Итоги дня» по графику. Скоро здесь появится полноценный ИИ-ассистент.</div>';
+    : '<div class="msg a">Здравствуйте! Задайте вопрос — отвечу по графику созвонов и условиям франшизы. Кнопки «План на день» и «Итоги дня» соберут отчёт по вашему графику.</div>';
   el.scrollTop=el.scrollHeight;
 }
 function asPush(r,t){
@@ -2905,6 +2905,39 @@ function asSummary(){
   asPush("a",t);
 }
 function esc0(s){ return String(s??""); }
+/* сводка графика для ИИ — только реальные данные, ничего лишнего */
+function asCtx(){
+  const items=asToday();
+  let t=`Сегодня ${new Date().toLocaleDateString("ru-RU")}. Пользователь: ${asWho()}.\n`;
+  t+=`Созвоны команды сегодня (${items.length}):\n`;
+  t+=items.length
+    ? items.map(x=>`- ${SLOTS[x.si].slice(0,5)} ${esc0(x.v.name)}${x.v.city?" ("+esc0(x.v.city)+")":""} · менеджер ${x.mgr} · ${(STATUS[x.v.status]||STATUS.planned).label}`).join("\n")
+    : "- нет";
+  const weekAgo=addDays(new Date(),-7);
+  const recalls=Object.entries(store)
+    .filter(([k,v])=>!v.blocked&&v.status==="noanswer"&&recDate(k)>=weekAgo&&recDate(k)<=new Date())
+    .map(([k,v])=>`- ${esc0(v.name)} · ${fmt(recDate(k))} · менеджер ${k.split("|")[1]}`);
+  if(recalls.length) t+=`\nНедозвоны за 7 дней (на перезвон):\n`+recalls.slice(0,10).join("\n");
+  const myTasks=asTasks();
+  if(myTasks.length) t+=`\nРегулярные задачи пользователя:\n`+myTasks.map(x=>"- "+x).join("\n");
+  return t.slice(0,7000);
+}
+async function asAsk(q){
+  const el=document.getElementById("hmChat");
+  const tmp=document.createElement("div");
+  tmp.className="msg a"; tmp.textContent="Думаю…";
+  if(el){ el.appendChild(tmp); el.scrollTop=el.scrollHeight; }
+  try{
+    const r=await api({action:"ai", q:q, ctx:asCtx()});
+    tmp.remove();
+    if(r.ok&&r.answer) asPush("a", r.answer);
+    else if(r.error==="no_key") asPush("a","ИИ ещё не подключён: администратор должен добавить ключ OpenAI. Пока работают «План на день» и «Итоги дня».");
+    else asPush("a","Не удалось получить ответ ("+(r.error||"ошибка")+"). Попробуйте ещё раз.");
+  }catch(err){
+    tmp.remove();
+    asPush("a","Нет связи с сервером — проверьте интернет и попробуйте ещё раз.");
+  }
+}
 function asSend(e){
   e.preventDefault();
   const inp=document.getElementById("asInput");
@@ -2913,9 +2946,9 @@ function asSend(e){
   inp.value="";
   asPush("u",v);
   const lv=v.toLowerCase();
-  if(lv.includes("план")) { asMsgs.pop(); asRender(); asPlan(); return false; }
-  if(lv.includes("итог")) { asMsgs.pop(); asRender(); asSummary(); return false; }
-  asPush("a","Принял! Свободный диалог появится после подключения нейросети (Меню → Интеграции). Пока нажмите «План на день» или «Итоги дня» — соберу отчёт по графику.");
+  if(lv==="план"||lv==="план на день") { asMsgs.pop(); asRender(); asPlan(); return false; }
+  if(lv==="итог"||lv==="итоги"||lv==="итоги дня") { asMsgs.pop(); asRender(); asSummary(); return false; }
+  asAsk(v);
   return false;
 }
 
