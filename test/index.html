@@ -430,10 +430,11 @@
   /* ---------- Меню ---------- */
   .btn.menuopen {
     display: inline-flex; align-items: center; gap: 7px;
-    font-weight: 700; color: var(--ink);
-    border-color: var(--graphite); background: var(--graphite); color: #fff;
+    font-weight: 700;
+    border-color: var(--accent); background: var(--accent); color: #fff;
+    box-shadow: 0 4px 14px rgba(242, 101, 18, 0.30);
   }
-  .btn.menuopen:hover { background: #38404d; border-color: #38404d; }
+  .btn.menuopen:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
   .mscrim {
     position: fixed; inset: 0; background: rgba(22,26,43,.28); backdrop-filter: blur(2px);
     opacity: 0; pointer-events: none; transition: opacity .25s; z-index: var(--z-panel);
