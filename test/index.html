@@ -615,7 +615,6 @@
       </button>
     </div>
     <button class="btn" id="todayW">Сегодня</button>
-    <button class="btn subtle" id="xlsxBtn">Сохранить</button>
     <button class="btn menuopen" id="menuBtn" aria-haspopup="true" aria-controls="drawer">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
       Меню
@@ -737,7 +736,7 @@
   <section class="page" id="page-export">
     <div class="pagehead"><h2>Скачать</h2><p>Выгрузки графика в разных форматах.</p></div>
     <div class="cards">
-      <div class="card"><h3>Excel — текущая неделя</h3><p>Оформленный .xlsx в формате шаблона: лист на менеджера, блоки Пн–Пт, статусы и комментарии.</p><button class="btn primary copybtn" onclick="document.getElementById('xlsxBtn').click()">Скачать .xlsx</button></div>
+      <div class="card"><h3>Excel — текущая неделя</h3><p>Оформленный .xlsx в формате шаблона: лист на менеджера, блоки Пн–Пт, статусы и комментарии.</p><button class="btn primary copybtn" onclick="exportXlsx()">Скачать .xlsx</button></div>
       <div class="card"><h3>CSV — все данные</h3><p>Полная база созвонов одним списком: удобно для сводных таблиц или импорта в CRM.</p><button class="btn copybtn" onclick="exportCsv()">Скачать .csv</button></div>
       <div class="card"><h3>JSON — резервная копия</h3><p>Технический слепок всех данных дашборда. Пригодится для переноса или восстановления.</p><button class="btn copybtn" onclick="exportJson()">Скачать .json</button></div>
     </div>
@@ -1464,7 +1463,7 @@ function ensureExcelJS(){
     document.head.appendChild(s);
   });
 }
-document.getElementById("xlsxBtn").onclick=async()=>{
+async function exportXlsx(){
   toast("Готовлю Excel-файл…");
   try { await ensureExcelJS(); } catch { toast("Нет доступа к библиотеке Excel — проверьте интернет"); return; }
   const wb=new ExcelJS.Workbook();
