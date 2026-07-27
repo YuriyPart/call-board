@@ -460,6 +460,25 @@
     font-size: 12px; color: var(--muted);
     font-family: var(--mono);
   }
+  /* переключатель интеграции с календарём */
+  .sw {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    cursor: pointer; user-select: none;
+  }
+  .sw input { display: none; }
+  .sw .tr {
+    width: 34px; height: 20px; border-radius: 999px;
+    background: var(--border-2); position: relative; flex: none;
+    transition: background .18s;
+  }
+  .sw .tr::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%; background: #fff;
+    transition: left .18s; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  }
+  .sw input:checked + .tr { background: var(--accent); }
+  .sw input:checked + .tr::after { left: 16px; }
 
   /* ---------- Тост ---------- */
   #toast {
@@ -511,6 +530,9 @@
     <button class="btn" id="todayW">Сегодня</button>
     <button class="btn subtle" id="xlsxBtn">Сохранить</button>
     <label class="btn subtle" style="cursor:pointer;">Загрузить<input type="file" id="importFile" accept=".json" style="display:none"></label>
+    <label class="sw" title="Создавать события в Google Календаре при постановке созвона">
+      <input type="checkbox" id="calTgl"><span class="tr"></span>Календарь
+    </label>
     <div class="userchip" id="userChip"></div>
   </div>
 </header>
@@ -1226,7 +1248,7 @@ function onGoogleCredential(resp){
       if(r.ok){
         SESSION=r.session; USER_EMAIL=r.email||"";
         try{ localStorage.setItem("fit_session", JSON.stringify({session:SESSION,email:USER_EMAIL})); }catch{}
-        hideAuth(); renderUserChip(); gsRefresh(true);
+        hideAuth(); renderUserChip(); gsRefresh(true); loadSettings();
         toast("Вы вошли как "+USER_EMAIL);
       } else if(r.error==="not_allowed"){
         document.getElementById("authErr").textContent=
@@ -1237,8 +1259,24 @@ function onGoogleCredential(resp){
     })
     .catch(()=>{ document.getElementById("authErr").textContent="Нет связи с сервером."; });
 }
+/* переключатель интеграции с календарём (общая настройка, хранится на сервере) */
+function loadSettings(){
+  if(!SESSION) return;
+  api({action:"getsettings"}).then(r=>{
+    if(r.ok) F("calTgl").checked = r.cal !== "0";
+  }).catch(()=>{});
+}
+F("calTgl").onchange=()=>{
+  if(!SESSION){ F("calTgl").checked=!F("calTgl").checked; toast("Сначала войдите"); return; }
+  api({action:"setsetting", ckey:"CAL_ENABLED", cvalue:F("calTgl").checked?"1":"0"})
+    .then(r=>toast(r.ok
+      ? "Google Календарь: "+(F("calTgl").checked?"включён — события будут создаваться":"выключен")
+      : "Не удалось сохранить настройку"))
+    .catch(()=>toast("Нет связи с сервером"));
+};
+
 renderUserChip();
-if(SESSION){ gsRefresh(true); } else { showAuth(); }
+if(SESSION){ gsRefresh(true); loadSettings(); } else { showAuth(); }
 </script>
 </body>
 </html>
