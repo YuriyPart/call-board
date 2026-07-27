@@ -502,6 +502,13 @@
   }
   .statrow { display: flex; justify-content: space-between; margin-top: 7px; font-size: 12.5px; color: var(--muted); }
   .statrow b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ctip {
+    position: absolute; pointer-events: none; z-index: 5;
+    background: var(--ink); color: #fff; font-size: 12px;
+    padding: 5px 10px; border-radius: 8px; white-space: nowrap;
+    opacity: 0; transition: opacity .12s;
+    box-shadow: 0 6px 18px rgba(var(--shadow-tint), 0.25);
+  }
   .dr { display: inline-flex; align-items: center; gap: 6px; }
   .dr label { font-size: 12px; color: var(--muted); font-weight: 600; }
   .dr input[type="date"] {
@@ -712,6 +719,22 @@
   <section class="page" id="page-docgen">
     <div class="pagehead"><h2>Создание документов</h2><p>Расчёт бизнес-плана для партнёра и подготовка договоров ДКК и ДПН с его данными.</p></div>
     <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">
+      <div class="card"><h3>Реквизиты правообладателя</h3>
+        <p style="margin-bottom:10px">Заполняются один раз — подставляются во все создаваемые договоры.</p>
+        <div class="fldrow"><label>Наименование</label><input id="rq_name" placeholder="ООО «ФИТ Автосервис»"></div>
+        <div class="fldrow"><label>ИНН</label><input id="rq_inn" placeholder="5400000000"></div>
+        <div class="fldrow"><label>КПП</label><input id="rq_kpp" placeholder="540000000"></div>
+        <div class="fldrow"><label>ОГРН</label><input id="rq_ogrn" placeholder="1105400000000"></div>
+        <div class="fldrow"><label>Юридический адрес</label><input id="rq_addr" placeholder="г. Новосибирск, ул. …"></div>
+        <div class="fldrow"><label>Банк</label><input id="rq_bank" placeholder="ПАО «…»"></div>
+        <div class="fldrow"><label>Расчётный счёт</label><input id="rq_rs" placeholder="40702810…"></div>
+        <div class="fldrow"><label>Корр. счёт</label><input id="rq_ks" placeholder="30101810…"></div>
+        <div class="fldrow"><label>БИК</label><input id="rq_bik" placeholder="045000000"></div>
+        <div class="fldrow"><label>Руководитель (ФИО, должность)</label><input id="rq_dir" placeholder="Генеральный директор Иванов И.И."></div>
+        <div class="fldrow"><label>Действует на основании</label><input id="rq_osn" placeholder="Устава"></div>
+        <div class="fldrow"><label>Телефон / e-mail</label><input id="rq_contact" placeholder="+7 …, info@…"></div>
+        <p style="color:var(--st-done-tx)">Сохраняются автоматически.</p>
+      </div>
       <div class="card"><h3>Расчёт БП (бизнес-план)</h3>
         <div class="fldrow"><label>Инвестиции в открытие, ₽</label><input id="bp_inv" type="number" value="5000000"></div>
         <div class="fldrow"><label>Паушальный взнос, ₽</label><input id="bp_fee" type="number" value="990000"></div>
@@ -1668,37 +1691,76 @@ document.querySelectorAll("#anSeg button").forEach(b=>b.onclick=()=>{
   renderAnalytics();
 });
 
-/* столбиковый график динамики: SVG, один ряд, ховер-подсказки */
-function colChartSvg(pts){
-  const n=pts.length;
-  if(!n) return "<p>Нет данных за период.</p>";
-  const bw=Math.max(12,Math.min(56,Math.floor(680/n)-8));
-  const gap=8, padL=10, padR=28, padT=18, padB=26, H=190;
-  const W=padL+padR+n*(bw+gap);
+/* интерактивный столбиковый график динамики: оси с подписями, ховер, тултип */
+function pluralCalls(n){ const m=n%10, h=n%100; if(m===1&&h!==11) return "созвон"; if(m>=2&&m<=4&&(h<12||h>14)) return "созвона"; return "созвонов"; }
+function colChart(el, pts){
+  if(!pts.length){ el.innerHTML="<p>Нет данных за период.</p>"; return; }
+  const W=Math.max(360, el.clientWidth||640);
+  const padL=46, padR=14, padT=30, padB=44, H=280;
+  const iw=W-padL-padR, ih=H-padT-padB;
   const max=Math.max(1,...pts.map(p=>p.n));
-  const ih=H-padT-padB;
-  const base=padT+ih;
-  const step=Math.ceil(n/10);
-  // фиксированный размер в пикселях: маленький набор данных не растягивается на всю ширину
-  let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="max-width:100%;height:auto;display:block" role="img" aria-label="Динамика созвонов">`;
-  [0.5,1].forEach(f=>{
-    const y=padT+ih*(1-f);
-    s+=`<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`+
-       `<text x="${W-4}" y="${y+3}" font-size="9" fill="var(--faint)" text-anchor="end">${Math.round(max*f)}</text>`;
-  });
-  s+=`<line x1="${padL}" x2="${W-padR}" y1="${base}" y2="${base}" stroke="var(--border-2)" stroke-width="1"/>`;
-  let maxShown=false;
+  const tickN=4;
+  const niceMax=Math.max(tickN, Math.ceil(max/tickN)*tickN);
+  const n=pts.length;
+  const slot=iw/n;
+  const bw=Math.min(56, Math.max(8, slot*0.62));
+  const yOf=v=>padT+ih*(1-v/niceMax);
+  let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;max-width:100%" role="img" aria-label="Динамика созвонов">`;
+  // ось Y: сетка и значения
+  for(let i=0;i<=tickN;i++){
+    const v=Math.round(niceMax*i/tickN), yy=yOf(v);
+    s+=`<line x1="${padL}" x2="${W-padR}" y1="${yy}" y2="${yy}" stroke="var(--border)" stroke-width="1"/>`;
+    s+=`<text x="${padL-8}" y="${yy+3.5}" font-size="11" fill="var(--muted)" text-anchor="end">${v}</text>`;
+  }
+  s+=`<text x="${padL-38}" y="${padT-14}" font-size="11" fill="var(--muted)">созвонов</text>`;
+  s+=`<line x1="${padL}" x2="${W-padR}" y1="${yOf(0)}" y2="${yOf(0)}" stroke="var(--border-2)" stroke-width="1.2"/>`;
+  // подписи X: без наложений
+  const labelEvery=Math.max(1, Math.ceil(n/Math.floor(iw/52)));
   pts.forEach((p,i)=>{
-    const x=padL+i*(bw+gap);
-    const h=p.n?Math.max(3,ih*p.n/max):0;
-    const y=base-h;
-    s+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="3" fill="var(--accent)"><title>${p.title} — ${p.n}</title></rect>`;
-    if(!maxShown&&p.n===max&&max>0){ s+=`<text x="${x+bw/2}" y="${y-4}" font-size="10" font-weight="600" fill="var(--ink-2)" text-anchor="middle">${p.n}</text>`; maxShown=true; }
-    if(i%step===0) s+=`<text x="${x+bw/2}" y="${H-7}" font-size="9" fill="var(--muted)" text-anchor="middle">${p.label}</text>`;
+    const cx=padL+slot*i+slot/2;
+    const h=p.n?Math.max(3, ih*p.n/niceMax):0;
+    const yy=p.n?yOf(p.n):yOf(0);
+    s+=`<g class="cg" data-i="${i}" style="cursor:default">`;
+    s+=`<rect x="${padL+slot*i}" y="${padT}" width="${slot}" height="${ih}" fill="transparent"/>`;
+    if(h) s+=`<rect class="cbar" x="${cx-bw/2}" y="${yy}" width="${bw}" height="${h}" rx="4" fill="var(--accent)"/>`;
+    s+=`<text class="cval" x="${cx}" y="${yy-6}" font-size="11" font-weight="700" fill="var(--ink-2)" text-anchor="middle" style="opacity:0">${p.n}</text>`;
+    if(i%labelEvery===0) s+=`<text x="${cx}" y="${H-18}" font-size="11" fill="var(--muted)" text-anchor="middle">${p.label}</text>`;
+    s+=`</g>`;
   });
+  s+=`<text x="${padL+iw/2}" y="${H-2}" font-size="10.5" fill="var(--faint)" text-anchor="middle">${pts[0].axisTitle||"дни периода"}</text>`;
   s+="</svg>";
-  return s;
+  el.innerHTML=s;
+  // ховер: подсветка столбика, значение и тултип
+  el.style.position="relative";
+  const tip=document.createElement("div");
+  tip.className="ctip";
+  el.appendChild(tip);
+  el.querySelectorAll(".cg").forEach(g=>{
+    const bar=g.querySelector(".cbar"), val=g.querySelector(".cval");
+    g.addEventListener("mouseenter",()=>{
+      if(bar) bar.setAttribute("fill","var(--accent-ink)");
+      if(val) val.style.opacity=1;
+      const p=pts[+g.dataset.i];
+      tip.textContent=`${p.title}: ${p.n} ${pluralCalls(p.n)}`;
+      tip.style.opacity=1;
+    });
+    g.addEventListener("mousemove",e=>{
+      const r=el.getBoundingClientRect();
+      tip.style.left=Math.max(0, Math.min(e.clientX-r.left+14, r.width-tip.offsetWidth-4))+"px";
+      tip.style.top=Math.max(0, e.clientY-r.top-36)+"px";
+    });
+    g.addEventListener("mouseleave",()=>{
+      if(bar) bar.setAttribute("fill","var(--accent)");
+      if(val) val.style.opacity=0;
+      tip.style.opacity=0;
+    });
+  });
 }
+let anResizeT=null;
+window.addEventListener("resize",()=>{
+  if(currentPage!=="analytics") return;
+  clearTimeout(anResizeT); anResizeT=setTimeout(renderAnalytics,200);
+});
 
 let lastAn=null;
 function anCsv(){
@@ -1757,10 +1819,10 @@ function renderAnalytics(){
     days.forEach(x=>{ const m=iso(mondayOf(x.date)); wk[m]=(wk[m]||0)+x.n; });
     dyn=Object.entries(wk).map(([m,n])=>{
       const d=new Date(m+"T00:00:00");
-      return { n, label:fmt(d), title:`Неделя ${fmt(d)} — ${fmt(addDays(d,4))}` };
+      return { n, label:fmt(d), title:`Неделя ${fmt(d)} — ${fmt(addDays(d,4))}`, axisTitle:"недели периода" };
     });
   } else {
-    dyn=days.map(x=>({ n:x.n, label:fmt(x.date), title:`${DAYS_SHORT[(x.date.getDay()+6)%7]} ${fmt(x.date)}` }));
+    dyn=days.map(x=>({ n:x.n, label:fmt(x.date), title:`${DAYS_SHORT[(x.date.getDay()+6)%7]} ${fmt(x.date)}`, axisTitle:"рабочие дни периода" }));
   }
   const rowsM=MANAGERS.map(m=>{
     const list=entries.filter(e=>e.k.split("|")[1]===m);
@@ -1790,7 +1852,7 @@ function renderAnalytics(){
       ${kpi.map(x=>`<div class="card"><div style="font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums">${x[1]}</div><p>${x[0]}</p></div>`).join("")}
     </div>
     <div class="card" style="margin-bottom:14px"><h3>Динамика созвонов <span style="font-weight:400;color:var(--faint);font-size:12px">${fmt(from)} — ${fmt(to)}</span></h3>
-      <div style="overflow-x:auto">${colChartSvg(dyn)}</div>
+      <div id="dynChart" style="min-height:280px"></div>
     </div>
     <div class="cards">
       <div class="card"><h3>Статусы</h3>
@@ -1808,6 +1870,7 @@ function renderAnalytics(){
         </tbody></table>
       </div>
     </div>`;
+  colChart(document.getElementById("dynChart"), dyn);
 }
 
 /* ================= Документы: копирование шаблонов ================= */
@@ -1859,9 +1922,11 @@ function docDel(i){
 }
 
 /* ================= Создание документов ================= */
-const BP_KEY="fit_test_bp", PR_KEY="fit_test_partner";
+const BP_KEY="fit_test_bp", PR_KEY="fit_test_partner", RQ_KEY="fit_test_requisites";
 const BP_IDS=["bp_inv","bp_fee","bp_check","bp_cars","bp_days","bp_exp","bp_roy"];
 const PR_IDS=["pr_fio","pr_inn","pr_ogrn","pr_pass","pr_addr","pr_city","pr_phone","pr_email","pr_num","pr_date"];
+const RQ_IDS=["rq_name","rq_inn","rq_kpp","rq_ogrn","rq_addr","rq_bank","rq_rs","rq_ks","rq_bik","rq_dir","rq_osn","rq_contact"];
+function rqValues(){ const v={}; RQ_IDS.forEach(id=>v[id]=F(id).value.trim()); return v; }
 const rub=n=>Math.round(n).toLocaleString("ru-RU")+" ₽";
 function bpValues(){ const v={}; BP_IDS.forEach(id=>v[id]=+F(id).value||0); return v; }
 function bpRows(){
@@ -1913,30 +1978,50 @@ function partnerBlockHtml(v){
     <tr><td><b>E-mail</b></td><td>${esc(v.pr_email||"—")}</td></tr>
   </table>`;
 }
+function rqBlockHtml(r){
+  return `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%">
+    <tr><td width="35%"><b>Наименование</b></td><td>${esc(r.rq_name||"—")}</td></tr>
+    <tr><td><b>ИНН / КПП</b></td><td>${esc(r.rq_inn||"—")}${r.rq_kpp?" / "+esc(r.rq_kpp):""}</td></tr>
+    <tr><td><b>ОГРН</b></td><td>${esc(r.rq_ogrn||"—")}</td></tr>
+    <tr><td><b>Юридический адрес</b></td><td>${esc(r.rq_addr||"—")}</td></tr>
+    <tr><td><b>Банк</b></td><td>${esc(r.rq_bank||"—")}</td></tr>
+    <tr><td><b>Р/с</b></td><td>${esc(r.rq_rs||"—")}</td></tr>
+    <tr><td><b>К/с</b></td><td>${esc(r.rq_ks||"—")}</td></tr>
+    <tr><td><b>БИК</b></td><td>${esc(r.rq_bik||"—")}</td></tr>
+    <tr><td><b>Контакты</b></td><td>${esc(r.rq_contact||"—")}</td></tr>
+  </table>`;
+}
 function makeContract(kind){
   const v=prValues();
+  const r=rqValues();
   if(!v.pr_fio){ toast("Заполните хотя бы ФИО партнёра"); F("pr_fio").focus(); return; }
   persistDocgen();
   const isDkk=kind==="dkk";
   const title=isDkk?"ДОГОВОР КОММЕРЧЕСКОЙ КОНЦЕССИИ":"ДОГОВОР О НАМЕРЕНИЯХ";
   const num=v.pr_num||"____________";
+  const side=isDkk?"Пользователь":"Партнёр";
+  const holder=r.rq_name
+    ? `${esc(r.rq_name)} (ИНН ${esc(r.rq_inn||"—")}, ОГРН ${esc(r.rq_ogrn||"—")}), в лице ${esc(r.rq_dir||"____________")}, действующего на основании ${esc(r.rq_osn||"Устава")}`
+    : "[заполните реквизиты правообладателя на странице «Создание документов»]";
   const html=`
     <h2 style="text-align:center">${title}<br>№ ${esc(num)}</h2>
     <p style="text-align:center">г. ${esc(v.pr_city||"____________")} · ${fmtDocDate(v.pr_date)}</p>
-    <p><b>Правообладатель:</b> [наименование, ИНН и реквизиты компании — из утверждённого шаблона], в дальнейшем «Правообладатель», с одной стороны, и</p>
-    <p><b>${isDkk?"Пользователь":"Партнёр"}:</b> ${esc(v.pr_fio)}, в дальнейшем «${isDkk?"Пользователь":"Партнёр"}», с другой стороны, заключили настоящий договор о нижеследующем.</p>
-    <h3>Реквизиты ${isDkk?"Пользователя":"Партнёра"}</h3>
-    ${partnerBlockHtml(v)}
+    <p><b>Правообладатель:</b> ${holder}, в дальнейшем «Правообладатель», с одной стороны, и</p>
+    <p><b>${side}:</b> ${esc(v.pr_fio)}, в дальнейшем «${side}», с другой стороны, заключили настоящий договор о нижеследующем.</p>
     <h3>1. Предмет договора</h3>
     <p>[Вставьте текст раздела из шаблона ${isDkk?"ДКК":"ДПН"}, утверждённого юристом.]</p>
     <h3>2. Права и обязанности сторон</h3>
     <p>[Вставьте текст раздела из утверждённого шаблона.]</p>
     <h3>3. Финансовые условия</h3>
     <p>[Вставьте текст раздела из утверждённого шаблона.]</p>
+    <h3>Реквизиты Правообладателя</h3>
+    ${rqBlockHtml(r)}
+    <h3>Реквизиты ${side==="Пользователь"?"Пользователя":"Партнёра"}</h3>
+    ${partnerBlockHtml(v)}
     <h3>Подписи сторон</h3>
     <table width="100%"><tr>
-      <td width="50%">Правообладатель:<br><br>_______________ / ____________ /</td>
-      <td width="50%">${isDkk?"Пользователь":"Партнёр"}:<br><br>_______________ / ${esc(v.pr_fio)} /</td>
+      <td width="50%">Правообладатель:<br><br>_______________ / ${esc(r.rq_dir||"____________")} /</td>
+      <td width="50%">${side}:<br><br>_______________ / ${esc(v.pr_fio)} /</td>
     </tr></table>`;
   const doc=`<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${title}</title></head>`+
     `<body style="font-family:'Times New Roman',serif;font-size:12pt;line-height:1.4">${html}</body></html>`;
@@ -1954,6 +2039,7 @@ function persistDocgen(){
   try{
     localStorage.setItem(BP_KEY, JSON.stringify(bpValues()));
     localStorage.setItem(PR_KEY, JSON.stringify(prValues()));
+    localStorage.setItem(RQ_KEY, JSON.stringify(rqValues()));
   }catch{}
 }
 let docgenInited=false;
@@ -1965,9 +2051,12 @@ function renderDocgen(){
       if(b) BP_IDS.forEach(id=>{ if(b[id]!=null) F(id).value=b[id]; });
       const p=JSON.parse(localStorage.getItem(PR_KEY)||"null");
       if(p) PR_IDS.forEach(id=>{ if(p[id]!=null) F(id).value=p[id]; });
+      const r=JSON.parse(localStorage.getItem(RQ_KEY)||"null");
+      if(r) RQ_IDS.forEach(id=>{ if(r[id]!=null) F(id).value=r[id]; });
     }catch{}
     BP_IDS.forEach(id=>F(id).oninput=()=>{ bpRender(); persistDocgen(); });
     PR_IDS.forEach(id=>F(id).onchange=persistDocgen);
+    RQ_IDS.forEach(id=>F(id).onchange=persistDocgen);
   }
   bpRender();
 }
