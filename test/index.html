@@ -487,8 +487,8 @@
   .badge.ok { background: var(--st-done-bg); color: var(--st-done-tx); }
   .badge.soon { background: var(--st-moved-bg); color: var(--st-moved-tx); }
   .badge.no { background: var(--surface-3); color: var(--muted); }
-  .hbar { height: 8px; border-radius: 4px; background: var(--surface-3); overflow: hidden; margin-top: 6px; }
-  .hbar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .hbar { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; margin-top: 4px; }
+  .hbar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
   .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   .tbl th { text-align: left; color: var(--muted); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; padding: 6px 8px; border-bottom: 1px solid var(--border); }
   .tbl td { padding: 7px 8px; border-bottom: 1px solid var(--surface-3); color: var(--ink-2); font-variant-numeric: tabular-nums; }
@@ -500,7 +500,7 @@
     border: 1px solid var(--border-2); border-radius: 9px; padding: 8px 11px;
     font-size: 13.5px; font-family: var(--sans); background: var(--surface); color: var(--ink);
   }
-  .statrow { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+  .statrow { display: flex; justify-content: space-between; margin-top: 7px; font-size: 12.5px; color: var(--muted); }
   .statrow b { color: var(--ink); font-variant-numeric: tabular-nums; }
   .dr { display: inline-flex; align-items: center; gap: 6px; }
   .dr label { font-size: 12px; color: var(--muted); font-weight: 600; }
@@ -1661,14 +1661,15 @@ document.querySelectorAll("#anSeg button").forEach(b=>b.onclick=()=>{
 function colChartSvg(pts){
   const n=pts.length;
   if(!n) return "<p>Нет данных за период.</p>";
-  const bw=Math.max(10,Math.min(28,Math.floor(620/n)-6));
-  const gap=6, padL=10, padR=26, padT=16, padB=24, H=170;
+  const bw=Math.max(10,Math.min(22,Math.floor(620/n)-6));
+  const gap=6, padL=10, padR=26, padT=16, padB=24, H=150;
   const W=padL+padR+n*(bw+gap);
   const max=Math.max(1,...pts.map(p=>p.n));
   const ih=H-padT-padB;
   const base=padT+ih;
   const step=Math.ceil(n/10);
-  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Динамика созвонов">`;
+  // фиксированный размер в пикселях: маленький набор данных не растягивается на всю ширину
+  let s=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="max-width:100%;height:auto;display:block" role="img" aria-label="Динамика созвонов">`;
   [0.5,1].forEach(f=>{
     const y=padT+ih*(1-f);
     s+=`<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`+
