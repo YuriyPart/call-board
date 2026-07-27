@@ -560,7 +560,7 @@
   .hm-chatin button:hover { background:#3f3f46; }
   .hm-doclinks { display:flex; flex-direction:column; gap:2px; margin-top:8px; }
   .hm-doclinks button { border:none; background:none; text-align:left; font:600 13px var(--sans); color:var(--hm-ink); padding:6px 9px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:background .13s; }
-  .hm-doclinks button::before { content:"→"; color:#a1a1aa; font-weight:700; }
+  .hm-doclinks button svg { width:16px; height:16px; flex:none; color:var(--hm-ink); }
   .hm-doclinks button:hover { background:#f4f4f5; }
   .hm-mini { display:inline-flex; border:1px solid var(--hm-b); border-radius:9px; overflow:hidden; }
   .hm-mini button { border:none; background:#fff; padding:6px 13px; font:600 12px var(--sans); color:#71717a; cursor:pointer; }
@@ -2742,10 +2742,10 @@ function renderHome(){
   ].map(k=>`<div class="hm-kpi"><div class="l">${k.l}<span class="hm-pill">${k.p}</span></div><div class="v">${k.v}</div><div class="s">${k.s}</div></div>`).join("")+`
     <div class="hm-kpi"><div class="l">Документация</div>
       <div class="hm-doclinks">
-        <button onclick="openDocsGroup('contracts')">Договоры</button>
-        <button onclick="openDocsGroup('present')">Презентации</button>
-        <button onclick="openDocsGroup('launch')">Запуск и помещение</button>
-        <button onclick="openDocsGroup('sales')">Продажи и финансы</button>
+        <button onclick="openDocsGroup('contracts')">${DOC_ICONS.contracts}Договоры</button>
+        <button onclick="openDocsGroup('present')">${DOC_ICONS.present}Презентации</button>
+        <button onclick="openDocsGroup('launch')">${DOC_ICONS.launch}Запуск и помещение</button>
+        <button onclick="openDocsGroup('sales')">${DOC_ICONS.sales}Продажи и финансы</button>
       </div></div>`;
   // переключатель Команда/Мои
   document.querySelectorAll("#hmMode button").forEach(b=>{
