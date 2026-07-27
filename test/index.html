@@ -285,7 +285,7 @@
     overflow-x: auto;
     box-shadow: 0 1px 3px rgba(var(--shadow-tint), 0.04);
   }
-  table.sched { border-collapse: collapse; width: 100%; min-width: 940px; }
+  table.sched { border-collapse: collapse; width: 100%; min-width: 940px; table-layout: fixed; }
   table.sched th {
     font-size: 11px; font-weight: 700; color: var(--ink-2); text-align: left;
     text-transform: uppercase; letter-spacing: 0.06em;
@@ -308,7 +308,7 @@
     vertical-align: middle; padding: 6px 14px; white-space: nowrap;
     border-right: 1px solid var(--border); background: var(--surface-2);
   }
-  td.slot { cursor: pointer; transition: background .15s; min-width: 152px; position: relative; }
+  td.slot { cursor: pointer; transition: background .15s; min-width: 0; position: relative; }
   td.slot:hover { background: var(--surface-2); }
   td.slot .empty {
     height: 100%; min-height: 48px; border-radius: 9px;
