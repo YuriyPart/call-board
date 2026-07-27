@@ -600,6 +600,46 @@
   .hm-chatin input:focus { outline:none; border-color:#18181b; }
   .hm-chatin button { border:none; background:#18181b; color:#fff; border-radius:10px; width:38px; cursor:pointer; font-size:14px; }
   .hm-chatin button:hover { background:#3f3f46; }
+
+  /* ===== Страница «ИИ-ассистент» (стиль ChatGPT) ===== */
+  .aiwrap { max-width:800px; margin:0 auto; display:flex; flex-direction:column; height:calc(100vh - 190px); min-height:440px; }
+  .aibar { display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .aibar select { border:1px solid #e4e4e7; border-radius:10px; padding:8px 10px; font:600 13px var(--sans); color:#18181b; background:#fff; max-width:280px; }
+  .aihint { font-size:11.5px; color:#a1a1aa; font-weight:600; }
+  .aimsgs { flex:1; overflow-y:auto; padding:8px 4px 16px; display:flex; flex-direction:column; gap:16px; }
+  .aim { display:flex; gap:10px; align-items:flex-start; }
+  .aim .av { width:30px; height:30px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; }
+  .aim.a .av { background:#f26512; color:#fff; }
+  .aim.a .av svg { width:17px; height:17px; }
+  .aim .bub { font-size:14px; line-height:1.65; color:#18181b; white-space:pre-wrap; word-break:break-word; padding-top:4px; min-width:0; }
+  .aim.u { justify-content:flex-end; }
+  .aim.u .bub { background:#f4f4f5; border-radius:16px; border-bottom-right-radius:6px; padding:10px 14px; max-width:78%; }
+  .aim.typing .bub { color:#a1a1aa; }
+  .aisug { display:flex; flex-wrap:wrap; gap:8px; padding:6px 2px 12px; }
+  .aisug button { border:1px solid #e4e4e7; background:#fff; border-radius:12px; padding:9px 13px; font:600 12.5px var(--sans); color:#3f3f46; cursor:pointer; }
+  .aisug button:hover { border-color:#f26512; color:#f26512; }
+  .aicomposer { display:flex; align-items:flex-end; gap:8px; border:1px solid #e4e4e7; border-radius:20px; padding:8px 8px 8px 16px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  .aicomposer:focus-within { border-color:#18181b; }
+  .aicomposer textarea { flex:1; border:none; outline:none; resize:none; font:500 14px/1.5 var(--sans); color:#18181b; background:transparent; max-height:120px; padding:6px 0; }
+  .aisend { border:none; background:#18181b; color:#fff; border-radius:50%; width:36px; height:36px; flex:none; cursor:pointer; font-size:16px; }
+  .aisend:hover { background:#f26512; }
+  .aifoot { text-align:center; font-size:11px; color:#a1a1aa; padding:8px 0 2px; }
+
+  /* ===== Плавающая кнопка ИИ-чата ===== */
+  #aiFab { position:fixed; z-index:1200; width:54px; height:54px; border:none; border-radius:50%; background:#f26512; color:#fff; box-shadow:0 8px 24px rgba(242,101,18,.4); display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; touch-action:none; transition:transform .15s; }
+  #aiFab:hover { transform:scale(1.07); }
+  #aiFab svg { width:26px; height:26px; pointer-events:none; }
+  #aiFab.dragging { transition:none; opacity:.85; cursor:grabbing; }
+  #aiPanel { position:fixed; z-index:1199; width:min(372px, calc(100vw - 20px)); height:min(540px, calc(100vh - 120px)); background:#fff; border:1px solid #e4e4e7; border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,.20); display:none; flex-direction:column; overflow:hidden; }
+  #aiPanel.open { display:flex; }
+  .aiph { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #f0f0f2; }
+  .aiph span { font:800 14px var(--sans); color:#18181b; }
+  .aiph button { border:none; background:none; color:#71717a; font-size:15px; cursor:pointer; padding:4px 7px; border-radius:8px; }
+  .aiph button:hover { background:#f4f4f5; color:#18181b; }
+  #aiPanel .aimsgs { padding:12px 12px 8px; gap:12px; }
+  #aiPanel .aim .bub { font-size:13px; }
+  #aiPanel .aicomposer { margin:0 10px 10px; border-radius:16px; }
+  @media print { #aiFab, #aiPanel { display:none !important; } }
   .hm-doclinks { display:flex; flex-direction:column; gap:2px; margin-top:8px; }
   .hm-doclinks button { border:none; background:none; text-align:left; font:600 13px var(--sans); color:var(--hm-ink); padding:6px 9px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:background .13s; }
   .hm-doclinks button svg { width:16px; height:16px; flex:none; color:var(--hm-ink); }
@@ -881,6 +921,7 @@
   <div class="hm-navs">
     <div class="hm-nav"><div class="g">Работа</div>
       <button class="hm-item" onclick="showPage('board')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>График созвонов</button>
+      <button class="hm-item" onclick="showPage('ai')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>ИИ-ассистент</button>
       <button class="hm-item" onclick="showPage('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/></svg>Аналитика</button>
       <button class="hm-item" onclick="showPage('journal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="0.5"/><circle cx="4" cy="12" r="0.5"/><circle cx="4" cy="18" r="0.5"/></svg>Журнал действий</button>
     </div>
@@ -897,7 +938,7 @@
       <button class="hm-item" onclick="showPage('help')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.8 2.1c-.8.5-1.3 1-1.3 1.9"/><circle cx="12" cy="17" r="0.5"/></svg>Справка</button>
     </div>
     <div class="hm-nav">
-      <div class="g" style="display:flex;justify-content:space-between;align-items:center;gap:8px">Ассистент <span class="hm-pill">GPT</span></div>
+      <div class="g" style="display:flex;justify-content:space-between;align-items:center;gap:8px">Ассистент <span style="display:flex;gap:6px;align-items:center"><span class="hm-pill">GPT</span><button class="hm-pill" style="cursor:pointer;border:1px solid #e4e4e7;background:#fff" onclick="showPage('ai')" title="Открыть на весь экран">⤢</button></span></div>
       <div class="hm-chat" id="hmChat"></div>
       <div class="hm-chips">
         <button onclick="asPlan()">План на день</button>
@@ -937,6 +978,33 @@
 </div>
 
   <!-- Аналитика -->
+  <!-- ИИ-ассистент -->
+  <section class="page shx" id="page-ai">
+    <div class="pagehead"><h2>ИИ-ассистент</h2><p>Отвечает по графику созвонов, условиям франшизы и скрипту продаж. Помнит контекст диалога — можно задавать уточняющие вопросы.</p></div>
+    <div class="aiwrap">
+      <div class="aibar">
+        <button class="btn" onclick="aiNewDlg()">+ Новый диалог</button>
+        <select id="aiDlgSel" onchange="aiPickDlg(this.value)" aria-label="История диалогов"></select>
+        <button class="btn" onclick="aiDelDlg()" title="Удалить текущий диалог">Удалить</button>
+        <div class="spacer"></div>
+        <span class="aihint">история сохраняется в этом браузере</span>
+      </div>
+      <div class="aimsgs" id="aiChat"></div>
+      <div class="aisug" id="aiSug">
+        <button onclick="aiSuggest('Какой паушальный взнос и роялти у франшизы?')">Паушальный взнос и роялти</button>
+        <button onclick="aiSuggest('Кому из моих клиентов нужно перезвонить?')">Кому перезвонить?</button>
+        <button onclick="asPlan()">План на день</button>
+        <button onclick="aiSuggest('Как отработать возражение «дорого»?')">Возражение «дорого»</button>
+        <button onclick="aiSuggest('Что говорить на первом звонке?')">Первый звонок</button>
+      </div>
+      <form class="aicomposer" onsubmit="return aiSendFrom(event,'aiInput')">
+        <textarea id="aiInput" rows="1" placeholder="Спросите что угодно о франшизе или графике…" onkeydown="aiKeydown(event,'aiInput')"></textarea>
+        <button type="submit" class="aisend" aria-label="Отправить">↑</button>
+      </form>
+      <div class="aifoot">Ассистент опирается на данные графика и скрипт продаж. Может ошибаться — важные цифры проверяйте.</div>
+    </div>
+  </section>
+
   <section class="page shx" id="page-analytics">
     <div class="pagehead"><h2>Аналитика</h2><p>Сводка по созвонам: динамика, статусы, источники лидов, конверсия и загрузка менеджеров.</p></div>
     <div class="controls" style="margin-bottom:14px">
@@ -1120,6 +1188,25 @@
 
 <!-- Меню -->
 <div class="mscrim" id="mscrim"></div>
+<!-- Плавающий чат ИИ-ассистента: доступен на любой странице, кнопку можно перетащить в любой угол -->
+<div id="aiPanel" role="dialog" aria-label="Чат с ИИ-ассистентом">
+  <div class="aiph">
+    <span>ИИ-ассистент</span>
+    <div>
+      <button title="Открыть на весь экран" onclick="aiPanelFull()">⤢</button>
+      <button title="Свернуть" onclick="aiPanelToggle(false)">✕</button>
+    </div>
+  </div>
+  <div class="aimsgs" id="aiPanelChat"></div>
+  <form class="aicomposer" onsubmit="return aiSendFrom(event,'aiPanelInput')">
+    <textarea id="aiPanelInput" rows="1" placeholder="Вопрос ассистенту…" onkeydown="aiKeydown(event,'aiPanelInput')"></textarea>
+    <button type="submit" class="aisend" aria-label="Отправить">↑</button>
+  </form>
+</div>
+<button id="aiFab" aria-label="Чат с ИИ-ассистентом" title="ИИ-ассистент (можно перетащить в любой угол)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>
+</button>
+
 <nav class="drawer" id="drawer" aria-label="Главное меню">
   <div class="dhead">Меню</div>
   <div class="mgroup">
@@ -1130,6 +1217,9 @@
     <button class="mitem" data-p="board">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
       График</button>
+    <button class="mitem" data-p="ai">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>
+      ИИ-ассистент</button>
     <button class="mitem" data-p="analytics">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/></svg>
       Аналитика</button>
@@ -2042,7 +2132,7 @@ async function exportXlsx(){
 };
 
 /* ================= Меню и страницы ================= */
-const PAGES=["home","board","analytics","journal","docs","salescript","training","docgen","export","profile","integrations","help"];
+const PAGES=["home","board","ai","analytics","journal","docs","salescript","training","docgen","export","profile","integrations","help"];
 let currentPage="home";
 function openMenu(){ F("drawer").classList.add("open"); F("mscrim").classList.add("open"); }
 function closeMenu(){ F("drawer").classList.remove("open"); F("mscrim").classList.remove("open"); }
@@ -2821,20 +2911,77 @@ function renderHome(){
 
 
 /* ================= Ассистент (чат на главной) ================= */
-const AS_TASKS_KEY="fit_plan_tasks", AS_CHAT_KEY="fit_as_chat";
-let asMsgs=[];
-try{ asMsgs=JSON.parse(localStorage.getItem(AS_CHAT_KEY)||"[]"); }catch{}
-function asRender(){
-  const el=document.getElementById("hmChat"); if(!el) return;
-  el.innerHTML=asMsgs.length
-    ? asMsgs.map(m=>`<div class="msg ${m.r==="u"?"u":"a"}">${esc(m.t)}</div>`).join("")
-    : '<div class="msg a">Здравствуйте! Задайте вопрос — отвечу по графику созвонов и условиям франшизы. Кнопки «План на день» и «Итоги дня» соберут отчёт по вашему графику.</div>';
-  el.scrollTop=el.scrollHeight;
+const AS_TASKS_KEY="fit_plan_tasks", AI_DLG_KEY="fit_ai_dialogs", AI_CUR_KEY="fit_ai_cur";
+/* Диалоги ассистента: общие для карточки на главной, страницы «ИИ-ассистент» и плавающего чата */
+let aiDlgs=[], aiCurId=null, aiBusy=false;
+(function aiLoad(){
+  try{ aiDlgs=JSON.parse(localStorage.getItem(AI_DLG_KEY)||"[]")||[]; }catch{ aiDlgs=[]; }
+  if(!aiDlgs.length){
+    // перенос истории из старой версии чата
+    try{
+      const old=JSON.parse(localStorage.getItem("fit_as_chat")||"[]");
+      if(old.length) aiDlgs=[{id:"d0",title:((old.find(m=>m.r==="u")||{}).t||"Диалог").slice(0,42),msgs:old}];
+      localStorage.removeItem("fit_as_chat");
+    }catch{}
+  }
+  try{ aiCurId=localStorage.getItem(AI_CUR_KEY); }catch{}
+  if(!aiCur()) aiCurId=(aiDlgs[0]||{}).id||null;
+})();
+function aiCur(){ return aiDlgs.find(d=>d.id===aiCurId)||null; }
+function aiSaveAll(){
+  aiDlgs=aiDlgs.slice(0,20);
+  aiDlgs.forEach(d=>{ d.msgs=d.msgs.slice(-80); });
+  try{ localStorage.setItem(AI_DLG_KEY,JSON.stringify(aiDlgs)); if(aiCurId) localStorage.setItem(AI_CUR_KEY,aiCurId); }catch{}
+}
+function aiNewDlg(){
+  const d={id:Date.now().toString(36),title:"Новый диалог",msgs:[]};
+  aiDlgs.unshift(d); aiCurId=d.id; aiSaveAll(); asRender();
+}
+function aiPickDlg(id){ aiCurId=id; aiSaveAll(); asRender(); }
+function aiDelDlg(){
+  const d=aiCur(); if(!d) return;
+  if(!confirm("Удалить диалог «"+d.title+"»?")) return;
+  aiDlgs=aiDlgs.filter(x=>x.id!==d.id);
+  aiCurId=(aiDlgs[0]||{}).id||null;
+  aiSaveAll(); asRender();
 }
 function asPush(r,t){
-  asMsgs.push({r,t}); asMsgs=asMsgs.slice(-30);
-  try{ localStorage.setItem(AS_CHAT_KEY, JSON.stringify(asMsgs)); }catch{}
-  asRender();
+  let d=aiCur();
+  if(!d){ d={id:Date.now().toString(36),title:"Новый диалог",msgs:[]}; aiDlgs.unshift(d); aiCurId=d.id; }
+  d.msgs.push({r,t});
+  if(d.title==="Новый диалог"&&r==="u") d.title=t.slice(0,42);
+  aiSaveAll(); asRender();
+}
+const AI_SPARK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/></svg>';
+function aiMsgsHtmlCard(msgs){
+  let h=msgs.map(m=>`<div class="msg ${m.r==="u"?"u":"a"}">${esc(m.t)}</div>`).join("");
+  if(aiBusy) h+='<div class="msg a">Думаю…</div>';
+  if(!h) h='<div class="msg a">Здравствуйте! Задайте вопрос — отвечу по графику созвонов и условиям франшизы. Кнопки «План на день» и «Итоги дня» соберут отчёт по вашему графику.</div>';
+  return h;
+}
+function aiMsgsHtmlPage(msgs){
+  let h=msgs.map(m=>m.r==="u"
+    ?`<div class="aim u"><div class="bub">${esc(m.t)}</div></div>`
+    :`<div class="aim a"><div class="av">${AI_SPARK}</div><div class="bub">${esc(m.t)}</div></div>`).join("");
+  if(aiBusy) h+=`<div class="aim a typing"><div class="av">${AI_SPARK}</div><div class="bub">Думаю…</div></div>`;
+  if(!h) h=`<div class="aim a"><div class="av">${AI_SPARK}</div><div class="bub">Здравствуйте, ${esc(asWho())}! Спросите про условия франшизы, скрипт продаж или свой график — я помню контекст диалога, можно задавать уточняющие вопросы.</div></div>`;
+  return h;
+}
+function asRender(){
+  const d=aiCur(), msgs=d?d.msgs:[];
+  const card=document.getElementById("hmChat");
+  if(card){ card.innerHTML=aiMsgsHtmlCard(msgs); card.scrollTop=card.scrollHeight; }
+  ["aiChat","aiPanelChat"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.innerHTML=aiMsgsHtmlPage(msgs); el.scrollTop=el.scrollHeight; }
+  });
+  const sug=document.getElementById("aiSug");
+  if(sug) sug.style.display=msgs.length||aiBusy?"none":"flex";
+  const sel=document.getElementById("aiDlgSel");
+  if(sel){
+    sel.innerHTML=aiDlgs.map(x=>`<option value="${x.id}"${x.id===aiCurId?" selected":""}>${esc(x.title)}</option>`).join("");
+    sel.style.display=aiDlgs.length?"":"none";
+  }
 }
 function asWho(){
   let n="";
@@ -2923,34 +3070,108 @@ function asCtx(){
   return t.slice(0,7000);
 }
 async function asAsk(q){
-  const el=document.getElementById("hmChat");
-  const tmp=document.createElement("div");
-  tmp.className="msg a"; tmp.textContent="Думаю…";
-  if(el){ el.appendChild(tmp); el.scrollTop=el.scrollHeight; }
+  const d=aiCur();
+  // память диалога: последние сообщения до текущего вопроса уходят на сервер
+  const hist=d?d.msgs.slice(0,-1).slice(-12).map(m=>({r:m.r,t:String(m.t).slice(0,900)})):[];
+  aiBusy=true; asRender();
   try{
-    const r=await api({action:"ai", q:q, ctx:asCtx()});
-    tmp.remove();
+    const r=await api({action:"ai", q:q, ctx:asCtx(), hist:hist});
+    aiBusy=false;
     if(r.ok&&r.answer) asPush("a", r.answer);
-    else if(r.error==="no_key") asPush("a","ИИ ещё не подключён: администратор должен добавить ключ OpenAI. Пока работают «План на день» и «Итоги дня».");
+    else if(r.error==="no_key") asPush("a","ИИ ещё не подключён: администратор должен добавить ключ OpenAI.");
     else asPush("a","Не удалось получить ответ ("+(r.error||"ошибка")+"). Попробуйте ещё раз.");
   }catch(err){
-    tmp.remove();
+    aiBusy=false;
     asPush("a","Нет связи с сервером — проверьте интернет и попробуйте ещё раз.");
   }
+}
+/* единая точка отправки: карточка на главной, страница ассистента, плавающий чат */
+function aiAskText(v){
+  v=String(v||"").trim();
+  if(!v||aiBusy) return;
+  asPush("u",v);
+  const lv=v.toLowerCase();
+  if(lv==="план"||lv==="план на день"){ aiCur().msgs.pop(); aiSaveAll(); asPlan(); return; }
+  if(lv==="итог"||lv==="итоги"||lv==="итоги дня"){ aiCur().msgs.pop(); aiSaveAll(); asSummary(); return; }
+  asAsk(v);
 }
 function asSend(e){
   e.preventDefault();
   const inp=document.getElementById("asInput");
-  const v=inp.value.trim();
-  if(!v) return false;
-  inp.value="";
-  asPush("u",v);
-  const lv=v.toLowerCase();
-  if(lv==="план"||lv==="план на день") { asMsgs.pop(); asRender(); asPlan(); return false; }
-  if(lv==="итог"||lv==="итоги"||lv==="итоги дня") { asMsgs.pop(); asRender(); asSummary(); return false; }
-  asAsk(v);
+  const v=inp.value; inp.value="";
+  aiAskText(v);
   return false;
 }
+function aiSendFrom(e,id){
+  e.preventDefault();
+  const inp=document.getElementById(id);
+  const v=inp.value; inp.value=""; inp.style.height="";
+  aiAskText(v);
+  return false;
+}
+function aiKeydown(e,id){
+  const t=e.target;
+  t.style.height="auto"; t.style.height=Math.min(t.scrollHeight,120)+"px";
+  if(e.key==="Enter"&&!e.shiftKey){
+    e.preventDefault();
+    const v=t.value; t.value=""; t.style.height="";
+    aiAskText(v);
+  }
+}
+function aiSuggest(q){ aiAskText(q); }
+
+/* ===== Плавающая кнопка ИИ-чата: перетаскивается, прилипает к углам ===== */
+const AI_FAB_KEY="fit_ai_fab";
+function aiFabPlace(corner){
+  const fab=document.getElementById("aiFab"), pan=document.getElementById("aiPanel");
+  if(!fab||!pan) return;
+  const m=18;
+  ["top","bottom","left","right"].forEach(s=>{ fab.style[s]=""; pan.style[s]=""; });
+  const v=corner.charAt(0)==="t"?"top":"bottom", h=corner.charAt(1)==="l"?"left":"right";
+  fab.style[v]=m+"px"; fab.style[h]=m+"px";
+  pan.style[v]=(m+54+12)+"px"; pan.style[h]="14px";
+  try{ localStorage.setItem(AI_FAB_KEY,corner); }catch{}
+}
+function aiPanelToggle(force){
+  const pan=document.getElementById("aiPanel");
+  const on=typeof force==="boolean"?force:!pan.classList.contains("open");
+  pan.classList.toggle("open",on);
+  if(on){ asRender(); setTimeout(()=>{ const i=document.getElementById("aiPanelInput"); if(i) i.focus(); },60); }
+}
+function aiPanelFull(){
+  aiPanelToggle(false);
+  showPage('ai');
+  setTimeout(()=>{ const i=document.getElementById("aiInput"); if(i) i.focus(); },80);
+}
+(function aiFabInit(){
+  const fab=document.getElementById("aiFab");
+  if(!fab) return;
+  let corner="br";
+  try{ corner=localStorage.getItem(AI_FAB_KEY)||"br"; }catch{}
+  aiFabPlace(corner);
+  let px=0,py=0,drag=false,down=false;
+  fab.addEventListener("pointerdown",e=>{
+    down=true; drag=false; px=e.clientX; py=e.clientY;
+    try{ fab.setPointerCapture(e.pointerId); }catch{}
+  });
+  fab.addEventListener("pointermove",e=>{
+    if(!down) return;
+    if(!drag&&Math.hypot(e.clientX-px,e.clientY-py)<7) return;
+    drag=true; fab.classList.add("dragging");
+    ["top","bottom","left","right"].forEach(s=>{ fab.style[s]=""; });
+    fab.style.left=(e.clientX-27)+"px"; fab.style.top=(e.clientY-27)+"px";
+  });
+  fab.addEventListener("pointerup",e=>{
+    down=false;
+    fab.classList.remove("dragging");
+    if(drag){
+      drag=false;
+      aiFabPlace((e.clientY<innerHeight/2?"t":"b")+(e.clientX<innerWidth/2?"l":"r"));
+    } else {
+      aiPanelToggle();
+    }
+  });
+})();
 
 /* ================= Появление блоков ================= */
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }),{threshold:.05});
