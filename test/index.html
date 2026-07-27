@@ -396,7 +396,7 @@
   .quick-block .fld.full { grid-column: 1 / -1; }
   /* плитки выбора дня и времени */
   .chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
-  .chips.slots { grid-template-columns: repeat(3, 1fr); }
+  .chips.slots { grid-template-columns: repeat(4, 1fr); }
   .chip {
     font-family: var(--sans); border: 1px solid var(--border-2); border-radius: 8px;
     background: var(--surface); color: var(--ink-2); cursor: pointer;
@@ -463,6 +463,12 @@
   }
   .stmenu button:hover { background: var(--surface-3); color: var(--ink); }
   .stmenu .cur { font-weight: 700; color: var(--ink); }
+
+  /* ---------- Слоты вне основного окна 10–18 ---------- */
+  td.time.off { color: var(--faint); background: var(--surface-3); }
+  td.slot.off { background: var(--surface-2); }
+  td.slot.off:hover { background: var(--surface-3); }
+  .chip.offc:not(.sel):not(:disabled) { background: var(--surface-2); color: var(--muted); }
 
   /* ---------- Перетаскивание карточек ---------- */
   .lead-card[draggable="true"] { cursor: grab; }
@@ -663,7 +669,10 @@ function cityOffset(name){
 }
 /* слоты — по МЕСТНОМУ времени менеджера (каждый работает 10:00–18:00 у себя);
    часовой пояс показывается одной сноской над сеткой и над плитками времени */
-const SLOTS = ["09:00–10:00","10:00–11:00","11:00–12:00","12:00–13:00","13:00–14:00","14:00–15:00","15:00–16:00","16:00–17:00","17:00–18:00"];
+const SLOTS = ["09:00–10:00","10:00–11:00","11:00–12:00","12:00–13:00","13:00–14:00","14:00–15:00",
+               "15:00–16:00","16:00–17:00","17:00–18:00","18:00–19:00","19:00–20:00","20:00–21:00"];
+/* основное окно созвонов 10:00–18:00; остальные слоты доступны, но приглушены */
+const coreSlot = si => { const h = 9 + si; return h >= 10 && h < 18; };
 const DAYS = ["Понедельник","Вторник","Среда","Четверг","Пятница"];
 const DAYS_SHORT = ["Пн","Вт","Ср","Чт","Пт"];
 const STATUS = {
@@ -676,7 +685,7 @@ const STATUS = {
 
 /* Хранилище: автоматически сохраняется в localStorage браузера при каждом изменении.
    «Загрузить» дополнительно восстанавливает данные из JSON-файла старых выгрузок. */
-const LS_KEY="fit_calls_store_TEST_v2"; // v2: слоты с 09:00, нумерация сдвинулась
+const LS_KEY="fit_calls_store_TEST_v3"; // v3: слоты 09:00–21:00, основное окно 10–18
 let store = {};
 function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch{} }
 let currentMonday = mondayOf(new Date());
@@ -830,7 +839,7 @@ function renderGrid(){
   });
   html+="</tr></thead><tbody>";
   SLOTS.forEach((slot,si)=>{
-    html+=`<tr><td class="time">${slot}</td>`;
+    html+=`<tr><td class="time${coreSlot(si)?'':' off'}">${slot}</td>`;
     DAYS.forEach((_,di)=>{ html+=cellHtml(slotKey(activeManager,di,si),q); });
     html+="</tr>";
   });
@@ -843,22 +852,23 @@ function renderGrid(){
 /* общая отрисовка ячейки слота: созвон / нерабочий / пустой */
 function cellHtml(key,q){
   const lead=store[key];
+  const off=coreSlot(+key.split("|")[3])?"":" off";
   if(lead&&lead.blocked){
-    return `<td class="slot" data-k="${esc(key)}"><div class="lead-card blockcard">
+    return `<td class="slot${off}" data-k="${esc(key)}"><div class="lead-card blockcard">
       <div class="nm">недоступно</div>${lead.comment?`<div class="meta">${esc(lead.comment)}</div>`:""}
     </div></td>`;
   }
   if(lead){
     const st=STATUS[lead.status]||STATUS.planned;
     const match=!q||[lead.name,lead.city,lead.contact].some(v=>(v||"").toLowerCase().includes(q));
-    return `<td class="slot" data-k="${esc(key)}">
+    return `<td class="slot${off}" data-k="${esc(key)}">
       <div class="lead-card ${match?'':'dim'}" draggable="true" title="Перетащите в другой слот" style="--lc:${st.dot}">
         <div class="nm">${esc(lead.name)}</div>
         <div class="meta">${esc([lead.city,lead.contact].filter(Boolean).join(" · "))}</div>
         <div class="st" data-st="${esc(key)}" title="Сменить статус" style="color:${st.tx}"><span class="dot" style="background:${st.dot};width:6px;height:6px"></span>${st.label}</div>
       </div></td>`;
   }
-  return `<td class="slot" data-k="${esc(key)}"><div class="empty"></div></td>`;
+  return `<td class="slot${off}" data-k="${esc(key)}"><div class="empty"></div></td>`;
 }
 let dragKey=null, lastDragTs=0;
 function wireGrid(tbl){
@@ -916,7 +926,7 @@ function renderDayGrid(){
   });
   html+="</tr></thead><tbody>";
   SLOTS.forEach((slot,si)=>{
-    html+=`<tr><td class="time">${slot}</td>`;
+    html+=`<tr><td class="time${coreSlot(si)?'':' off'}">${slot}</td>`;
     MANAGERS.forEach(m=>{ html+=cellHtml(slotKey(m,currentDayIdx,si),q); });
     html+="</tr>";
   });
@@ -1061,16 +1071,17 @@ function refreshQuickSlots(){
     : "Время (МСК)";
   // если выбранный слот занят у нового менеджера/дня — сбросить
   if(quickSlot!==null && store[qKey(mgr,quickDay,quickSlot)]) quickSlot=null;
-  // по умолчанию — первый свободный
+  // по умолчанию — первый свободный слот основного окна 10–18, иначе любой свободный
   if(quickSlot===null){
-    const first=SLOTS.findIndex((_,si)=>!store[qKey(mgr,quickDay,si)]);
+    let first=SLOTS.findIndex((_,si)=>coreSlot(si)&&!store[qKey(mgr,quickDay,si)]);
+    if(first<0) first=SLOTS.findIndex((_,si)=>!store[qKey(mgr,quickDay,si)]);
     quickSlot=first>=0?first:null;
   }
   F("slotChips").innerHTML=SLOTS.map((s,si)=>{
     const e=store[qKey(mgr,quickDay,si)];
     const busy=!!e;
-    const sub=busy?(e.blocked?"недоступно":"занято"):s.slice(6);
-    return `<button type="button" class="chip ${si===quickSlot?'sel':''}" data-s="${si}" ${busy?'disabled title="Занято"':''}>${s.slice(0,5)}<span class="sub">${sub}</span></button>`;
+    const sub=busy?(e.blocked?"недоступно":"занято"):(coreSlot(si)?s.slice(6):"вне 10–18");
+    return `<button type="button" class="chip ${si===quickSlot?'sel':''}${coreSlot(si)?'':' offc'}" data-s="${si}" ${busy?'disabled title="Занято"':''}>${s.slice(0,5)}<span class="sub">${sub}</span></button>`;
   }).join("");
   F("slotChips").querySelectorAll(".chip:not(:disabled)").forEach(ch=>ch.onclick=()=>{
     quickSlot=+ch.dataset.s; refreshQuickSlots();
@@ -1324,15 +1335,16 @@ document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
   }catch{}
   const wk=iso(currentMonday);
   const put=(m,d,s,v)=>{ store[`${wk}|${m}|${d}|${s}`]=v; };
-  put("Алексей Казачкин",0,1,{name:"Дмитрий Соколов",contact:"+7 921 405-18-32",city:"Екатеринбург",source:"Рекомендация",exp:"5 лет, общепит",budget:"4–6 млн руб.",terms:"осень 2026",status:"done",comment:"Проведён, ждёт КП"});
-  put("Алексей Казачкин",2,4,{name:"Ирина Ковальчук",contact:"+7 903 118-77-21",city:"Казань",source:"Сайт",exp:"",budget:"",terms:"",status:"planned",comment:""});
-  put("Павел Коровин",1,2,{name:"Сергей Топорков",contact:"+7 926 774-90-12",city:"Тула",source:"Реклама",exp:"",budget:"",terms:"",status:"noanswer",comment:"Перезвонить после 15:00"});
-  put("Юрий Партала",4,3,{name:"Анатолий Васерман",contact:"+7 966 009-99-00",city:"Москва",source:"Сайт",exp:"2 года",budget:"7 млн руб.",terms:"следующий месяц",status:"moved",comment:"Ждёт ссылку в Zoom"});
-  put("Илья Пецух",0,0,{name:"Олег Чернов",contact:"+7 913 220-45-67",city:"Томск",source:"Instagram",exp:"",budget:"",terms:"",status:"planned",comment:""});
-  put("Елназ Бегалы",2,1,{name:"Акан Сериков",contact:"+7 707 555-33-11",city:"Алматы",source:"Рекомендация",exp:"",budget:"",terms:"",status:"planned",comment:""});
+  put("Алексей Казачкин",0,2,{name:"Дмитрий Соколов",contact:"+7 921 405-18-32",city:"Екатеринбург",source:"Рекомендация",exp:"5 лет, общепит",budget:"4–6 млн руб.",terms:"осень 2026",status:"done",comment:"Проведён, ждёт КП"});
+  put("Алексей Казачкин",2,6,{name:"Ирина Ковальчук",contact:"+7 903 118-77-21",city:"Казань",source:"Сайт",exp:"",budget:"",terms:"",status:"planned",comment:""});
+  put("Алексей Казачкин",3,10,{name:"Пётр Лемехов",contact:"+7 902 334-56-78",city:"Сочи",source:"Telegram",exp:"",budget:"",terms:"",status:"planned",comment:"Поздний созвон по просьбе клиента"});
+  put("Павел Коровин",1,3,{name:"Сергей Топорков",contact:"+7 926 774-90-12",city:"Тула",source:"Реклама",exp:"",budget:"",terms:"",status:"noanswer",comment:"Перезвонить после 15:00"});
+  put("Юрий Партала",4,4,{name:"Анатолий Васерман",contact:"+7 966 009-99-00",city:"Москва",source:"Сайт",exp:"2 года",budget:"7 млн руб.",terms:"следующий месяц",status:"moved",comment:"Ждёт ссылку в Zoom"});
+  put("Илья Пецух",0,1,{name:"Олег Чернов",contact:"+7 913 220-45-67",city:"Томск",source:"Instagram",exp:"",budget:"",terms:"",status:"planned",comment:""});
+  put("Елназ Бегалы",2,2,{name:"Акан Сериков",contact:"+7 707 555-33-11",city:"Алматы",source:"Рекомендация",exp:"",budget:"",terms:"",status:"planned",comment:""});
   put("Илья Пецух",1,0,{blocked:true,comment:"обучение"});
   put("Илья Пецух",1,1,{blocked:true,comment:"обучение"});
-  put("Павел Коровин",4,7,{blocked:true,comment:"личное"});
+  put("Павел Коровин",4,11,{blocked:true,comment:"личное"});
 })();
 
 render();
