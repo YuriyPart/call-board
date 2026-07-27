@@ -545,6 +545,18 @@
   .hm-up .t { font-variant-numeric:tabular-nums; color:var(--hm-ink); font-weight:700; white-space:nowrap; font-size:12px; }
   .hm-up .n { color:var(--hm-ink); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .hm-up .m { color:var(--hm-mut); font-size:12px; white-space:nowrap; }
+  .hm-chat { height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 2px; }
+  .hm-chat .msg { max-width:94%; padding:8px 11px; border-radius:12px; font-size:12.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+  .hm-chat .msg.u { align-self:flex-end; background:#18181b; color:#fff; border-bottom-right-radius:4px; }
+  .hm-chat .msg.a { align-self:flex-start; background:#f4f4f5; color:#09090b; border-bottom-left-radius:4px; }
+  .hm-chips { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
+  .hm-chips button { border:1px solid var(--hm-b); background:#fff; border-radius:999px; padding:4px 11px; font:600 11.5px var(--sans); color:var(--hm-ink); cursor:pointer; transition:background .13s; }
+  .hm-chips button:hover { background:#f4f4f5; }
+  .hm-chatin { display:flex; gap:6px; }
+  .hm-chatin input { flex:1; min-width:0; border:1px solid var(--hm-b); border-radius:10px; padding:8px 11px; font:500 13px var(--sans); color:var(--hm-ink); background:#fff; }
+  .hm-chatin input:focus { outline:none; border-color:#18181b; }
+  .hm-chatin button { border:none; background:#18181b; color:#fff; border-radius:10px; width:38px; cursor:pointer; font-size:14px; }
+  .hm-chatin button:hover { background:#3f3f46; }
   .hm-doclinks { display:flex; flex-direction:column; gap:2px; margin-top:8px; }
   .hm-doclinks button { border:none; background:none; text-align:left; font:600 13px var(--sans); color:var(--hm-ink); padding:6px 9px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:background .13s; }
   .hm-doclinks button::before { content:"→"; color:#a1a1aa; font-weight:700; }
@@ -801,6 +813,19 @@
       <button class="hm-item" onclick="showPage('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Профиль</button>
       <button class="hm-item" onclick="showPage('integrations')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V3M15 7V3"/><path d="M6 7h12v4a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></svg>Интеграции</button>
       <button class="hm-item" onclick="showPage('help')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.8 2.1c-.8.5-1.3 1-1.3 1.9"/><circle cx="12" cy="17" r="0.5"/></svg>Справка</button>
+    </div>
+    <div class="hm-nav">
+      <div class="g" style="display:flex;justify-content:space-between;align-items:center;gap:8px">Ассистент <span class="hm-pill">скоро ИИ</span></div>
+      <div class="hm-chat" id="hmChat"></div>
+      <div class="hm-chips">
+        <button onclick="asPlan()">План на день</button>
+        <button onclick="asSummary()">Итоги дня</button>
+        <button onclick="asEditTasks()" title="Мои регулярные задачи">✎ задачи</button>
+      </div>
+      <form class="hm-chatin" onsubmit="return asSend(event)">
+        <input id="asInput" placeholder="Сообщение ассистенту…" autocomplete="off">
+        <button type="submit" aria-label="Отправить">➤</button>
+      </form>
     </div>
   </div>
 </section>
@@ -1205,6 +1230,7 @@ function render(){
   renderTzChip(); renderStats();
   if(viewMode==="day") renderDayGrid(); else renderGrid();
   if(currentPage==="home"){ try{ renderHome(); }catch(e){} }
+  try{ asRender(); }catch(e){}
 }
 
 /* переключатель «Неделя / День» */
@@ -2595,6 +2621,104 @@ function renderHome(){
   document.getElementById("hmUpcoming").innerHTML=up.length?up.map(u=>
     `<div class="hm-up"><span class="t">${DAYS_SHORT[(u.d.getDay()+6)%7]} ${fmt(u.d)} · ${SLOTS[u.si].slice(0,5)}</span><span class="n">${esc(u.v.name)}</span><span class="m">${esc(u.mgr.split(" ")[0])}</span></div>`).join("")
     :"<p style='color:#71717a;font-size:13px'>Запланированных созвонов нет — поставьте первый!</p>";
+}
+
+
+/* ================= Ассистент (чат на главной) ================= */
+const AS_TASKS_KEY="fit_plan_tasks", AS_CHAT_KEY="fit_as_chat";
+let asMsgs=[];
+try{ asMsgs=JSON.parse(localStorage.getItem(AS_CHAT_KEY)||"[]"); }catch{}
+function asRender(){
+  const el=document.getElementById("hmChat"); if(!el) return;
+  el.innerHTML=asMsgs.length
+    ? asMsgs.map(m=>`<div class="msg ${m.r==="u"?"u":"a"}">${esc(m.t)}</div>`).join("")
+    : '<div class="msg a">Здравствуйте! Пока я умею собирать «План на день» и «Итоги дня» по графику. Скоро здесь появится полноценный ИИ-ассистент.</div>';
+  el.scrollTop=el.scrollHeight;
+}
+function asPush(r,t){
+  asMsgs.push({r,t}); asMsgs=asMsgs.slice(-30);
+  try{ localStorage.setItem(AS_CHAT_KEY, JSON.stringify(asMsgs)); }catch{}
+  asRender();
+}
+function asWho(){
+  let n="";
+  try{ n=(typeof profile!=="undefined"&&profile.name)||(typeof USER_NAME!=="undefined"&&USER_NAME)||""; }catch{}
+  if(!n){ try{ if(typeof USER_EMAIL!=="undefined"&&USER_EMAIL) n=USER_EMAIL.split("@")[0]; }catch{} }
+  const w=n.trim().split(/\s+/).filter(Boolean);
+  if(w.length>=2) return w[1]+" "+w[0][0]+".";
+  return n||"Сотрудник";
+}
+function asTasks(){
+  try{ const t=localStorage.getItem(AS_TASKS_KEY); if(t) return JSON.parse(t); }catch{}
+  return ["Отчёты еженедельные","Обработка почты (фр., аренда) и новых запросов с Авито","Обработка новых лидов","Активный поиск локаций"];
+}
+function asEditTasks(){
+  const t=prompt("Ваши регулярные задачи на день (по одной на строку) — попадут в «План на день»:", asTasks().join("\n"));
+  if(t===null) return;
+  try{ localStorage.setItem(AS_TASKS_KEY, JSON.stringify(t.split("\n").map(s=>s.trim()).filter(Boolean))); }catch{}
+  toast("Регулярные задачи сохранены");
+}
+function asToday(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  return Object.entries(store)
+    .filter(([k,v])=>!v.blocked&&recDate(k).getTime()===today.getTime())
+    .map(([k,v])=>({k,v,si:+k.split("|")[3],mgr:k.split("|")[1]}))
+    .sort((a,b)=>a.si-b.si);
+}
+function asPlan(){
+  asPush("u","План на день");
+  const dstr=new Date().toLocaleDateString("ru-RU");
+  const items=asToday();
+  const mine=items.filter(x=>hmPersonal("0|"+x.mgr+"|0|0", x.v));
+  const CORE_N=SLOTS.filter((_,si)=>coreSlot(si)).length;
+  const wkNow=iso(mondayOf(new Date()));
+  const todayIdx=(new Date().getDay()+6)%7;
+  const busyToday=Object.keys(store).filter(k=>{
+    const p=k.split("|");
+    return p[0]===wkNow&&+p[2]===todayIdx&&coreSlot(+p[3]);
+  }).length;
+  const freeToday=todayIdx<5?MANAGERS.length*CORE_N-busyToday:0;
+  // недозвоны за последние 7 дней — на перезвон
+  const weekAgo=addDays(new Date(),-7);
+  const recalls=Object.entries(store)
+    .filter(([k,v])=>!v.blocked&&v.status==="noanswer"&&recDate(k)>=weekAgo&&recDate(k)<=new Date())
+    .map(([k,v])=>`${v.name} · ${fmt(recDate(k))}`);
+  let t=`${asWho()} · План ${dstr}\n`;
+  asTasks().forEach(x=>{ t+=`— ${x}\n`; });
+  const list=mine.length?mine:items;
+  t+=`\n${mine.length?"Мои созвоны":"Созвоны команды"} сегодня (${list.length}):\n`;
+  t+=list.length?list.map(x=>`— ${SLOTS[x.si].slice(0,5)} ${esc0(x.v.name)} · ${x.mgr.split(" ")[0]}${x.v.status==="moved"?" (перенос)":""}`).join("\n"):"— нет запланированных";
+  if(mine.length&&items.length>mine.length) t+=`\nВсего по команде: ${items.length}`;
+  if(recalls.length) t+=`\n\nПерезвонить (недозвоны за неделю): ${recalls.length}\n`+recalls.slice(0,5).map(r=>"— "+r).join("\n");
+  if(freeToday>0) t+=`\n\nСвободно слотов сегодня (окно 10–18): ${freeToday}`;
+  asPush("a",t);
+}
+function asSummary(){
+  asPush("u","Итоги дня");
+  const items=asToday();
+  const by=s=>items.filter(x=>x.v.status===s).length;
+  let t=`${asWho()} · Итоги ${new Date().toLocaleDateString("ru-RU")}\n`;
+  t+=`— Созвонов в графике: ${items.length}\n`;
+  t+=`— Проведено: ${by("done")}\n`;
+  t+=`— Не дозвонились: ${by("noanswer")}\n`;
+  t+=`— Переносы: ${by("moved")}\n`;
+  t+=`— Отказы: ${by("refused")}\n`;
+  t+=`— Ещё запланировано: ${by("planned")}`;
+  asPush("a",t);
+}
+function esc0(s){ return String(s??""); }
+function asSend(e){
+  e.preventDefault();
+  const inp=document.getElementById("asInput");
+  const v=inp.value.trim();
+  if(!v) return false;
+  inp.value="";
+  asPush("u",v);
+  const lv=v.toLowerCase();
+  if(lv.includes("план")) { asMsgs.pop(); asRender(); asPlan(); return false; }
+  if(lv.includes("итог")) { asMsgs.pop(); asRender(); asSummary(); return false; }
+  asPush("a","Принял! Свободный диалог появится после подключения нейросети (Меню → Интеграции). Пока нажмите «План на день» или «Итоги дня» — соберу отчёт по графику.");
+  return false;
 }
 
 /* ================= Появление блоков ================= */
