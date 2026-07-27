@@ -747,11 +747,14 @@ function renderTabs(){
 function weekLeads(){ return Object.entries(store).filter(([k])=>k.startsWith(weekKey()+"|")); }
 
 function renderStats(){
-  const all=weekLeads().map(([,v])=>v);
-  const leads=all.filter(l=>!l.blocked);
+  const entries=weekLeads();
+  const leads=entries.map(([,v])=>v).filter(l=>!l.blocked);
   const total=leads.length;
   const cnt=s=>leads.filter(l=>l.status===s).length;
-  const free=MANAGERS.length*DAYS.length*SLOTS.length-all.length; // нерабочие тоже заняты
+  // свободные слоты считаем только в основном окне созвонов 10–18
+  const CORE_COUNT=SLOTS.filter((_,si)=>coreSlot(si)).length;
+  const busyCore=entries.filter(([k])=>coreSlot(+k.split("|")[3])).length;
+  const free=MANAGERS.length*DAYS.length*CORE_COUNT-busyCore;
   const tiles=[
     { v: total, l: "созвонов на неделе", hero: true, add: true },
     { v: cnt("planned"), l: "запланировано", d: "var(--st-planned-dot)" },
@@ -761,10 +764,11 @@ function renderStats(){
     { v: free, l: "свободно слотов", info: true }
   ];
   const perMgr=MANAGERS.map(m=>{
-    const busy=Object.keys(store).filter(k=>k.startsWith(weekKey()+"|"+m+"|")).length;
-    return { m, free: DAYS.length*SLOTS.length-busy };
+    const busy=Object.keys(store).filter(k=>
+      k.startsWith(weekKey()+"|"+m+"|") && coreSlot(+k.split("|")[3])).length;
+    return { m, free: DAYS.length*CORE_COUNT-busy };
   });
-  const maxFree=DAYS.length*SLOTS.length;
+  const maxFree=DAYS.length*CORE_COUNT;
   document.getElementById("stats").innerHTML = tiles.map((t,i)=>{
     const body=`<div class="num">${t.v}</div>
       <div class="cap">${t.d?`<span class="dot" style="background:${t.d}"></span>`:""}${t.l}</div>`;
