@@ -396,7 +396,7 @@
   .quick-block .fld.full { grid-column: 1 / -1; }
   /* плитки выбора дня и времени */
   .chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
-  .chips.slots { grid-template-columns: repeat(4, 1fr); }
+  .chips.slots { grid-template-columns: repeat(3, 1fr); }
   .chip {
     font-family: var(--sans); border: 1px solid var(--border-2); border-radius: 8px;
     background: var(--surface); color: var(--ink-2); cursor: pointer;
@@ -663,7 +663,7 @@ function cityOffset(name){
 }
 /* слоты — по МЕСТНОМУ времени менеджера (каждый работает 10:00–18:00 у себя);
    часовой пояс показывается одной сноской над сеткой и над плитками времени */
-const SLOTS = ["10:00–11:00","11:00–12:00","12:00–13:00","13:00–14:00","14:00–15:00","15:00–16:00","16:00–17:00","17:00–18:00"];
+const SLOTS = ["09:00–10:00","10:00–11:00","11:00–12:00","12:00–13:00","13:00–14:00","14:00–15:00","15:00–16:00","16:00–17:00","17:00–18:00"];
 const DAYS = ["Понедельник","Вторник","Среда","Четверг","Пятница"];
 const DAYS_SHORT = ["Пн","Вт","Ср","Чт","Пт"];
 const STATUS = {
@@ -676,7 +676,7 @@ const STATUS = {
 
 /* Хранилище: автоматически сохраняется в localStorage браузера при каждом изменении.
    «Загрузить» дополнительно восстанавливает данные из JSON-файла старых выгрузок. */
-const LS_KEY="fit_calls_store_TEST_v1";
+const LS_KEY="fit_calls_store_TEST_v2"; // v2: слоты с 09:00, нумерация сдвинулась
 let store = {};
 function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch{} }
 let currentMonday = mondayOf(new Date());
