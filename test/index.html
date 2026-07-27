@@ -509,6 +509,14 @@
     font-family: var(--sans); font-size: 12.5px; color: var(--ink); background: var(--surface);
   }
 
+  /* ---------- Печать ---------- */
+  @media print {
+    .topbar, .testbar, #toast, .drawer, .mscrim, .controls, .scrim, .panel { display: none !important; }
+    .wrap { padding: 0; max-width: 100%; }
+    .bg-layer { display: none; }
+    .card, .tile, .gridcard { box-shadow: none; break-inside: avoid; }
+  }
+
   /* ---------- Тестовая лента ---------- */
   .testbar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 65;
@@ -662,6 +670,9 @@
         <label for="anFrom">с</label><input type="date" id="anFrom">
         <label for="anTo">по</label><input type="date" id="anTo">
       </div>
+      <div class="spacer"></div>
+      <button class="btn" onclick="anCsv()">Скачать CSV</button>
+      <button class="btn" onclick="window.print()">Печать / PDF</button>
     </div>
     <div id="anContent"></div>
   </section>
@@ -1689,6 +1700,33 @@ function colChartSvg(pts){
   return s;
 }
 
+let lastAn=null;
+function anCsv(){
+  if(!lastAn){ renderAnalytics(); }
+  if(!lastAn){ toast("Нет данных для отчёта"); return; }
+  const a=lastAn, rows=[];
+  rows.push(["Отчёт по созвонам", `${fmt(a.from)} — ${fmt(a.to)}`]);
+  rows.push([]);
+  a.kpi.forEach(k=>rows.push([k[0],k[1]]));
+  rows.push([]);
+  rows.push(["Динамика","Созвонов"]);
+  a.dyn.forEach(d=>rows.push([d.title,d.n]));
+  rows.push([]);
+  rows.push(["Статус","Созвонов","Доля"]);
+  a.stArr.forEach(s=>rows.push([s.label,s.n,a.total?Math.round(s.n/a.total*100)+"%":"0%"]));
+  rows.push([]);
+  rows.push(["Источник","Лидов"]);
+  a.srcArr.forEach(s=>rows.push([s[0],s[1]]));
+  rows.push([]);
+  rows.push(["Менеджер","Поставлено","Проведено","Недозвон","Отказы","Конверсия","Загрузка 10–18"]);
+  a.rowsM.forEach(r=>{
+    const load=a.loadM.find(x=>x.m===r.m);
+    rows.push([r.m,r.n,r.d,r.na,r.rf,r.n?Math.round(r.d/r.n*100)+"%":"—",(load?load.pct:0)+"%"]);
+  });
+  const csv="﻿"+rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+  download(`аналитика_${iso(lastAn.from)}_${iso(lastAn.to)}.csv`, csv, "text/csv;charset=utf-8");
+  toast("Отчёт CSV выгружен");
+}
 function renderAnalytics(){
   if(!F("anFrom").value) initAnRange("week");
   const from=new Date(F("anFrom").value+"T00:00:00");
@@ -1746,6 +1784,7 @@ function renderAnalytics(){
     return { m, pct:days.length?Math.min(100,Math.round(busy/(days.length*CORE_N)*100)):0 };
   });
   const kpi=[["Созвонов за период",total],["Проведено",done],["Конверсия в проведённый",conv+"%"],["Отказов",by("refused")]];
+  lastAn={ from, to, kpi, dyn, stArr, srcArr, loadM, rowsM, total };
   document.getElementById("anContent").innerHTML=`
     <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-bottom:14px">
       ${kpi.map(x=>`<div class="card"><div style="font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums">${x[1]}</div><p>${x[0]}</p></div>`).join("")}
