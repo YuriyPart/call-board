@@ -498,6 +498,12 @@
   }
   .statrow { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
   .statrow b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .dr { display: inline-flex; align-items: center; gap: 6px; }
+  .dr label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .dr input[type="date"] {
+    border: 1px solid var(--border-2); border-radius: 9px; padding: 6px 9px;
+    font-family: var(--sans); font-size: 12.5px; color: var(--ink); background: var(--surface);
+  }
 
   /* ---------- Тестовая лента ---------- */
   .testbar {
@@ -640,12 +646,19 @@
 
   <!-- Аналитика -->
   <section class="page" id="page-analytics">
-    <div class="pagehead"><h2>Аналитика</h2><p>Сводка по созвонам: статусы, источники лидов, конверсия и загрузка менеджеров.</p></div>
-    <div class="controls" style="margin-bottom:14px"><div class="seg" id="anSeg">
-      <button data-w="1" class="active">Эта неделя</button>
-      <button data-w="4">4 недели</button>
-      <button data-w="12">12 недель</button>
-    </div></div>
+    <div class="pagehead"><h2>Аналитика</h2><p>Сводка по созвонам: динамика, статусы, источники лидов, конверсия и загрузка менеджеров.</p></div>
+    <div class="controls" style="margin-bottom:14px">
+      <div class="seg" id="anSeg">
+        <button data-r="week" class="active">Эта неделя</button>
+        <button data-r="4w">4 недели</button>
+        <button data-r="month">Этот месяц</button>
+        <button data-r="all">Всё время</button>
+      </div>
+      <div class="dr">
+        <label for="anFrom">с</label><input type="date" id="anFrom">
+        <label for="anTo">по</label><input type="date" id="anTo">
+      </div>
+    </div>
     <div id="anContent"></div>
   </section>
 
@@ -1573,21 +1586,95 @@ function renderJournal(){
 }
 
 /* ================= Аналитика ================= */
+function recDate(k){ const p=k.split("|"); const d=new Date(p[0]+"T00:00:00"); d.setDate(d.getDate()+ +p[2]); return d; }
+function setAnRange(from,to){ F("anFrom").value=iso(from); F("anTo").value=iso(to); }
+function initAnRange(preset){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const m=mondayOf(today);
+  if(preset==="week") setAnRange(m, addDays(m,4));
+  else if(preset==="4w") setAnRange(addDays(m,-21), addDays(m,4));
+  else if(preset==="month") setAnRange(new Date(today.getFullYear(),today.getMonth(),1), new Date(today.getFullYear(),today.getMonth()+1,0));
+  else {
+    const ds=Object.keys(store).map(recDate);
+    if(ds.length) setAnRange(new Date(Math.min(...ds)), new Date(Math.max(...ds)));
+    else setAnRange(m, addDays(m,4));
+  }
+}
 document.querySelectorAll("#anSeg button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("#anSeg button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active"); renderAnalytics();
+  b.classList.add("active"); initAnRange(b.dataset.r); renderAnalytics();
 });
+["anFrom","anTo"].forEach(id=>F(id).onchange=()=>{
+  document.querySelectorAll("#anSeg button").forEach(x=>x.classList.remove("active"));
+  renderAnalytics();
+});
+
+/* столбиковый график динамики: SVG, один ряд, ховер-подсказки */
+function colChartSvg(pts){
+  const n=pts.length;
+  if(!n) return "<p>Нет данных за период.</p>";
+  const bw=Math.max(10,Math.min(28,Math.floor(620/n)-6));
+  const gap=6, padL=10, padR=26, padT=16, padB=24, H=170;
+  const W=padL+padR+n*(bw+gap);
+  const max=Math.max(1,...pts.map(p=>p.n));
+  const ih=H-padT-padB;
+  const base=padT+ih;
+  const step=Math.ceil(n/10);
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Динамика созвонов">`;
+  [0.5,1].forEach(f=>{
+    const y=padT+ih*(1-f);
+    s+=`<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`+
+       `<text x="${W-4}" y="${y+3}" font-size="9" fill="var(--faint)" text-anchor="end">${Math.round(max*f)}</text>`;
+  });
+  s+=`<line x1="${padL}" x2="${W-padR}" y1="${base}" y2="${base}" stroke="var(--border-2)" stroke-width="1"/>`;
+  let maxShown=false;
+  pts.forEach((p,i)=>{
+    const x=padL+i*(bw+gap);
+    const h=p.n?Math.max(3,ih*p.n/max):0;
+    const y=base-h;
+    s+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="3" fill="var(--accent)"><title>${p.title} — ${p.n}</title></rect>`;
+    if(!maxShown&&p.n===max&&max>0){ s+=`<text x="${x+bw/2}" y="${y-4}" font-size="10" font-weight="600" fill="var(--ink-2)" text-anchor="middle">${p.n}</text>`; maxShown=true; }
+    if(i%step===0) s+=`<text x="${x+bw/2}" y="${H-7}" font-size="9" fill="var(--muted)" text-anchor="middle">${p.label}</text>`;
+  });
+  s+="</svg>";
+  return s;
+}
+
 function renderAnalytics(){
-  const per=+(document.querySelector("#anSeg button.active")?.dataset.w||1);
-  const base=mondayOf(new Date());
-  const weeks=[]; for(let i=0;i<per;i++) weeks.push(iso(addDays(base,-7*i)));
+  if(!F("anFrom").value) initAnRange("week");
+  const from=new Date(F("anFrom").value+"T00:00:00");
+  const to=new Date(F("anTo").value+"T00:00:00");
+  if(isNaN(from)||isNaN(to)||from>to){ document.getElementById("anContent").innerHTML='<div class="card"><p>Выберите корректный диапазон дат.</p></div>'; return; }
+  const inR=k=>{ const d=recDate(k); return d>=from&&d<=to; };
   const entries=Object.entries(store)
-    .filter(([k,v])=>weeks.includes(k.split("|")[0])&&!v.blocked)
+    .filter(([k,v])=>!v.blocked&&inR(k))
     .map(([k,v])=>({k,...v}));
   const total=entries.length;
   const by=s=>entries.filter(e=>e.status===s).length;
   const done=by("done");
   const conv=total?Math.round(done/total*100):0;
+  // будние дни периода — для динамики и расчёта загрузки
+  const days=[];
+  for(let d=new Date(from); d<=to; d.setDate(d.getDate()+1)){
+    if(((d.getDay()+6)%7)<5) days.push({ date:new Date(d), n:0 });
+  }
+  entries.forEach(e=>{
+    const t=recDate(e.k).getTime();
+    const day=days.find(x=>x.date.getTime()===t);
+    if(day) day.n++;
+  });
+  // при длинном периоде укрупняем динамику до недель
+  let dyn;
+  if(days.length>31){
+    const wk={};
+    days.forEach(x=>{ const m=iso(mondayOf(x.date)); wk[m]=(wk[m]||0)+x.n; });
+    dyn=Object.entries(wk).map(([m,n])=>{
+      const d=new Date(m+"T00:00:00");
+      return { n, label:fmt(d), title:`Неделя ${fmt(d)} — ${fmt(addDays(d,4))}` };
+    });
+  } else {
+    dyn=days.map(x=>({ n:x.n, label:fmt(x.date), title:`${DAYS_SHORT[(x.date.getDay()+6)%7]} ${fmt(x.date)}` }));
+  }
   const rowsM=MANAGERS.map(m=>{
     const list=entries.filter(e=>e.k.split("|")[1]===m);
     return { m, n:list.length,
@@ -1605,18 +1692,21 @@ function renderAnalytics(){
   const loadM=MANAGERS.map(m=>{
     const busy=Object.keys(store).filter(k=>{
       const p=k.split("|");
-      return weeks.includes(p[0])&&p[1]===m&&coreSlot(+p[3]);
+      return p[1]===m&&coreSlot(+p[3])&&inR(k);
     }).length;
-    return { m, pct:Math.min(100,Math.round(busy/(CORE_N*DAYS.length*per)*100)) };
+    return { m, pct:days.length?Math.min(100,Math.round(busy/(days.length*CORE_N)*100)):0 };
   });
   const kpi=[["Созвонов за период",total],["Проведено",done],["Конверсия в проведённый",conv+"%"],["Отказов",by("refused")]];
   document.getElementById("anContent").innerHTML=`
     <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-bottom:14px">
       ${kpi.map(x=>`<div class="card"><div style="font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums">${x[1]}</div><p>${x[0]}</p></div>`).join("")}
     </div>
+    <div class="card" style="margin-bottom:14px"><h3>Динамика созвонов <span style="font-weight:400;color:var(--faint);font-size:12px">${fmt(from)} — ${fmt(to)}</span></h3>
+      <div style="overflow-x:auto">${colChartSvg(dyn)}</div>
+    </div>
     <div class="cards">
       <div class="card"><h3>Статусы</h3>
-        ${stArr.map(x=>`<div class="statrow"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${x.dot};margin-right:6px"></span>${x.label}</span><b>${x.n}</b></div><div class="hbar"><i style="width:${Math.round(x.n/maxSt*100)}%"></i></div>`).join("")}
+        ${stArr.map(x=>`<div class="statrow"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${x.dot};margin-right:6px"></span>${x.label}</span><b>${x.n}${total?` · ${Math.round(x.n/total*100)}%`:""}</b></div><div class="hbar"><i style="width:${Math.round(x.n/maxSt*100)}%;background:${x.dot}"></i></div>`).join("")}
       </div>
       <div class="card"><h3>Источники лидов</h3>
         ${srcArr.length?srcArr.map(x=>`<div class="statrow"><span>${esc(x[0])}</span><b>${x[1]}</b></div><div class="hbar"><i style="width:${Math.round(x[1]/maxSrc*100)}%"></i></div>`).join(""):"<p>Нет данных за период.</p>"}
