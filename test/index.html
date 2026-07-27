@@ -754,6 +754,17 @@
     </div>
   </section>
 
+  <!-- Скрипт продаж -->
+  <section class="page" id="page-salescript">
+    <div class="pagehead" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+      <div><h2>Скрипт продаж</h2><p>Две ветки: открытие с нуля и ребрендинг действующего СТО. Переключатель веток — внутри страницы.</p></div>
+      <a class="btn" style="margin-left:auto;text-decoration:none" href="../docs/skript.html" target="_blank" rel="noopener">Открыть отдельно</a>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <iframe src="../docs/skript.html" loading="lazy" style="width:100%;height:calc(100vh - 240px);min-height:480px;border:0;display:block" title="Скрипт продаж"></iframe>
+    </div>
+  </section>
+
   <!-- Создание документов -->
   <section class="page" id="page-docgen">
     <div class="pagehead"><h2>Создание документов</h2><p>Расчёт бизнес-плана для партнёра и подготовка договоров ДКК и ДПН с его данными.</p></div>
@@ -878,6 +889,9 @@
     <button class="mitem" data-p="docs">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
       Документы</button>
+    <button class="mitem" data-p="salescript">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+      Скрипт продаж</button>
     <button class="mitem" data-p="docgen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/></svg>
       Создание документов</button>
@@ -1664,7 +1678,7 @@ async function exportXlsx(){
 };
 
 /* ================= Меню и страницы ================= */
-const PAGES=["board","analytics","journal","docs","docgen","export","profile","integrations","help"];
+const PAGES=["board","analytics","journal","docs","salescript","docgen","export","profile","integrations","help"];
 let currentPage="board";
 function openMenu(){ F("drawer").classList.add("open"); F("mscrim").classList.add("open"); }
 function closeMenu(){ F("drawer").classList.remove("open"); F("mscrim").classList.remove("open"); }
