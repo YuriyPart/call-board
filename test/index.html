@@ -428,29 +428,32 @@
   .qweek .iconbtn { width: 24px; height: 24px; }
 
   /* ---------- Меню ---------- */
-  .menubtn {
-    width: 34px; height: 34px; flex: none;
-    border: 1px solid var(--border-2); border-radius: 9px;
-    background: var(--surface); color: var(--ink-2); cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    transition: background .15s, border-color .15s;
+  .btn.menuopen {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-weight: 700; color: var(--ink);
+    border-color: var(--graphite); background: var(--graphite); color: #fff;
   }
-  .menubtn:hover { background: var(--surface-3); border-color: var(--faint); }
+  .btn.menuopen:hover { background: #38404d; border-color: #38404d; }
   .mscrim {
     position: fixed; inset: 0; background: rgba(22,26,43,.28); backdrop-filter: blur(2px);
     opacity: 0; pointer-events: none; transition: opacity .25s; z-index: var(--z-panel);
   }
   .mscrim.open { opacity: 1; pointer-events: auto; }
   .drawer {
-    position: fixed; top: 0; left: 0; bottom: 0; width: 292px; max-width: 90vw;
+    position: fixed; top: 0; right: 0; bottom: 0; width: 292px; max-width: 90vw;
     background: var(--canvas); z-index: calc(var(--z-panel) + 1);
-    border-right: 1px solid var(--border);
-    box-shadow: 12px 0 40px rgba(var(--shadow-tint), 0.12);
-    transform: translateX(-105%);
+    border-left: 1px solid var(--border);
+    box-shadow: -12px 0 40px rgba(var(--shadow-tint), 0.12);
+    transform: translateX(105%);
     transition: transform .3s cubic-bezier(.32,.72,0,1);
     overflow-y: auto; padding: 18px 14px 24px;
   }
   .drawer.open { transform: none; }
+  .drawer .dhead {
+    font-size: 15px; font-weight: 800; color: var(--ink);
+    letter-spacing: 0.03em; text-transform: uppercase;
+    padding: 4px 10px 14px;
+  }
   .mgroup {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 16px; padding: 12px; margin-bottom: 12px;
@@ -593,9 +596,6 @@
 
 <header class="topbar">
   <div class="topbar-in">
-    <button class="menubtn" id="menuBtn" title="Меню" aria-label="Меню">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-    </button>
     <div class="brand">
       <div class="logo" aria-hidden="true">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12 13 4.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -616,6 +616,10 @@
     </div>
     <button class="btn" id="todayW">Сегодня</button>
     <button class="btn subtle" id="xlsxBtn">Сохранить</button>
+    <button class="btn menuopen" id="menuBtn" aria-haspopup="true" aria-controls="drawer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+      Меню
+    </button>
   </div>
 </header>
 
@@ -783,6 +787,7 @@
 <!-- Меню -->
 <div class="mscrim" id="mscrim"></div>
 <nav class="drawer" id="drawer" aria-label="Главное меню">
+  <div class="dhead">Меню</div>
   <div class="mgroup">
     <div class="glabel">Работа</div>
     <button class="mitem active" data-p="board">
