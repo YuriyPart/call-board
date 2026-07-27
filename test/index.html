@@ -427,6 +427,78 @@
   }
   .qweek .iconbtn { width: 24px; height: 24px; }
 
+  /* ---------- Меню ---------- */
+  .menubtn {
+    width: 34px; height: 34px; flex: none;
+    border: 1px solid var(--border-2); border-radius: 9px;
+    background: var(--surface); color: var(--ink-2); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .15s, border-color .15s;
+  }
+  .menubtn:hover { background: var(--surface-3); border-color: var(--faint); }
+  .mscrim {
+    position: fixed; inset: 0; background: rgba(22,26,43,.28); backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none; transition: opacity .25s; z-index: var(--z-panel);
+  }
+  .mscrim.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 292px; max-width: 90vw;
+    background: var(--canvas); z-index: calc(var(--z-panel) + 1);
+    border-right: 1px solid var(--border);
+    box-shadow: 12px 0 40px rgba(var(--shadow-tint), 0.12);
+    transform: translateX(-105%);
+    transition: transform .3s cubic-bezier(.32,.72,0,1);
+    overflow-y: auto; padding: 18px 14px 24px;
+  }
+  .drawer.open { transform: none; }
+  .mgroup {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 12px; margin-bottom: 12px;
+  }
+  .mgroup .glabel {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .07em; padding: 2px 10px 8px;
+  }
+  .mitem {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 10px 12px; border: none; border-radius: 10px; background: none;
+    cursor: pointer; font-family: var(--sans); font-size: 14px; font-weight: 600;
+    color: var(--ink); text-align: left; transition: background .15s;
+  }
+  .mitem:hover { background: var(--surface-3); }
+  .mitem.active { background: var(--surface-3); }
+  .mitem svg { flex: none; width: 18px; height: 18px; }
+
+  /* ---------- Страницы ---------- */
+  .page { display: none; }
+  .page.on { display: block; }
+  .pagehead { margin: 2px 0 18px; }
+  .pagehead h2 { font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+  .pagehead p { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+  .card h3 { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card p { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .badge { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 2px 9px; }
+  .badge.ok { background: var(--st-done-bg); color: var(--st-done-tx); }
+  .badge.soon { background: var(--st-moved-bg); color: var(--st-moved-tx); }
+  .badge.no { background: var(--surface-3); color: var(--muted); }
+  .hbar { height: 8px; border-radius: 4px; background: var(--surface-3); overflow: hidden; margin-top: 6px; }
+  .hbar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tbl th { text-align: left; color: var(--muted); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .tbl td { padding: 7px 8px; border-bottom: 1px solid var(--surface-3); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .tbl td:first-child { font-weight: 600; color: var(--ink); }
+  .copybtn { margin-top: 12px; }
+  .fldrow { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .fldrow label { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .fldrow input, .fldrow select {
+    border: 1px solid var(--border-2); border-radius: 9px; padding: 8px 11px;
+    font-size: 13.5px; font-family: var(--sans); background: var(--surface); color: var(--ink);
+  }
+  .statrow { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+  .statrow b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
   /* ---------- Тестовая лента ---------- */
   .testbar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 65;
@@ -515,6 +587,9 @@
 
 <header class="topbar">
   <div class="topbar-in">
+    <button class="menubtn" id="menuBtn" title="Меню" aria-label="Меню">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
     <div class="brand">
       <div class="logo" aria-hidden="true">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12 13 4.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -540,6 +615,7 @@
 
 <main class="wrap">
 
+<div class="page on" id="page-board">
   <section class="stats" id="stats" aria-label="Статистика недели"></section>
 
   <div class="controls reveal" style="--i:2">
@@ -560,8 +636,136 @@
   <section class="gridcard reveal" style="--i:3" aria-label="Недельная сетка созвонов">
     <table class="sched" id="sched"></table>
   </section>
+</div>
+
+  <!-- Аналитика -->
+  <section class="page" id="page-analytics">
+    <div class="pagehead"><h2>Аналитика</h2><p>Сводка по созвонам: статусы, источники лидов, конверсия и загрузка менеджеров.</p></div>
+    <div class="controls" style="margin-bottom:14px"><div class="seg" id="anSeg">
+      <button data-w="1" class="active">Эта неделя</button>
+      <button data-w="4">4 недели</button>
+      <button data-w="12">12 недель</button>
+    </div></div>
+    <div id="anContent"></div>
+  </section>
+
+  <!-- Журнал -->
+  <section class="page" id="page-journal">
+    <div class="pagehead"><h2>Журнал действий</h2><p>Последние изменения графика в этом браузере. В боевой версии — общий журнал с почтами сотрудников (лист «Журнал» таблицы).</p></div>
+    <div id="jrContent"></div>
+  </section>
+
+  <!-- Документы -->
+  <section class="page" id="page-docs">
+    <div class="pagehead"><h2>Документы</h2><p>Регламент и готовые шаблоны сообщений клиентам — копируются в один клик.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Регламент созвона</h3>
+        <p>1. Слоты — 10:00–18:00 по местному времени менеджера, длительность 1 час.<br>
+        2. Созвон ставится только квалифицированному лиду.<br>
+        3. За час до встречи клиенту уходит напоминание.<br>
+        4. Недозвон — статус «Не дозвонились» + комментарий, когда перезвонить.<br>
+        5. Перенос — кнопкой «Перенести» или мышкой, запись не удаляем.<br>
+        6. Ранние и вечерние слоты (вне 10–18) — только по согласованию с менеджером.</p></div>
+      <div class="card"><h3>Приглашение на созвон</h3>
+        <p id="tpl1">Здравствуйте, {Имя}! Подтверждаю нашу видеовстречу {дата} в {время}. Ссылка для подключения: {ссылка}. Встреча займёт до часа. Хорошего дня!</p>
+        <button class="btn copybtn" onclick="copyTxt('tpl1')">Скопировать текст</button></div>
+      <div class="card"><h3>Напоминание за час</h3>
+        <p id="tpl2">{Имя}, напоминаю: через час наша видеовстреча по франшизе FIT SERVICE. Ссылка: {ссылка}. До связи!</p>
+        <button class="btn copybtn" onclick="copyTxt('tpl2')">Скопировать текст</button></div>
+      <div class="card"><h3>Перенос встречи</h3>
+        <p id="tpl3">{Имя}, к сожалению, нам нужно перенести встречу. Удобно ли вам {новая дата} в {время}? Если нет — предложите своё время, подстроимся.</p>
+        <button class="btn copybtn" onclick="copyTxt('tpl3')">Скопировать текст</button></div>
+    </div>
+  </section>
+
+  <!-- Скачать -->
+  <section class="page" id="page-export">
+    <div class="pagehead"><h2>Скачать</h2><p>Выгрузки графика в разных форматах.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Excel — текущая неделя</h3><p>Оформленный .xlsx в формате шаблона: лист на менеджера, блоки Пн–Пт, статусы и комментарии.</p><button class="btn primary copybtn" onclick="document.getElementById('xlsxBtn').click()">Скачать .xlsx</button></div>
+      <div class="card"><h3>CSV — все данные</h3><p>Полная база созвонов одним списком: удобно для сводных таблиц или импорта в CRM.</p><button class="btn copybtn" onclick="exportCsv()">Скачать .csv</button></div>
+      <div class="card"><h3>JSON — резервная копия</h3><p>Технический слепок всех данных дашборда. Пригодится для переноса или восстановления.</p><button class="btn copybtn" onclick="exportJson()">Скачать .json</button></div>
+    </div>
+  </section>
+
+  <!-- Профиль -->
+  <section class="page" id="page-profile">
+    <div class="pagehead"><h2>Профиль</h2><p>Личные настройки дашборда — сохраняются в этом браузере.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Данные и настройки</h3>
+        <div class="fldrow"><label>Имя</label><input id="pf_name"></div>
+        <div class="fldrow"><label>Менеджер по умолчанию</label><select id="pf_mgr"></select></div>
+        <div class="fldrow"><label>Стартовый вид</label><select id="pf_view"><option value="week">Неделя</option><option value="day">День</option></select></div>
+        <button class="btn primary" onclick="saveProfile()">Сохранить</button></div>
+      <div class="card"><h3>Моя статистика</h3><div id="pf_stats"></div></div>
+    </div>
+  </section>
+
+  <!-- Интеграции -->
+  <section class="page" id="page-integrations">
+    <div class="pagehead"><h2>Интеграции</h2><p>Подключённые сервисы и то, что на подходе.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Google Таблица <span class="badge ok">демо</span></h3><p>Общая база созвонов: лист «Данные», зеркало на листах менеджеров, журнал изменений. В тестовой версии данные локальные.</p></div>
+      <div class="card"><h3>Вход через Google <span class="badge ok">в боевой</span></h3><p>Авторизация по белому списку почт (лист «Доступ» таблицы). В тестовой версии отключена.</p></div>
+      <div class="card"><h3>GitHub Pages <span class="badge ok">подключено</span></h3><p>Хостинг дашборда: правка выкатывается за минуту, ссылка не меняется.</p></div>
+      <div class="card"><h3>Яндекс Телемост <span class="badge soon">скоро</span></h3><p>Автосоздание ссылки на видеовстречу при постановке созвона — без лимита 40 минут и с привычным для клиентов сервисом.</p></div>
+      <div class="card"><h3>Google Календарь <span class="badge soon">обсуждается</span></h3><p>Событие в календаре менеджера с напоминанием и проверка его занятости при записи.</p></div>
+      <div class="card"><h3>Zoom <span class="badge no">не планируется</span></h3><p>На бесплатном тарифе лимит 40 минут на встречу — вместо него выбран Телемост.</p></div>
+    </div>
+  </section>
+
+  <!-- Справка -->
+  <section class="page" id="page-help">
+    <div class="pagehead"><h2>Справка</h2><p>Короткая шпаргалка по работе с графиком.</p></div>
+    <div class="cards">
+      <div class="card"><h3>Постановка созвона</h3><p>Оранжевая кнопка «+» или клик по пустому слоту. Обязательные поля — имя и контакт. Слот по умолчанию — первый свободный в окне 10–18.</p></div>
+      <div class="card"><h3>Виды «Неделя» и «День»</h3><p>«Неделя» — сетка одного менеджера на неделю. «День» — все менеджеры на один день: удобно быстро найти свободное время под клиента.</p></div>
+      <div class="card"><h3>Перенос</h3><p>Перетащите карточку мышкой в свободный слот или откройте её и нажмите «Перенести». Статус «Перенос» у запланированных ставится сам.</p></div>
+      <div class="card"><h3>Нерабочее время</h3><p>Клик по пустому слоту → «Нерабочий слот» (можно указать причину). Серые полосатые ячейки недоступны для записи. Вернуть — «Сделать рабочим».</p></div>
+      <div class="card"><h3>Быстрый статус</h3><p>Клик по статусу прямо на карточке в сетке — выбор из списка без открытия панели.</p></div>
+      <div class="card"><h3>Часовые пояса</h3><p>Слоты идут по местному времени менеджера (пояс — сноской над сеткой). При вводе города клиента в карточке показывается его текущее время.</p></div>
+    </div>
+  </section>
 
 </main>
+
+<!-- Меню -->
+<div class="mscrim" id="mscrim"></div>
+<nav class="drawer" id="drawer" aria-label="Главное меню">
+  <div class="mgroup">
+    <div class="glabel">Работа</div>
+    <button class="mitem active" data-p="board">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+      График</button>
+    <button class="mitem" data-p="analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/></svg>
+      Аналитика</button>
+    <button class="mitem" data-p="journal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="0.5"/><circle cx="4" cy="12" r="0.5"/><circle cx="4" cy="18" r="0.5"/></svg>
+      Журнал</button>
+  </div>
+  <div class="mgroup">
+    <div class="glabel">Материалы</div>
+    <button class="mitem" data-p="docs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+      Документы</button>
+    <button class="mitem" data-p="export">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 21h16"/></svg>
+      Скачать</button>
+  </div>
+  <div class="mgroup">
+    <div class="glabel">Настройки</div>
+    <button class="mitem" data-p="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      Профиль</button>
+    <button class="mitem" data-p="integrations">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V3M15 7V3"/><path d="M6 7h12v4a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></svg>
+      Интеграции</button>
+    <button class="mitem" data-p="help">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.8 2.1c-.8.5-1.3 1-1.3 1.9"/><circle cx="12" cy="17" r="0.5"/></svg>
+      Справка</button>
+  </div>
+</nav>
 
 <!-- Слайд-панель лида -->
 <div class="scrim" id="scrim"></div>
@@ -911,6 +1115,7 @@ function wireGrid(tbl){
       delete store[dragKey];
       if(rec.status==="planned") rec.status="moved"; // запланированный при переносе помечаем «перенос»
       store[k]=rec;
+      journalLog("Перенос мышкой", `${rec.name} → ${keyStr(k)}`);
       dragKey=null; lastDragTs=Date.now();
       persist(); render(); toast("Созвон перенесён");
     });
@@ -956,6 +1161,7 @@ function openStMenu(anchor,key){
   stMenuEl.querySelectorAll("button").forEach(b=>b.onclick=e=>{
     e.stopPropagation();
     lead.status=b.dataset.s; persist(); closeStMenu(); render();
+    journalLog("Статус: "+STATUS[b.dataset.s].label, `${lead.name} · ${keyStr(key)}`);
     toast("Статус: "+STATUS[b.dataset.s].label);
   });
 }
@@ -1095,6 +1301,7 @@ F("mSave").onclick=()=>{
   // нерабочий слот: сохраняем только причину
   if(blockMode){
     store[editingKey]={ blocked:true, comment:F("f_comment").value.trim() };
+    journalLog("Нерабочий слот", keyStr(editingKey));
     persist(); closePanel(); render(); toast("Нерабочий слот сохранён");
     return;
   }
@@ -1116,6 +1323,7 @@ F("mSave").onclick=()=>{
       terms:F("f_terms").value.trim(), status:"moved",
       comment:F("f_comment").value.trim()
     };
+    journalLog("Перенос", `${name}: ${keyStr(editingKey)} → ${keyStr(newKey)}`);
     delete store[editingKey];
     store[newKey]=moved;
     activeManager=mgr;
@@ -1140,9 +1348,12 @@ F("mSave").onclick=()=>{
     terms:F("f_terms").value.trim(), status:F("f_status").value,
     comment:F("f_comment").value.trim()
   };
+  journalLog("Созвон сохранён", `${name} · ${keyStr(editingKey)}`);
   persist(); closePanel(); render(); toast("Созвон сохранён");
 };
 F("mDelete").onclick=()=>{
+  const nm=(store[editingKey]&&store[editingKey].name)||"";
+  journalLog(blockMode?"Слот снова рабочий":"Удалён", `${nm?nm+" · ":""}${keyStr(editingKey)}`);
   delete store[editingKey]; persist();
   const wasBlock=blockMode;
   closePanel(); render();
@@ -1152,6 +1363,7 @@ F("mDelete").onclick=()=>{
 F("mBlock").onclick=()=>{
   if(!editingKey) return;
   store[editingKey]={ blocked:true, comment:F("f_comment").value.trim() };
+  journalLog("Нерабочий слот", keyStr(editingKey));
   persist(); closePanel(); render(); toast("Слот помечен нерабочим");
 };
 /* режим переноса: показываем плитки выбора нового места */
@@ -1318,6 +1530,166 @@ document.getElementById("xlsxBtn").onclick=async()=>{
   URL.revokeObjectURL(a.href);
   toast("Excel выгружен — визуал как в шаблоне");
 };
+
+/* ================= Меню и страницы ================= */
+const PAGES=["board","analytics","journal","docs","export","profile","integrations","help"];
+let currentPage="board";
+function openMenu(){ F("drawer").classList.add("open"); F("mscrim").classList.add("open"); }
+function closeMenu(){ F("drawer").classList.remove("open"); F("mscrim").classList.remove("open"); }
+F("menuBtn").onclick=openMenu;
+F("mscrim").onclick=closeMenu;
+function showPage(p){
+  currentPage=p;
+  PAGES.forEach(x=>{ const el=document.getElementById("page-"+x); if(el) el.classList.toggle("on", x===p); });
+  document.querySelectorAll(".mitem[data-p]").forEach(b=>b.classList.toggle("active", b.dataset.p===p));
+  closeMenu();
+  if(p==="analytics") renderAnalytics();
+  if(p==="journal") renderJournal();
+  if(p==="profile") renderProfilePage();
+}
+document.querySelectorAll(".mitem[data-p]").forEach(b=>b.onclick=()=>showPage(b.dataset.p));
+
+/* подпись слота для журнала и аналитики */
+function keyStr(k){
+  const p=String(k).split("|"); if(p.length!==4) return k;
+  const d=new Date(p[0]+"T00:00:00"); d.setDate(d.getDate()+ +p[2]);
+  return `${p[1]} · ${fmt(d)} · ${SLOTS[+p[3]]||""}`;
+}
+
+/* ================= Журнал действий (локальный) ================= */
+let jr=[];
+try{ jr=JSON.parse(localStorage.getItem("fit_test_journal")||"[]"); }catch{}
+function journalLog(action,details){
+  jr.unshift({ t:new Date().toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}), action, details });
+  jr=jr.slice(0,200);
+  try{ localStorage.setItem("fit_test_journal", JSON.stringify(jr)); }catch{}
+}
+function renderJournal(){
+  document.getElementById("jrContent").innerHTML = jr.length
+    ? `<div class="card" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Когда</th><th>Действие</th><th>Детали</th></tr></thead><tbody>
+       ${jr.map(r=>`<tr><td style="white-space:nowrap">${esc(r.t)}</td><td style="white-space:nowrap">${esc(r.action)}</td><td>${esc(r.details)}</td></tr>`).join("")}
+       </tbody></table></div>`
+    : `<div class="card"><p>Пока пусто — добавляйте, переносите и меняйте созвоны, действия будут записываться сюда.</p></div>`;
+}
+
+/* ================= Аналитика ================= */
+document.querySelectorAll("#anSeg button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#anSeg button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); renderAnalytics();
+});
+function renderAnalytics(){
+  const per=+(document.querySelector("#anSeg button.active")?.dataset.w||1);
+  const base=mondayOf(new Date());
+  const weeks=[]; for(let i=0;i<per;i++) weeks.push(iso(addDays(base,-7*i)));
+  const entries=Object.entries(store)
+    .filter(([k,v])=>weeks.includes(k.split("|")[0])&&!v.blocked)
+    .map(([k,v])=>({k,...v}));
+  const total=entries.length;
+  const by=s=>entries.filter(e=>e.status===s).length;
+  const done=by("done");
+  const conv=total?Math.round(done/total*100):0;
+  const rowsM=MANAGERS.map(m=>{
+    const list=entries.filter(e=>e.k.split("|")[1]===m);
+    return { m, n:list.length,
+      d:list.filter(e=>e.status==="done").length,
+      na:list.filter(e=>e.status==="noanswer").length,
+      rf:list.filter(e=>e.status==="refused").length };
+  });
+  const src={};
+  entries.forEach(e=>{ const s=e.source||"Не указан"; src[s]=(src[s]||0)+1; });
+  const srcArr=Object.entries(src).sort((a,b)=>b[1]-a[1]);
+  const maxSrc=srcArr.length?srcArr[0][1]:1;
+  const stArr=Object.entries(STATUS).map(([id,s])=>({label:s.label,dot:s.dot,n:by(id)}));
+  const maxSt=Math.max(1,...stArr.map(x=>x.n));
+  const CORE_N=SLOTS.filter((_,si)=>coreSlot(si)).length;
+  const loadM=MANAGERS.map(m=>{
+    const busy=Object.keys(store).filter(k=>{
+      const p=k.split("|");
+      return weeks.includes(p[0])&&p[1]===m&&coreSlot(+p[3]);
+    }).length;
+    return { m, pct:Math.min(100,Math.round(busy/(CORE_N*DAYS.length*per)*100)) };
+  });
+  const kpi=[["Созвонов за период",total],["Проведено",done],["Конверсия в проведённый",conv+"%"],["Отказов",by("refused")]];
+  document.getElementById("anContent").innerHTML=`
+    <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-bottom:14px">
+      ${kpi.map(x=>`<div class="card"><div style="font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums">${x[1]}</div><p>${x[0]}</p></div>`).join("")}
+    </div>
+    <div class="cards">
+      <div class="card"><h3>Статусы</h3>
+        ${stArr.map(x=>`<div class="statrow"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${x.dot};margin-right:6px"></span>${x.label}</span><b>${x.n}</b></div><div class="hbar"><i style="width:${Math.round(x.n/maxSt*100)}%"></i></div>`).join("")}
+      </div>
+      <div class="card"><h3>Источники лидов</h3>
+        ${srcArr.length?srcArr.map(x=>`<div class="statrow"><span>${esc(x[0])}</span><b>${x[1]}</b></div><div class="hbar"><i style="width:${Math.round(x[1]/maxSrc*100)}%"></i></div>`).join(""):"<p>Нет данных за период.</p>"}
+      </div>
+      <div class="card"><h3>Загрузка окна 10–18</h3>
+        ${loadM.map(x=>`<div class="statrow"><span>${esc(x.m)}</span><b>${x.pct}%</b></div><div class="hbar"><i style="width:${x.pct}%"></i></div>`).join("")}
+      </div>
+      <div class="card" style="grid-column:1/-1;overflow-x:auto"><h3>По менеджерам</h3>
+        <table class="tbl"><thead><tr><th>Менеджер</th><th>Поставлено</th><th>Проведено</th><th>Недозвон</th><th>Отказы</th><th>Конверсия</th></tr></thead><tbody>
+        ${rowsM.map(r=>`<tr><td>${esc(r.m)}</td><td>${r.n}</td><td>${r.d}</td><td>${r.na}</td><td>${r.rf}</td><td>${r.n?Math.round(r.d/r.n*100)+"%":"—"}</td></tr>`).join("")}
+        </tbody></table>
+      </div>
+    </div>`;
+}
+
+/* ================= Документы: копирование шаблонов ================= */
+function copyTxt(id){
+  const t=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(t).then(()=>toast("Текст скопирован")).catch(()=>toast("Не удалось скопировать"));
+}
+
+/* ================= Выгрузки ================= */
+function download(name,content,type){
+  const blob=new Blob([content],{type});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  URL.revokeObjectURL(a.href);
+}
+function exportCsv(){
+  const rows=[["Неделя","Менеджер","День","Дата","Время","Имя","Контакт","Город","Откуда узнали","Опыт","Сумма вложений","Сроки открытия","Статус","Комментарий"]];
+  Object.entries(store).sort().forEach(([k,l])=>{
+    if(l.blocked) return;
+    const [wk,mgr,di,si]=k.split("|");
+    const date=iso(addDays(new Date(wk+"T00:00:00"),+di));
+    rows.push([wk,mgr,DAYS[di],date,SLOTS[si],l.name,l.contact,l.city,l.source,l.exp,l.budget,l.terms,(STATUS[l.status]||{}).label||l.status,l.comment]);
+  });
+  const csv="﻿"+rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n");
+  download("график_созвонов.csv", csv, "text/csv;charset=utf-8");
+  toast("CSV выгружен");
+}
+function exportJson(){
+  download("график_созвонов_данные.json", JSON.stringify({version:1,store},null,2), "application/json");
+  toast("JSON выгружен");
+}
+
+/* ================= Профиль ================= */
+const PROFILE_KEY="fit_test_profile";
+let profile={ name:"Мария Иванищенко", role:"Администратор", mgr:MANAGERS[0], view:"week" };
+try{ Object.assign(profile, JSON.parse(localStorage.getItem(PROFILE_KEY)||"{}")); }catch{}
+if(MANAGERS.includes(profile.mgr)) activeManager=profile.mgr;
+if(profile.view==="day"||profile.view==="week") viewMode=profile.view;
+function renderProfilePage(){
+  F("pf_name").value=profile.name;
+  F("pf_mgr").innerHTML=MANAGERS.map(m=>`<option ${m===profile.mgr?"selected":""}>${esc(m)}</option>`).join("");
+  F("pf_view").value=profile.view;
+  const all=Object.entries(store).filter(([,v])=>!v.blocked);
+  const thisWeek=all.filter(([k])=>k.startsWith(weekKey()+"|")).length;
+  const done=all.filter(([,v])=>v.status==="done").length;
+  F("pf_stats").innerHTML=`
+    <div class="statrow"><span>Роль</span><b>${esc(profile.role)}</b></div>
+    <div class="statrow"><span>Всего созвонов в базе</span><b>${all.length}</b></div>
+    <div class="statrow"><span>На текущей неделе</span><b>${thisWeek}</b></div>
+    <div class="statrow"><span>Проведено всего</span><b>${done}</b></div>
+    <div class="statrow"><span>Действий в журнале</span><b>${jr.length}</b></div>`;
+}
+function saveProfile(){
+  profile.name=F("pf_name").value.trim()||profile.name;
+  profile.mgr=F("pf_mgr").value;
+  profile.view=F("pf_view").value;
+  try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch{}
+  activeManager=profile.mgr; viewMode=profile.view;
+  render(); toast("Настройки сохранены");
+}
 
 /* ================= Появление блоков ================= */
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }),{threshold:.05});
