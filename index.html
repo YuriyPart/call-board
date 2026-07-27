@@ -704,6 +704,104 @@
     .docrow .acts { margin-left: 46px; }
   }
 
+  /* ---------- Журнал: лента событий ---------- */
+  .jr-day { margin-bottom: 18px; }
+  .jr-dh {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11.5px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .07em; margin: 0 2px 10px;
+  }
+  .jr-dh::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .jr-list { background: var(--surface); border: 1px solid var(--zb, var(--border)); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+  .jr-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #f4f4f5; }
+  .jr-item:last-child { border-bottom: none; }
+  .jr-ico {
+    width: 34px; height: 34px; border-radius: 10px; flex: none;
+    display: grid; place-items: center;
+    background: var(--jc-bg, var(--surface-3)); color: var(--jc-tx, var(--ink-2));
+  }
+  .jr-ico svg { width: 16px; height: 16px; }
+  .jr-body { flex: 1; min-width: 0; }
+  .jr-a { font-weight: 700; font-size: 13px; color: var(--ink); line-height: 1.35; }
+  .jr-d { font-size: 12px; color: var(--muted); line-height: 1.4; overflow: hidden; text-overflow: ellipsis; }
+  .jr-t { flex: none; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 11.5px; color: var(--faint); }
+  .jr-empty {
+    background: var(--surface); border: 1px dashed var(--border-2); border-radius: 16px;
+    padding: 36px 20px; text-align: center; color: var(--muted); font-size: 13px;
+  }
+  .jr-empty svg { width: 34px; height: 34px; color: var(--faint); margin-bottom: 8px; }
+
+  /* ---------- Аналитика: KPI и карточки менеджеров ---------- */
+  .an-kpi { display: flex; align-items: center; gap: 13px; }
+  .an-kpi .ic {
+    width: 40px; height: 40px; border-radius: 12px; flex: none;
+    display: grid; place-items: center;
+    background: var(--ak-bg, var(--surface-3)); color: var(--ak-tx, var(--ink-2));
+  }
+  .an-kpi .ic svg { width: 19px; height: 19px; }
+  .an-kpi .v { font-size: 25px; font-weight: 800; color: var(--ink); letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .an-kpi .l { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .mg-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f4f4f5; flex-wrap: wrap; }
+  .mg-row:last-child { border-bottom: none; padding-bottom: 2px; }
+  .mg-av {
+    width: 36px; height: 36px; border-radius: 50%; flex: none;
+    display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent-ink);
+    font-weight: 800; font-size: 12.5px; letter-spacing: .02em;
+  }
+  .mg-info { flex: 1 1 150px; min-width: 130px; }
+  .mg-nm { font-weight: 700; font-size: 13.5px; color: var(--ink); line-height: 1.25; }
+  .mg-tz { font-size: 11px; color: var(--faint); }
+  .mg-chips { display: flex; gap: 5px; flex-wrap: wrap; flex: none; }
+  .mg-chip {
+    font-size: 11px; font-weight: 600; border-radius: 7px; padding: 3px 8px;
+    background: var(--surface-3); color: var(--ink-2); white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .mg-chip.g { background: var(--st-done-bg); color: var(--st-done-tx); }
+  .mg-chip.y { background: var(--st-moved-bg); color: var(--st-moved-tx); }
+  .mg-chip.r { background: var(--st-refus-bg); color: var(--st-refus-tx); }
+  .mg-conv { flex: 0 1 150px; min-width: 120px; }
+  .mg-conv .cl { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); margin-bottom: 3px; }
+  .mg-conv .cl b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Формы создания документов: секции ---------- */
+  .frm2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .frm2 .fldrow { margin-bottom: 0; }
+  .frm2 .full { grid-column: 1 / -1; }
+  .fsec {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10.5px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .07em;
+    margin-top: 6px;
+  }
+  .fsec:first-child { margin-top: 0; }
+  .fsec::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .fsec svg { width: 13px; height: 13px; color: var(--accent); flex: none; }
+  .bp-res { border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); padding: 4px 14px 10px; margin-top: 10px; }
+  .bp-res .statrow.hl { font-size: 13px; }
+  .bp-res .statrow.hl b { color: var(--accent-ink); font-size: 15px; }
+  .card .h3ic {
+    width: 30px; height: 30px; border-radius: 9px; flex: none;
+    display: inline-grid; place-items: center;
+    background: var(--surface-3); color: var(--ink-2);
+  }
+  .card .h3ic svg { width: 15px; height: 15px; }
+  @media (max-width: 560px) { .frm2 { grid-template-columns: 1fr; } }
+
+  /* ---------- Скачать: карточки форматов ---------- */
+  .exp-card { display: flex; flex-direction: column; gap: 10px; }
+  .exp-ic {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center; color: #fff;
+    font-weight: 800; font-size: 10.5px; letter-spacing: .04em;
+  }
+  .exp-ic.x { background: #1d7044; }
+  .exp-ic.c { background: var(--graphite); }
+  .exp-ic.j { background: #8a6116; }
+  .exp-card .btn { align-self: flex-start; margin-top: auto; }
+
   /* ---------- Печать ---------- */
   @media print {
     .topbar, .testbar, #toast, .drawer, .mscrim, .controls, .scrim, .panel { display: none !important; }
@@ -1101,45 +1199,58 @@
   <section class="page shx" id="page-docgen">
     <div class="pagehead"><h2>Создание документов</h2><p>Расчёт бизнес-плана для партнёра и подготовка договоров ДКК и ДПН с его данными.</p></div>
     <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">
-      <div class="card"><h3>Реквизиты правообладателя</h3>
-        <p style="margin-bottom:10px">Заполняются один раз — подставляются во все создаваемые договоры.</p>
-        <div class="fldrow"><label>Наименование</label><input id="rq_name" placeholder="ООО «ФИТ Автосервис»"></div>
-        <div class="fldrow"><label>ИНН</label><input id="rq_inn" placeholder="5400000000"></div>
-        <div class="fldrow"><label>КПП</label><input id="rq_kpp" placeholder="540000000"></div>
-        <div class="fldrow"><label>ОГРН</label><input id="rq_ogrn" placeholder="1105400000000"></div>
-        <div class="fldrow"><label>Юридический адрес</label><input id="rq_addr" placeholder="г. Новосибирск, ул. …"></div>
-        <div class="fldrow"><label>Банк</label><input id="rq_bank" placeholder="ПАО «…»"></div>
-        <div class="fldrow"><label>Расчётный счёт</label><input id="rq_rs" placeholder="40702810…"></div>
-        <div class="fldrow"><label>Корр. счёт</label><input id="rq_ks" placeholder="30101810…"></div>
-        <div class="fldrow"><label>БИК</label><input id="rq_bik" placeholder="045000000"></div>
-        <div class="fldrow"><label>Руководитель (ФИО, должность)</label><input id="rq_dir" placeholder="Генеральный директор Иванов И.И."></div>
-        <div class="fldrow"><label>Действует на основании</label><input id="rq_osn" placeholder="Устава"></div>
-        <div class="fldrow"><label>Телефон / e-mail</label><input id="rq_contact" placeholder="+7 …, info@…"></div>
-        <p style="color:var(--st-done-tx)">Сохраняются автоматически.</p>
+      <div class="card"><h3><span class="h3ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/><path d="M9 10h.5M14.5 10h.5M9 14h.5M14.5 14h.5"/></svg></span>Реквизиты правообладателя</h3>
+        <p style="margin-bottom:12px">Заполняются один раз — подставляются во все создаваемые договоры. Сохраняются автоматически.</p>
+        <div class="frm2">
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/></svg>Организация</div>
+          <div class="fldrow full"><label>Наименование</label><input id="rq_name" placeholder="ООО «ФИТ Автосервис»"></div>
+          <div class="fldrow"><label>ИНН</label><input id="rq_inn" placeholder="5400000000"></div>
+          <div class="fldrow"><label>КПП</label><input id="rq_kpp" placeholder="540000000"></div>
+          <div class="fldrow full"><label>ОГРН</label><input id="rq_ogrn" placeholder="1105400000000"></div>
+          <div class="fldrow full"><label>Юридический адрес</label><input id="rq_addr" placeholder="г. Новосибирск, ул. …"></div>
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>Банк</div>
+          <div class="fldrow full"><label>Банк</label><input id="rq_bank" placeholder="ПАО «…»"></div>
+          <div class="fldrow"><label>Расчётный счёт</label><input id="rq_rs" placeholder="40702810…"></div>
+          <div class="fldrow"><label>Корр. счёт</label><input id="rq_ks" placeholder="30101810…"></div>
+          <div class="fldrow"><label>БИК</label><input id="rq_bik" placeholder="045000000"></div>
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Подписант</div>
+          <div class="fldrow full"><label>Руководитель (ФИО, должность)</label><input id="rq_dir" placeholder="Генеральный директор Иванов И.И."></div>
+          <div class="fldrow"><label>Действует на основании</label><input id="rq_osn" placeholder="Устава"></div>
+          <div class="fldrow"><label>Телефон / e-mail</label><input id="rq_contact" placeholder="+7 …, info@…"></div>
+        </div>
       </div>
-      <div class="card"><h3>Расчёт БП (бизнес-план)</h3>
-        <div class="fldrow"><label>Инвестиции в открытие, ₽</label><input id="bp_inv" type="number" value="5000000"></div>
-        <div class="fldrow"><label>Паушальный взнос, ₽</label><input id="bp_fee" type="number" value="990000"></div>
-        <div class="fldrow"><label>Средний чек, ₽</label><input id="bp_check" type="number" value="7500"></div>
-        <div class="fldrow"><label>Заездов в день</label><input id="bp_cars" type="number" value="10"></div>
-        <div class="fldrow"><label>Рабочих дней в месяц</label><input id="bp_days" type="number" value="26"></div>
-        <div class="fldrow"><label>Операционные расходы в месяц, ₽</label><input id="bp_exp" type="number" value="1200000"></div>
-        <div class="fldrow"><label>Роялти, % от выручки</label><input id="bp_roy" type="number" value="5"></div>
-        <div id="bp_out" style="border-top:1px solid var(--border);margin-top:6px;padding-top:4px"></div>
+      <div class="card"><h3><span class="h3ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h3M8 15h3M13 11h3M13 15h3"/></svg></span>Расчёт БП (бизнес-план)</h3>
+        <div class="frm2">
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 8h7a3 3 0 0 1 0 6H8"/></svg>Вложения</div>
+          <div class="fldrow"><label>Инвестиции в открытие, ₽</label><input id="bp_inv" type="number" value="5000000"></div>
+          <div class="fldrow"><label>Паушальный взнос, ₽</label><input id="bp_fee" type="number" value="990000"></div>
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 7h5v5"/></svg>Операционная модель</div>
+          <div class="fldrow"><label>Средний чек, ₽</label><input id="bp_check" type="number" value="7500"></div>
+          <div class="fldrow"><label>Заездов в день</label><input id="bp_cars" type="number" value="10"></div>
+          <div class="fldrow"><label>Рабочих дней в месяц</label><input id="bp_days" type="number" value="26"></div>
+          <div class="fldrow"><label>Роялти, % от выручки</label><input id="bp_roy" type="number" value="5"></div>
+          <div class="fldrow full"><label>Операционные расходы в месяц, ₽</label><input id="bp_exp" type="number" value="1200000"></div>
+        </div>
+        <div id="bp_out" class="bp-res"></div>
         <button class="btn copybtn" onclick="bpCopy()">Скопировать расчёт</button>
       </div>
-      <div class="card"><h3>Данные партнёра → ДКК и ДПН</h3>
-        <div class="fldrow"><label>ФИО партнёра</label><input id="pr_fio" placeholder="Иванов Иван Иванович"></div>
-        <div class="fldrow"><label>ИНН</label><input id="pr_inn" placeholder="123456789012"></div>
-        <div class="fldrow"><label>ОГРНИП / ОГРН</label><input id="pr_ogrn" placeholder="323100000000000"></div>
-        <div class="fldrow"><label>Паспорт (серия, номер, кем выдан)</label><input id="pr_pass" placeholder="0000 000000, выдан …"></div>
-        <div class="fldrow"><label>Адрес регистрации</label><input id="pr_addr" placeholder="г. …, ул. …, д. …"></div>
-        <div class="fldrow"><label>Город открытия</label><input id="pr_city" placeholder="Пермь"></div>
-        <div class="fldrow"><label>Телефон</label><input id="pr_phone" placeholder="+7 900 000-00-00"></div>
-        <div class="fldrow"><label>E-mail</label><input id="pr_email" placeholder="partner@mail.ru"></div>
-        <div class="fldrow"><label>Номер договора</label><input id="pr_num" placeholder="ДКК-2026/12"></div>
-        <div class="fldrow"><label>Дата договора</label><input id="pr_date" type="date"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+      <div class="card"><h3><span class="h3ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/></svg></span>Данные партнёра → ДКК и ДПН</h3>
+        <div class="frm2">
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Личные данные</div>
+          <div class="fldrow full"><label>ФИО партнёра</label><input id="pr_fio" placeholder="Иванов Иван Иванович"></div>
+          <div class="fldrow"><label>ИНН</label><input id="pr_inn" placeholder="123456789012"></div>
+          <div class="fldrow"><label>ОГРНИП / ОГРН</label><input id="pr_ogrn" placeholder="323100000000000"></div>
+          <div class="fldrow full"><label>Паспорт (серия, номер, кем выдан)</label><input id="pr_pass" placeholder="0000 000000, выдан …"></div>
+          <div class="fldrow full"><label>Адрес регистрации</label><input id="pr_addr" placeholder="г. …, ул. …, д. …"></div>
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5v3a2 2 0 0 1-2.2 2A19 19 0 0 1 2.5 5.2 2 2 0 0 1 4.5 3h3a2 2 0 0 1 2 1.7l.5 2.6a2 2 0 0 1-.6 1.9l-1.3 1.2a16 16 0 0 0 5.5 5.5l1.2-1.3a2 2 0 0 1 1.9-.6l2.6.5a2 2 0 0 1 1.7 2z"/></svg>Контакты и открытие</div>
+          <div class="fldrow"><label>Город открытия</label><input id="pr_city" placeholder="Пермь"></div>
+          <div class="fldrow"><label>Телефон</label><input id="pr_phone" placeholder="+7 900 000-00-00"></div>
+          <div class="fldrow full"><label>E-mail</label><input id="pr_email" placeholder="partner@mail.ru"></div>
+          <div class="fsec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>Договор</div>
+          <div class="fldrow"><label>Номер договора</label><input id="pr_num" placeholder="ДКК-2026/12"></div>
+          <div class="fldrow"><label>Дата договора</label><input id="pr_date" type="date"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
           <button class="btn primary" onclick="makeContract('dkk')">Скачать ДКК (.doc)</button>
           <button class="btn primary" onclick="makeContract('dpn')">Скачать ДПН (.doc)</button>
           <button class="btn" onclick="copyPartnerReq()">Скопировать реквизиты</button>
@@ -1153,9 +1264,9 @@
   <section class="page shx" id="page-export">
     <div class="pagehead"><h2>Скачать</h2><p>Выгрузки графика в разных форматах.</p></div>
     <div class="cards">
-      <div class="card"><h3>Excel — текущая неделя</h3><p>Оформленный .xlsx в формате шаблона: лист на менеджера, блоки Пн–Пт, статусы и комментарии.</p><button class="btn primary copybtn" onclick="exportXlsx()">Скачать .xlsx</button></div>
-      <div class="card"><h3>CSV — все данные</h3><p>Полная база созвонов одним списком: удобно для сводных таблиц или импорта в CRM.</p><button class="btn copybtn" onclick="exportCsv()">Скачать .csv</button></div>
-      <div class="card"><h3>JSON — резервная копия</h3><p>Технический слепок всех данных дашборда. Пригодится для переноса или восстановления.</p><button class="btn copybtn" onclick="exportJson()">Скачать .json</button></div>
+      <div class="card exp-card"><div class="exp-ic x">XLSX</div><h3 style="margin-bottom:0">Excel — текущая неделя</h3><p>Оформленный .xlsx в формате шаблона: лист на менеджера, блоки Пн–Пт, статусы и комментарии.</p><button class="btn primary" onclick="exportXlsx()">Скачать .xlsx</button></div>
+      <div class="card exp-card"><div class="exp-ic c">CSV</div><h3 style="margin-bottom:0">CSV — все данные</h3><p>Полная база созвонов одним списком: удобно для сводных таблиц или импорта в CRM.</p><button class="btn" onclick="exportCsv()">Скачать .csv</button></div>
+      <div class="card exp-card"><div class="exp-ic j">JSON</div><h3 style="margin-bottom:0">JSON — резервная копия</h3><p>Технический слепок всех данных дашборда. Пригодится для переноса или восстановления.</p><button class="btn" onclick="exportJson()">Скачать .json</button></div>
     </div>
   </section>
 
@@ -1193,12 +1304,12 @@
   <section class="page shx" id="page-help">
     <div class="pagehead"><h2>Справка</h2><p>Короткая шпаргалка по работе с графиком.</p></div>
     <div class="cards">
-      <div class="card"><h3>Постановка созвона</h3><p>Оранжевая кнопка «+» или клик по пустому слоту. Обязательные поля — имя и контакт. Слот по умолчанию — первый свободный в окне 10–18.</p></div>
-      <div class="card"><h3>Виды «Неделя» и «День»</h3><p>«Неделя» — сетка одного менеджера на неделю. «День» — все менеджеры на один день: удобно быстро найти свободное время под клиента.</p></div>
-      <div class="card"><h3>Перенос</h3><p>Перетащите карточку мышкой в свободный слот или откройте её и нажмите «Перенести». Статус «Перенос» у запланированных ставится сам.</p></div>
-      <div class="card"><h3>Нерабочее время</h3><p>Клик по пустому слоту → «Нерабочий слот» (можно указать причину). Серые полосатые ячейки недоступны для записи. Вернуть — «Сделать рабочим».</p></div>
-      <div class="card"><h3>Быстрый статус</h3><p>Клик по статусу прямо на карточке в сетке — выбор из списка без открытия панели.</p></div>
-      <div class="card"><h3>Часовые пояса</h3><p>Слоты идут по местному времени менеджера (пояс — сноской над сеткой). При вводе города клиента в карточке показывается его текущее время.</p></div>
+      <div class="card"><h3><span class="h3ic" style="background:var(--accent-soft);color:var(--accent-ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M12 13v5M9.5 15.5h5"/></svg></span>Постановка созвона</h3><p>Оранжевая кнопка «+» или клик по пустому слоту. Обязательные поля — имя и контакт. Слот по умолчанию — первый свободный в окне 10–18.</p></div>
+      <div class="card"><h3><span class="h3ic" style="background:var(--st-planned-bg);color:var(--st-planned-tx)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="18" rx="2"/><rect x="14" y="3" width="7" height="18" rx="2"/></svg></span>Виды «Неделя» и «День»</h3><p>«Неделя» — сетка одного менеджера на неделю. «День» — все менеджеры на один день: удобно быстро найти свободное время под клиента.</p></div>
+      <div class="card"><h3><span class="h3ic" style="background:var(--st-moved-bg);color:var(--st-moved-tx)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a5 5 0 0 0-5 5v0"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a5 5 0 0 0 5-5v0"/></svg></span>Перенос</h3><p>Перетащите карточку мышкой в свободный слот или откройте её и нажмите «Перенести». Статус «Перенос» у запланированных ставится сам.</p></div>
+      <div class="card"><h3><span class="h3ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg></span>Нерабочее время</h3><p>Клик по пустому слоту → «Нерабочий слот» (можно указать причину). Серые полосатые ячейки недоступны для записи. Вернуть — «Сделать рабочим».</p></div>
+      <div class="card"><h3><span class="h3ic" style="background:var(--st-done-bg);color:var(--st-done-tx)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span>Быстрый статус</h3><p>Клик по статусу прямо на карточке в сетке — выбор из списка без открытия панели.</p></div>
+      <div class="card"><h3><span class="h3ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>Часовые пояса</h3><p>Слоты идут по местному времени менеджера (пояс — сноской над сеткой). При вводе города клиента в карточке показывается его текущее время.</p></div>
     </div>
   </section>
 
@@ -2187,12 +2298,57 @@ function journalLog(action,details){
   jr=jr.slice(0,200);
   try{ localStorage.setItem("fit_test_journal", JSON.stringify(jr)); }catch{}
 }
+/* иконка и цвет события по названию действия */
+function jrKind(action){
+  const I={
+    add:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M12 13v5M9.5 15.5h5"/></svg>',
+    move:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a5 5 0 0 0-5 5v0"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a5 5 0 0 0 5-5v0"/></svg>',
+    status:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>',
+    del:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 4h4M7 7l1 13h8l1-13"/><path d="M10 11v6M14 11v6"/></svg>',
+    block:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg>',
+    doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
+    train:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5"/></svg>'
+  };
+  if(/^Удал/i.test(action)) return { ic:I.del, bg:"var(--st-refus-bg)", tx:"var(--st-refus-tx)" };
+  if(/^Перенос/i.test(action)) return { ic:I.move, bg:"var(--st-moved-bg)", tx:"var(--st-moved-tx)" };
+  if(/^Статус/i.test(action)) return { ic:I.status, bg:"var(--st-planned-bg)", tx:"var(--st-planned-tx)" };
+  if(/нерабочий|рабочим|рабочий/i.test(action)) return { ic:I.block, bg:"var(--surface-3)", tx:"var(--muted)" };
+  if(/документ/i.test(action)) return { ic:I.doc, bg:"var(--surface-3)", tx:"var(--ink-2)" };
+  if(/тренаж/i.test(action)) return { ic:I.train, bg:"var(--accent-soft)", tx:"var(--accent-ink)" };
+  return { ic:I.add, bg:"var(--st-done-bg)", tx:"var(--st-done-tx)" };
+}
 function renderJournal(){
-  document.getElementById("jrContent").innerHTML = jr.length
-    ? `<div class="card" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Когда</th><th>Действие</th><th>Детали</th></tr></thead><tbody>
-       ${jr.map(r=>`<tr><td style="white-space:nowrap">${esc(r.t)}</td><td style="white-space:nowrap">${esc(r.action)}</td><td>${esc(r.details)}</td></tr>`).join("")}
-       </tbody></table></div>`
-    : `<div class="card"><p>Пока пусто — добавляйте, переносите и меняйте созвоны, действия будут записываться сюда.</p></div>`;
+  const el=document.getElementById("jrContent");
+  if(!jr.length){
+    el.innerHTML=`<div class="jr-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="0.5"/><circle cx="4" cy="12" r="0.5"/><circle cx="4" cy="18" r="0.5"/></svg>
+      <div style="font-weight:700;color:var(--ink);margin-bottom:3px">Пока пусто</div>
+      Добавляйте, переносите и меняйте созвоны — действия будут записываться сюда.</div>`;
+    return;
+  }
+  // группировка по дате: t хранится как «дд.мм, чч:мм»
+  const groups=[];
+  jr.forEach(r=>{
+    const [d,tm]=String(r.t).split(", ");
+    let g=groups[groups.length-1];
+    if(!g||g.d!==d){ g={d,items:[]}; groups.push(g); }
+    g.items.push({...r,tm:tm||""});
+  });
+  const todayD=new Date().toLocaleString("ru-RU",{day:"2-digit",month:"2-digit"});
+  el.innerHTML=groups.map(g=>`
+    <div class="jr-day">
+      <div class="jr-dh">${g.d===todayD?"Сегодня · ":""}${esc(g.d)}</div>
+      <div class="jr-list">
+        ${g.items.map(r=>{
+          const k=jrKind(r.action);
+          return `<div class="jr-item">
+            <div class="jr-ico" style="--jc-bg:${k.bg};--jc-tx:${k.tx}">${k.ic}</div>
+            <div class="jr-body"><div class="jr-a">${esc(r.action)}</div>${r.details?`<div class="jr-d">${esc(r.details)}</div>`:""}</div>
+            <div class="jr-t">${esc(r.tm)}</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`).join("");
 }
 
 /* ================= Аналитика ================= */
@@ -2376,9 +2532,22 @@ function renderAnalytics(){
   });
   const kpi=[["Созвонов за период",total],["Проведено",done],["Конверсия в проведённый",conv+"%"],["Отказов",by("refused")]];
   lastAn={ from, to, kpi, dyn, stArr, srcArr, loadM, rowsM, total };
+  const AK={
+    total:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
+    done:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>',
+    conv:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 7h5v5"/></svg>',
+    ref:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>'
+  };
+  const kpiView=[
+    { v:total, l:"Созвонов за период", ic:AK.total, bg:"var(--surface-3)", tx:"var(--ink-2)" },
+    { v:done, l:"Проведено", ic:AK.done, bg:"var(--st-done-bg)", tx:"var(--st-done-tx)" },
+    { v:conv+"%", l:"Конверсия в проведённый", ic:AK.conv, bg:"var(--accent-soft)", tx:"var(--accent-ink)" },
+    { v:by("refused"), l:"Отказов", ic:AK.ref, bg:"var(--st-refus-bg)", tx:"var(--st-refus-tx)" }
+  ];
+  const initials=m=>m.split(" ").map(w=>w[0]||"").slice(0,2).join("").toUpperCase();
   document.getElementById("anContent").innerHTML=`
-    <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-bottom:14px">
-      ${kpi.map(x=>`<div class="card"><div style="font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums">${x[1]}</div><p>${x[0]}</p></div>`).join("")}
+    <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(215px,1fr));margin-bottom:14px">
+      ${kpiView.map(x=>`<div class="card an-kpi"><div class="ic" style="--ak-bg:${x.bg};--ak-tx:${x.tx}">${x.ic}</div><div><div class="v">${x.v}</div><div class="l">${x.l}</div></div></div>`).join("")}
     </div>
     <div class="card" style="margin-bottom:14px"><h3>Динамика созвонов <span style="font-weight:400;color:var(--faint);font-size:12px">${fmt(from)} — ${fmt(to)}</span></h3>
       <div id="dynChart" style="min-height:280px"></div>
@@ -2393,10 +2562,22 @@ function renderAnalytics(){
       <div class="card"><h3>Загрузка окна 10–18</h3>
         ${loadM.map(x=>`<div class="statrow"><span>${esc(x.m)}</span><b>${x.pct}%</b></div><div class="hbar"><i style="width:${x.pct}%"></i></div>`).join("")}
       </div>
-      <div class="card" style="grid-column:1/-1;overflow-x:auto"><h3>По менеджерам</h3>
-        <table class="tbl"><thead><tr><th>Менеджер</th><th>Поставлено</th><th>Проведено</th><th>Недозвон</th><th>Отказы</th><th>Конверсия</th></tr></thead><tbody>
-        ${rowsM.map(r=>`<tr><td>${esc(r.m)}</td><td>${r.n}</td><td>${r.d}</td><td>${r.na}</td><td>${r.rf}</td><td>${r.n?Math.round(r.d/r.n*100)+"%":"—"}</td></tr>`).join("")}
-        </tbody></table>
+      <div class="card" style="grid-column:1/-1"><h3>По менеджерам</h3>
+        ${rowsM.map(r=>{
+          const cv=r.n?Math.round(r.d/r.n*100):null;
+          return `<div class="mg-row">
+            <div class="mg-av">${initials(r.m)}</div>
+            <div class="mg-info"><div class="mg-nm">${esc(r.m)}</div><div class="mg-tz">${esc(MANAGER_TZ[r.m]?.note||"")}${MANAGER_TZ[r.m]?.off?` · МСК+${MANAGER_TZ[r.m].off}`:""}</div></div>
+            <div class="mg-chips">
+              <span class="mg-chip" title="Поставлено созвонов">${r.n} постав.</span>
+              <span class="mg-chip g" title="Проведено">${r.d} провед.</span>
+              <span class="mg-chip y" title="Недозвоны">${r.na} недозв.</span>
+              <span class="mg-chip r" title="Отказы">${r.rf} отказ.</span>
+            </div>
+            <div class="mg-conv"><div class="cl"><span>конверсия</span><b>${cv===null?"—":cv+"%"}</b></div>
+              <div class="hbar"><i style="width:${cv||0}%"></i></div></div>
+          </div>`;
+        }).join("")}
       </div>
     </div>`;
   colChart(document.getElementById("dynChart"), dyn);
@@ -2483,8 +2664,8 @@ function renderDocs(){
           <div class="dt"><div class="dn">${esc(d.n)} ${cc}</div><div class="dd">${esc(d.d||"")}</div></div>
           <div class="acts">
             ${d.url?`<button class="btn primary" onclick="window.open(docsReg[${i}].url,'_blank')">Открыть</button>`:'<span class="badge no" style="align-self:center">нет ссылки</span>'}
-            <button class="btn" onclick="docSetUrl(${i})" title="${d.url?"Изменить ссылку":"Прикрепить ссылку"}">🔗</button>
-            <button class="btn ghost-danger" onclick="docDel(${i})" title="Убрать из списка">✕</button>
+            <button class="btn" onclick="docSetUrl(${i})" title="${d.url?"Изменить ссылку":"Прикрепить ссылку"}" aria-label="Ссылка" style="display:inline-flex;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></button>
+            <button class="btn ghost-danger" onclick="docDel(${i})" title="Убрать из списка" aria-label="Убрать" style="display:inline-flex;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           </div></div>`;
       }).join("")}
     </div></div>`;
@@ -2540,7 +2721,7 @@ function bpRows(){
 }
 function bpRender(){
   document.getElementById("bp_out").innerHTML=bpRows().map(r=>
-    `<div class="statrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+    `<div class="statrow${(r[0]==="Прибыль в месяц"||r[0]==="Окупаемость")?" hl":""}"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
 }
 function bpCopy(){
   const v=bpValues();
