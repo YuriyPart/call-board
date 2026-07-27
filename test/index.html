@@ -670,15 +670,10 @@
 
   <!-- Документы -->
   <section class="page" id="page-docs">
-    <div class="pagehead"><h2>Документы</h2><p>Регламент и готовые шаблоны сообщений клиентам — копируются в один клик.</p></div>
+    <div class="pagehead"><h2>Документы</h2><p>Хранилище рабочих документов: договоры, презентация, регламенты. Прикрепите к каждому ссылку (Google Диск, Документы и т.п.) — и открывайте в один клик.</p></div>
+    <div class="cards" id="docsList"></div>
+    <div class="pagehead" style="margin-top:26px"><h2 style="font-size:16px">Шаблоны сообщений клиентам</h2><p>Копируются в один клик.</p></div>
     <div class="cards">
-      <div class="card"><h3>Регламент созвона</h3>
-        <p>1. Слоты — 10:00–18:00 по местному времени менеджера, длительность 1 час.<br>
-        2. Созвон ставится только квалифицированному лиду.<br>
-        3. За час до встречи клиенту уходит напоминание.<br>
-        4. Недозвон — статус «Не дозвонились» + комментарий, когда перезвонить.<br>
-        5. Перенос — кнопкой «Перенести» или мышкой, запись не удаляем.<br>
-        6. Ранние и вечерние слоты (вне 10–18) — только по согласованию с менеджером.</p></div>
       <div class="card"><h3>Приглашение на созвон</h3>
         <p id="tpl1">Здравствуйте, {Имя}! Подтверждаю нашу видеовстречу {дата} в {время}. Ссылка для подключения: {ссылка}. Встреча займёт до часа. Хорошего дня!</p>
         <button class="btn copybtn" onclick="copyTxt('tpl1')">Скопировать текст</button></div>
@@ -688,6 +683,49 @@
       <div class="card"><h3>Перенос встречи</h3>
         <p id="tpl3">{Имя}, к сожалению, нам нужно перенести встречу. Удобно ли вам {новая дата} в {время}? Если нет — предложите своё время, подстроимся.</p>
         <button class="btn copybtn" onclick="copyTxt('tpl3')">Скопировать текст</button></div>
+      <div class="card"><h3>Регламент созвона</h3>
+        <p>1. Слоты — 10:00–18:00 по местному времени менеджера, 1 час.<br>
+        2. Созвон ставится только квалифицированному лиду.<br>
+        3. За час до встречи клиенту уходит напоминание.<br>
+        4. Недозвон — статус «Не дозвонились» + комментарий.<br>
+        5. Перенос — кнопкой или мышкой, запись не удаляем.<br>
+        6. Слоты вне 10–18 — по согласованию с менеджером.</p></div>
+    </div>
+  </section>
+
+  <!-- Создание документов -->
+  <section class="page" id="page-docgen">
+    <div class="pagehead"><h2>Создание документов</h2><p>Расчёт бизнес-плана для партнёра и подготовка договоров ДКК и ДПН с его данными.</p></div>
+    <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">
+      <div class="card"><h3>Расчёт БП (бизнес-план)</h3>
+        <div class="fldrow"><label>Инвестиции в открытие, ₽</label><input id="bp_inv" type="number" value="5000000"></div>
+        <div class="fldrow"><label>Паушальный взнос, ₽</label><input id="bp_fee" type="number" value="990000"></div>
+        <div class="fldrow"><label>Средний чек, ₽</label><input id="bp_check" type="number" value="7500"></div>
+        <div class="fldrow"><label>Заездов в день</label><input id="bp_cars" type="number" value="10"></div>
+        <div class="fldrow"><label>Рабочих дней в месяц</label><input id="bp_days" type="number" value="26"></div>
+        <div class="fldrow"><label>Операционные расходы в месяц, ₽</label><input id="bp_exp" type="number" value="1200000"></div>
+        <div class="fldrow"><label>Роялти, % от выручки</label><input id="bp_roy" type="number" value="5"></div>
+        <div id="bp_out" style="border-top:1px solid var(--border);margin-top:6px;padding-top:4px"></div>
+        <button class="btn copybtn" onclick="bpCopy()">Скопировать расчёт</button>
+      </div>
+      <div class="card"><h3>Данные партнёра → ДКК и ДПН</h3>
+        <div class="fldrow"><label>ФИО партнёра</label><input id="pr_fio" placeholder="Иванов Иван Иванович"></div>
+        <div class="fldrow"><label>ИНН</label><input id="pr_inn" placeholder="123456789012"></div>
+        <div class="fldrow"><label>ОГРНИП / ОГРН</label><input id="pr_ogrn" placeholder="323100000000000"></div>
+        <div class="fldrow"><label>Паспорт (серия, номер, кем выдан)</label><input id="pr_pass" placeholder="0000 000000, выдан …"></div>
+        <div class="fldrow"><label>Адрес регистрации</label><input id="pr_addr" placeholder="г. …, ул. …, д. …"></div>
+        <div class="fldrow"><label>Город открытия</label><input id="pr_city" placeholder="Пермь"></div>
+        <div class="fldrow"><label>Телефон</label><input id="pr_phone" placeholder="+7 900 000-00-00"></div>
+        <div class="fldrow"><label>E-mail</label><input id="pr_email" placeholder="partner@mail.ru"></div>
+        <div class="fldrow"><label>Номер договора</label><input id="pr_num" placeholder="ДКК-2026/12"></div>
+        <div class="fldrow"><label>Дата договора</label><input id="pr_date" type="date"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          <button class="btn primary" onclick="makeContract('dkk')">Скачать ДКК (.doc)</button>
+          <button class="btn primary" onclick="makeContract('dpn')">Скачать ДПН (.doc)</button>
+          <button class="btn" onclick="copyPartnerReq()">Скопировать реквизиты</button>
+        </div>
+        <p style="margin-top:10px">В файл подставляются данные партнёра; текст разделов договора вставьте из шаблона, утверждённого юристом.</p>
+      </div>
     </div>
   </section>
 
@@ -762,6 +800,9 @@
     <button class="mitem" data-p="docs">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
       Документы</button>
+    <button class="mitem" data-p="docgen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/></svg>
+      Создание документов</button>
     <button class="mitem" data-p="export">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 21h16"/></svg>
       Скачать</button>
@@ -1545,7 +1586,7 @@ document.getElementById("xlsxBtn").onclick=async()=>{
 };
 
 /* ================= Меню и страницы ================= */
-const PAGES=["board","analytics","journal","docs","export","profile","integrations","help"];
+const PAGES=["board","analytics","journal","docs","docgen","export","profile","integrations","help"];
 let currentPage="board";
 function openMenu(){ F("drawer").classList.add("open"); F("mscrim").classList.add("open"); }
 function closeMenu(){ F("drawer").classList.remove("open"); F("mscrim").classList.remove("open"); }
@@ -1559,6 +1600,8 @@ function showPage(p){
   if(p==="analytics") renderAnalytics();
   if(p==="journal") renderJournal();
   if(p==="profile") renderProfilePage();
+  if(p==="docs") renderDocs();
+  if(p==="docgen") renderDocgen();
 }
 document.querySelectorAll(".mitem[data-p]").forEach(b=>b.onclick=()=>showPage(b.dataset.p));
 
@@ -1726,6 +1769,162 @@ function renderAnalytics(){
 function copyTxt(id){
   const t=document.getElementById(id).textContent;
   navigator.clipboard.writeText(t).then(()=>toast("Текст скопирован")).catch(()=>toast("Не удалось скопировать"));
+}
+
+/* ================= Документы: хранилище ссылок ================= */
+const DOCS_KEY="fit_test_docs";
+let docsReg=[
+  { n:"ДКК — договор коммерческой концессии", d:"Утверждённый шаблон договора для партнёра", url:"" },
+  { n:"ДПН — договор о намерениях", d:"Предварительный договор с партнёром", url:"" },
+  { n:"Презентация франшизы", d:"Актуальная версия для отправки лидам", url:"" },
+  { n:"Финансовая модель (БП)", d:"Таблица расчёта бизнес-плана", url:"" }
+];
+try{ const s=JSON.parse(localStorage.getItem(DOCS_KEY)||"null"); if(Array.isArray(s)&&s.length) docsReg=s; }catch{}
+function saveDocsReg(){ try{ localStorage.setItem(DOCS_KEY, JSON.stringify(docsReg)); }catch{} }
+function renderDocs(){
+  const el=document.getElementById("docsList");
+  el.innerHTML=docsReg.map((doc,i)=>`
+    <div class="card"><h3>${esc(doc.n)} ${doc.url?'<span class="badge ok">ссылка есть</span>':'<span class="badge no">нет ссылки</span>'}</h3>
+      <p>${esc(doc.d)}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        ${doc.url?`<button class="btn primary" onclick="window.open(docsReg[${i}].url,'_blank')">Открыть</button>`:""}
+        <button class="btn" onclick="docSetUrl(${i})">${doc.url?"Изменить ссылку":"Прикрепить ссылку"}</button>
+        <button class="btn ghost-danger" onclick="docDel(${i})">Убрать</button>
+      </div>
+    </div>`).join("")+`
+    <div class="card" style="display:flex;align-items:center;justify-content:center;min-height:120px">
+      <button class="btn" onclick="docAdd()">+ Добавить документ</button>
+    </div>`;
+}
+function docSetUrl(i){
+  const u=prompt("Ссылка на документ (Google Диск, Документы и т.п.):", docsReg[i].url||"https://");
+  if(u===null) return;
+  docsReg[i].url=u.trim(); saveDocsReg(); renderDocs();
+}
+function docAdd(){
+  const n=prompt("Название документа:"); if(!n) return;
+  const d=prompt("Короткое описание:")||"";
+  const u=prompt("Ссылка (можно оставить пустой):")||"";
+  docsReg.push({ n:n.trim(), d:d.trim(), url:u.trim() });
+  saveDocsReg(); renderDocs();
+}
+function docDel(i){
+  if(!confirm(`Убрать «${docsReg[i].n}» из списка?`)) return;
+  docsReg.splice(i,1); saveDocsReg(); renderDocs();
+}
+
+/* ================= Создание документов ================= */
+const BP_KEY="fit_test_bp", PR_KEY="fit_test_partner";
+const BP_IDS=["bp_inv","bp_fee","bp_check","bp_cars","bp_days","bp_exp","bp_roy"];
+const PR_IDS=["pr_fio","pr_inn","pr_ogrn","pr_pass","pr_addr","pr_city","pr_phone","pr_email","pr_num","pr_date"];
+const rub=n=>Math.round(n).toLocaleString("ru-RU")+" ₽";
+function bpValues(){ const v={}; BP_IDS.forEach(id=>v[id]=+F(id).value||0); return v; }
+function bpRows(){
+  const v=bpValues();
+  const rev=v.bp_check*v.bp_cars*v.bp_days;
+  const roy=rev*v.bp_roy/100;
+  const profit=rev-v.bp_exp-roy;
+  const invest=v.bp_inv+v.bp_fee;
+  const payback=profit>0?Math.ceil(invest/profit):null;
+  const margin=rev>0?Math.round(profit/rev*100):0;
+  return [
+    ["Выручка в месяц", rub(rev)],
+    ["Роялти в месяц", rub(roy)],
+    ["Прибыль в месяц", rub(profit)],
+    ["Вложения всего (с паушальным)", rub(invest)],
+    ["Окупаемость", payback?payback+" мес. (~"+(Math.round(payback/12*10)/10)+" г.)":"не окупается при этих параметрах"],
+    ["Рентабельность по выручке", margin+"%"]
+  ];
+}
+function bpRender(){
+  document.getElementById("bp_out").innerHTML=bpRows().map(r=>
+    `<div class="statrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+}
+function bpCopy(){
+  const v=bpValues();
+  const txt="Расчёт бизнес-плана FIT SERVICE\n"+
+    `Инвестиции: ${rub(v.bp_inv)} · Паушальный: ${rub(v.bp_fee)}\n`+
+    `Средний чек: ${rub(v.bp_check)} · Заездов в день: ${v.bp_cars} · Дней/мес: ${v.bp_days}\n`+
+    `Расходы/мес: ${rub(v.bp_exp)} · Роялти: ${v.bp_roy}%\n`+
+    "—\n"+bpRows().map(r=>`${r[0]}: ${r[1]}`).join("\n");
+  navigator.clipboard.writeText(txt).then(()=>toast("Расчёт скопирован")).catch(()=>toast("Не удалось скопировать"));
+}
+function prValues(){ const v={}; PR_IDS.forEach(id=>v[id]=F(id).value.trim()); return v; }
+function fmtDocDate(s){
+  if(!s) return "«___» __________ 20___ г.";
+  const d=new Date(s+"T00:00:00");
+  const M=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+  return `«${d.getDate()}» ${M[d.getMonth()]} ${d.getFullYear()} г.`;
+}
+function partnerBlockHtml(v){
+  return `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%">
+    <tr><td width="35%"><b>ФИО партнёра</b></td><td>${esc(v.pr_fio||"—")}</td></tr>
+    <tr><td><b>ИНН</b></td><td>${esc(v.pr_inn||"—")}</td></tr>
+    <tr><td><b>ОГРНИП / ОГРН</b></td><td>${esc(v.pr_ogrn||"—")}</td></tr>
+    <tr><td><b>Паспорт</b></td><td>${esc(v.pr_pass||"—")}</td></tr>
+    <tr><td><b>Адрес регистрации</b></td><td>${esc(v.pr_addr||"—")}</td></tr>
+    <tr><td><b>Город открытия</b></td><td>${esc(v.pr_city||"—")}</td></tr>
+    <tr><td><b>Телефон</b></td><td>${esc(v.pr_phone||"—")}</td></tr>
+    <tr><td><b>E-mail</b></td><td>${esc(v.pr_email||"—")}</td></tr>
+  </table>`;
+}
+function makeContract(kind){
+  const v=prValues();
+  if(!v.pr_fio){ toast("Заполните хотя бы ФИО партнёра"); F("pr_fio").focus(); return; }
+  persistDocgen();
+  const isDkk=kind==="dkk";
+  const title=isDkk?"ДОГОВОР КОММЕРЧЕСКОЙ КОНЦЕССИИ":"ДОГОВОР О НАМЕРЕНИЯХ";
+  const num=v.pr_num||"____________";
+  const html=`
+    <h2 style="text-align:center">${title}<br>№ ${esc(num)}</h2>
+    <p style="text-align:center">г. ${esc(v.pr_city||"____________")} · ${fmtDocDate(v.pr_date)}</p>
+    <p><b>Правообладатель:</b> [наименование, ИНН и реквизиты компании — из утверждённого шаблона], в дальнейшем «Правообладатель», с одной стороны, и</p>
+    <p><b>${isDkk?"Пользователь":"Партнёр"}:</b> ${esc(v.pr_fio)}, в дальнейшем «${isDkk?"Пользователь":"Партнёр"}», с другой стороны, заключили настоящий договор о нижеследующем.</p>
+    <h3>Реквизиты ${isDkk?"Пользователя":"Партнёра"}</h3>
+    ${partnerBlockHtml(v)}
+    <h3>1. Предмет договора</h3>
+    <p>[Вставьте текст раздела из шаблона ${isDkk?"ДКК":"ДПН"}, утверждённого юристом.]</p>
+    <h3>2. Права и обязанности сторон</h3>
+    <p>[Вставьте текст раздела из утверждённого шаблона.]</p>
+    <h3>3. Финансовые условия</h3>
+    <p>[Вставьте текст раздела из утверждённого шаблона.]</p>
+    <h3>Подписи сторон</h3>
+    <table width="100%"><tr>
+      <td width="50%">Правообладатель:<br><br>_______________ / ____________ /</td>
+      <td width="50%">${isDkk?"Пользователь":"Партнёр"}:<br><br>_______________ / ${esc(v.pr_fio)} /</td>
+    </tr></table>`;
+  const doc=`<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${title}</title></head>`+
+    `<body style="font-family:'Times New Roman',serif;font-size:12pt;line-height:1.4">${html}</body></html>`;
+  download(`${isDkk?"ДКК":"ДПН"}_${(v.pr_fio.split(" ")[0]||"партнёр")}_${v.pr_num||""}.doc`, doc, "application/msword");
+  journalLog(`Создан документ ${isDkk?"ДКК":"ДПН"}`, v.pr_fio);
+  toast(`${isDkk?"ДКК":"ДПН"} скачан — откройте в Word и вставьте текст разделов`);
+}
+function copyPartnerReq(){
+  const v=prValues();
+  const txt=`ФИО: ${v.pr_fio}\nИНН: ${v.pr_inn}\nОГРНИП/ОГРН: ${v.pr_ogrn}\nПаспорт: ${v.pr_pass}\nАдрес: ${v.pr_addr}\nГород открытия: ${v.pr_city}\nТелефон: ${v.pr_phone}\nE-mail: ${v.pr_email}\nДоговор: ${v.pr_num} от ${fmtDocDate(v.pr_date)}`;
+  persistDocgen();
+  navigator.clipboard.writeText(txt).then(()=>toast("Реквизиты скопированы")).catch(()=>toast("Не удалось скопировать"));
+}
+function persistDocgen(){
+  try{
+    localStorage.setItem(BP_KEY, JSON.stringify(bpValues()));
+    localStorage.setItem(PR_KEY, JSON.stringify(prValues()));
+  }catch{}
+}
+let docgenInited=false;
+function renderDocgen(){
+  if(!docgenInited){
+    docgenInited=true;
+    try{
+      const b=JSON.parse(localStorage.getItem(BP_KEY)||"null");
+      if(b) BP_IDS.forEach(id=>{ if(b[id]!=null) F(id).value=b[id]; });
+      const p=JSON.parse(localStorage.getItem(PR_KEY)||"null");
+      if(p) PR_IDS.forEach(id=>{ if(p[id]!=null) F(id).value=p[id]; });
+    }catch{}
+    BP_IDS.forEach(id=>F(id).oninput=()=>{ bpRender(); persistDocgen(); });
+    PR_IDS.forEach(id=>F(id).onchange=persistDocgen);
+  }
+  bpRender();
 }
 
 /* ================= Выгрузки ================= */
